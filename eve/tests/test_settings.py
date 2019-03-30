@@ -243,6 +243,30 @@ products = {
         "parent_product": {"type": "string", "data_relation": {"resource": "products"}},
     },
 }
+
+test_patch = {
+    "datasource": {"source": "test_patch"},
+    "schema": {
+        "name": {"type": "string", "required": True},
+        "contact": {
+            "type": "dict",
+            "required": True,
+            "schema": {
+                "phone": {
+                    "type": "string",
+                    "required": False,
+                    "default": "default_phone",
+                },
+                "email": {
+                    "type": "string",
+                    "required": False,
+                    "default": "default_email",
+                },
+            },
+        },
+    },
+}
+
 child_products = copy.deepcopy(products)
 child_products["url"] = 'products/<regex("[A-Z]+"):parent_product>/children'
 child_products["datasource"] = {"source": "products"}
@@ -276,4 +300,5 @@ DOMAIN = {
     "products": products,
     "child_products": child_products,
     "exclusion": exclusion,
+    "test_patch": test_patch,
 }
