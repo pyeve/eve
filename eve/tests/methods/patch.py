@@ -15,7 +15,7 @@ from eve.tests.utils import DummyEvent
 class TestPatch(TestBase):
     def test_patch_not_override_other_fields(self):
         # create a data
-        r, status = self.post(self.test_patch_url, data={"name": "name"})
+        r, status = self.post(self.test_patch_url, data={"name": "name", "contact": {}})
         self.assert201(status)
         # check the data is created correctly
         data, status = self.get(self.test_patch_url, item=r._id)
