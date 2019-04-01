@@ -253,7 +253,14 @@ class Mongo(DataLayer):
             args["projection"] = projection
 
         self.__last_target = self.pymongo(resource).db[datasource], spec
-        self.__last_cursor = self.pymongo(resource).db[datasource].find(**args)
+        try:
+            self.__last_cursor = self.pymongo(resource).db[datasource].find(**args)
+        except TypeError as e:
+            # pymongo raises ValueError when invalid query paramenters are
+            # included. We do our best to catch them beforehand but, especially
+            # with key/value sort syntax, invalid ones might still slip in.
+            self.app.logger.exception(e)
+            abort(400, description=debug_error_message(str(e)))
 
         return self.__last_cursor
 
