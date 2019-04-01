@@ -1,11 +1,11 @@
 import time
 from datetime import datetime
-
+from random import shuffle
 import simplejson as json
 from bson import ObjectId, decimal128
 from bson.dbref import DBRef
-
-from eve.methods.common import serialize, normalize_dotted_fields
+from eve.tests.suite_generator import EmbeddedDoc
+from eve.methods.common import serialize, normalize_dotted_fields, sort_per_resource
 from eve.tests import TestBase
 from eve.tests.auth import ValidBasicAuth, ValidTokenAuth, ValidHMACAuth
 from eve.tests.test_settings import MONGO_DBNAME
@@ -766,4 +766,9 @@ class TestEmbeddedDocuments(TestBase):
         super(TestEmbeddedDocuments, self).setUp()
 
     def test_sort_per_resource_embedded_docs(self):
-        pass
+        object_ids = [ObjectId() for _ in range(8)]
+        embedded_docs = [EmbeddedDoc(_id=_id).__dict__ for _id in object_ids]
+
+        shuffle(object_ids)
+        sorted_docs = sort_per_resource(embedded_docs, object_ids[:7], "_id")
+        self.assertEqual(len(sorted_docs), 7)
