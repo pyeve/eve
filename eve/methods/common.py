@@ -859,7 +859,7 @@ def sort_per_resource(embedded_docs, id_values_to_sort, id_field_name):
         :param id_field_name: key name of the id field; `_id`
         :return embedded_docs: the list of documents sorted as per input
         """
-    if isinstance(id_values_to_sort, list) and id_values_to_sort is None:
+    if id_values_to_sort is None:
         id_values_to_sort = []
     embedded_docs = [x for x in embedded_docs if x is not None]
     id2dict = dict((d[id_field_name], d) for d in embedded_docs)
