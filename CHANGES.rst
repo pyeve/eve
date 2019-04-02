@@ -17,7 +17,6 @@ Fixed
 ~~~~~
 - Embedded documents not being sorted correctly (`#1217`_)
 - Eve crashes on malformed sort parameters (`#1248`_)
-- PATCH not working as expected for nested document (`#1234`_)
 - Insertion failure when replacing a same document containing dbref (`#1216`_)
 - Datasource projection is not respected for POST requests (`#1189`_)
 - Soft delete removes ``auth_field`` from document (`#1188`_)
