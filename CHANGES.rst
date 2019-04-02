@@ -15,6 +15,7 @@ New
 
 Fixed
 ~~~~~
+- Embedded documents not being sorted correctly (`#1217`_)
 - Eve crashes on malformed sort parameters (`#1248`_)
 - PATCH not working as expected for nested document (`#1234`_)
 - Insertion failure when replacing a same document containing dbref (`#1216`_)
@@ -48,6 +49,7 @@ Improved
   their logic to dedicated methods (`#1194`_)
 - Add a "Python 3 is highly preferred" note on the homepage (`#1198`_)
 
+.. _`#1217`: https://github.com/pyeve/eve/pull/1217
 .. _`#1248`: https://github.com/pyeve/eve/issues/1248
 .. _`#1234`: https://github.com/pyeve/eve/issues/1234
 .. _`#1216`: https://github.com/pyeve/eve/issues/1216
