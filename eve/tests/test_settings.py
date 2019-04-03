@@ -245,20 +245,26 @@ products = {
 }
 
 test_patch = {
-    'datasource': {
-        'source': 'test_patch',
+    "datasource": {"source": "test_patch"},
+    "schema": {
+        "name": {"type": "string", "required": True},
+        "contact": {
+            "type": "dict",
+            "required": True,
+            "schema": {
+                "phone": {
+                    "type": "string",
+                    "required": False,
+                    "default": "default_phone",
+                },
+                "email": {
+                    "type": "string",
+                    "required": False,
+                    "default": "default_email",
+                },
+            },
+        },
     },
-    'schema': {
-        'name': {'type': 'string', 'required': True},
-        'contact': {
-            'type': 'dict',
-            'required': True,
-            'schema': {
-                'phone': {'type': 'string', 'required': False, 'default': 'default_phone'},
-                'email': {'type': 'string', 'required': False, 'default': 'default_email'},
-            }
-        }
-    }
 }
 
 child_products = copy.deepcopy(products)
