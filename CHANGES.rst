@@ -9,7 +9,7 @@ Version 0.8.2
 Breaking changes
 ~~~~~~~~~~~~~~~~
 - Werkzeug v0.15.1+ is required. You want to upgrade, otherwise your Eve
-  environment is likely to break. For the full story, see `#1245`_.
+  environment is likely to break. For the full story, see `#1245`_ and `#1251`_.
 
 New
 ~~~
@@ -20,7 +20,7 @@ New
 
 Fixed
 ~~~~~
-- Unauthorized Exception not working with Werkzeug >= 15.0 (`#1245`_)
+- Unauthorized Exception not working with Werkzeug >= 15.0 (`#1245`_, `#1251`_)
 - Embedded documents not being sorted correctly (`#1217`_)
 - Eve crashes on malformed sort parameters (`#1248`_)
 - Insertion failure when replacing a same document containing dbref (`#1216`_)
@@ -43,7 +43,7 @@ Fixed
 
 Improved
 ~~~~~~~~
-- Bump Werkzeug version to v0.15.1+ (`#1245`_)
+- Bump Werkzeug version to v0.15.1+ (`#1245`_, `#1251`_)
 - Bump PyMongo version to v3.7+ (`#1202`_)
 - Option to omit the aggregation stage when its parameter is empty/unset (`#1209`_)
 - HATEOAS: now the ``_links`` dictionary may have a ``related`` dictionary
@@ -56,6 +56,7 @@ Improved
 - Add a "Python 3 is highly preferred" note on the homepage (`#1198`_)
 - Drop sphinx-contrib-embedly when building docs.
 
+.. _`#1251`: https://github.com/pyeve/eve/pull/1251
 .. _`#1245`: https://github.com/pyeve/eve/pull/1245
 .. _`#1217`: https://github.com/pyeve/eve/pull/1217
 .. _`#1248`: https://github.com/pyeve/eve/issues/1248
