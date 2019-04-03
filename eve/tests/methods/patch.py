@@ -23,7 +23,7 @@ class TestPatch(TestBase):
         self.assertEqual(data.get("name", None), "name")
         self.assertTrue("contact" in data)
         self.assertEqual(data["contact"].get("phone", None), "default_phone")
-        self.assertEqual(data["email"].get("email", None), "default_email")
+        self.assertEqual(data["contact"].get("email", None), "default_email")
 
         # patch the data
         _, status = self.patch(
@@ -36,7 +36,7 @@ class TestPatch(TestBase):
         self.assertEqual(data.get("name", None), "name")
         self.assertTrue("contact" in data)
         self.assertEqual(data["contact"].get("phone", None), "new_phone")
-        self.assertEqual(data["email"].get("email", None), "default_email")
+        self.assertEqual(data["contact"].get("email", None), "default_email")
 
         # patch other field of the data
         _, status = self.patch(
@@ -49,7 +49,7 @@ class TestPatch(TestBase):
         self.assertEqual(data.get("name", None), "name")
         self.assertTrue("contact" in data)
         self.assertEqual(data["contact"].get("phone", None), "new_phone")
-        self.assertEqual(data["email"].get("email", None), "new_email")
+        self.assertEqual(data["contact"].get("email", None), "new_email")
 
     def test_patch_to_resource_endpoint(self):
         _, status = self.patch(self.known_resource_url, data={})
