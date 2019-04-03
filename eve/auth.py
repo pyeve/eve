@@ -9,7 +9,7 @@
     :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-from flask import request, Response, current_app as app, g, abort
+from flask import request, current_app as app, g, abort
 from functools import wraps
 
 
@@ -146,10 +146,11 @@ class BasicAuth(object):
         """ Returns a standard a 401 response that enables basic auth.
         Override if you want to change the response and/or the realm.
         """
-        resp = Response(
-            None, 401, {"WWW-Authenticate": 'Basic realm="%s"' % __package__}
+        abort(
+            401,
+            "Please provide proper credentials",
+            ("WWW-Authenticate", 'Basic realm="%s"' % __package__),
         )
-        abort(401, description="Please provide proper credentials", response=resp)
 
     def authorized(self, allowed_roles, resource, method):
         """ Validates the the current request is allowed to pass through.
@@ -202,12 +203,6 @@ class HMACAuth(BasicAuth):
         """
         raise NotImplementedError
 
-    def authenticate(self):
-        """ Returns a standard a 401. Override if you want to change the
-        response.
-        """
-        abort(401, description="Please provide proper credentials")
-
     def authorized(self, allowed_roles, resource, method):
         """ Validates the the current request is allowed to pass through.
 
@@ -259,15 +254,6 @@ class TokenAuth(BasicAuth):
         :param method: HTTP method being executed (POST, GET, etc.)
         """
         raise NotImplementedError
-
-    def authenticate(self):
-        """ Returns a standard a 401. Override if you want to change the
-        response.
-        """
-        resp = Response(
-            None, 401, {"WWW-Authenticate": 'Basic realm="%s"' % __package__}
-        )
-        abort(401, description="Please provide proper credentials", response=resp)
 
     def authorized(self, allowed_roles, resource, method):
         """ Validates the the current request is allowed to pass through.
