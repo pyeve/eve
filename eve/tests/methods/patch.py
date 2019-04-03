@@ -18,7 +18,7 @@ class TestPatch(TestBase):
         r, status = self.post(self.test_patch_url, data={"name": "name", "contact": {}})
         self.assert201(status)
         # check the data is created correctly
-        data, status = self.get(self.test_patch_url, item=r._id)
+        data, status = self.get(self.test_patch_url, item=r['_id'])
         self.assert200(status)
         self.assertEqual(data.get("name", None), "name")
         self.assertTrue("contact" in data)
@@ -31,7 +31,7 @@ class TestPatch(TestBase):
         )
         self.assert200(status)
         # other fields should not be touched
-        data, status = self.get(self.test_patch_url, item=r._id)
+        data, status = self.get(self.test_patch_url, item=r['_id'])
         self.assert200(status)
         self.assertEqual(data.get("name", None), "name")
         self.assertTrue("contact" in data)
@@ -44,7 +44,7 @@ class TestPatch(TestBase):
         )
         self.assert200(status)
         # other fields should not be touched
-        data, status = self.get(self.test_patch_url, item=r._id)
+        data, status = self.get(self.test_patch_url, item=r['_id'])
         self.assert200(status)
         self.assertEqual(data.get("name", None), "name")
         self.assertTrue("contact" in data)
