@@ -14,6 +14,7 @@ from eve.tests.utils import DummyEvent
 
 class TestPatch(TestBase):
     def test_patch_not_override_other_fields(self):
+        self.app.config["ENFORCE_IF_MATCH"] = False
         # create a data
         r, status = self.post(self.test_patch_url, data={"name": "name", "contact": {}})
         self.assert201(status)
