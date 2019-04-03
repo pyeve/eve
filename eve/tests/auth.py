@@ -66,7 +66,10 @@ class TestBasicAuth(TestBase):
             ("Authorization", "Basic YWRtaW46c2VjcmV0"),
             self.content_type,
         ]
-        self.invalid_auth = [("Authorization", "Basic IDontThinkSo"), self.content_type]
+        self.invalid_auth = [
+            ("Authorization", "Basic YWRtaW46c2VjcmV1"),
+            self.content_type,
+        ]
         self.valid_media_auth = [
             ("Authorization", "Basic YWRtaW46c2VjcmV0"),
             ("Content-Type", "multipart/form-data"),
