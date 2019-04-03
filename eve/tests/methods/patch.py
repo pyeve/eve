@@ -27,7 +27,7 @@ class TestPatch(TestBase):
 
         # patch the data
         _, status = self.patch(
-            self.test_patch_url + "/" + data._id, data={"contact.phone": "new_phone"}
+            self.test_patch_url + "/" + data["_id"], data={"contact.phone": "new_phone"}
         )
         self.assert200(status)
         # other fields should not be touched
@@ -40,7 +40,7 @@ class TestPatch(TestBase):
 
         # patch other field of the data
         _, status = self.patch(
-            self.test_patch_url + "/" + data._id, data={"contact.email": "new_email"}
+            self.test_patch_url + "/" + data["_id"], data={"contact.email": "new_email"}
         )
         self.assert200(status)
         # other fields should not be touched
