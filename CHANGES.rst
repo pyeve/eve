@@ -54,6 +54,7 @@ Improved
 - Make the parsing of ``req.sort`` and ``req.where`` easily reusable by moving
   their logic to dedicated methods (`#1194`_)
 - Add a "Python 3 is highly preferred" note on the homepage (`#1198`_)
+- Drop sphinx-contrib-embedly when building docs.
 
 .. _`#1245`: https://github.com/pyeve/eve/pull/1245
 .. _`#1217`: https://github.com/pyeve/eve/pull/1217
