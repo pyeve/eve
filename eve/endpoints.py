@@ -170,7 +170,8 @@ def error_endpoint(error):
         pass
 
     try:
-        headers.append(error.www_authenticate)
+        if error.www_authenticate != (None,):
+            headers.append(error.www_authenticate)
     except AttributeError:
         pass
 
