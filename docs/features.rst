@@ -734,6 +734,43 @@ a matter of fact, Eve's MongoDB data-layer itself extends Cerberus
 validation by implementing the ``unique`` schema field constraint. For more
 information see :ref:`validation`.
 
+Editing a Document (PATCH)
+--------------------------
+Clients can edit a document with the ``PATCH`` method, while ``PUT`` will
+replace it. ``PATCH`` cannot remove a field, but only update its value.
+
+Consider the following schema:
+
+.. code-block:: javascript
+
+    'entity': {
+        'name': {
+            'type': 'string',
+            'required': True
+        },
+        'contact': {
+            'type': 'dict',
+            'required': True,
+            'schema': {
+                'phone': {
+                    'type': 'string',
+                    'required': False,
+                    'default': '1234567890'
+                },
+                'email': {
+                    'type': 'string',
+                    'required': False,
+                    'default': 'abc@efg.com'
+                },
+            }
+        }
+    }
+
+
+Two notations: ``{contact: {email: 'an email'}}`` and ``{contact.email: 'an
+email'}`` can be used to update the ``email`` field in the ``contact`` subdocument.
+
+
 .. _cache_control:
 
 Resource-level Cache Control
@@ -2281,37 +2318,6 @@ The stage ``{"$match": { "name": "$name", "time": "$time"}}`` in the pipeline wi
 
 The request above will ignore ``"count": {"$sum": "$value"}}``. A
 Custom callback functions can be attached to the ``before_aggregation`` and ``after_aggregation`` event hooks. For more information, see :ref:`aggregation_hooks`.
-
-# Special Note on PATCH
-~~~~~~~~~~~
-``PATCH`` **cannot** remove a field but only update value of the field.
-
-Consider the following schema:
-
-```
-'entity': {
-  'name': {
-    'type': 'string',
-    'required': True },
-  'contact': {
-    'type': 'dict',
-    'required': True,
-    'schema': {
-      'phone': {
-        'type': 'string',
-        'required': False,
-        'default': '1234567890' },
-      'email': {
-        'type': 'string',
-        'required': False,
-        'default': 'abc@efg.com' },
-    }
-  }
-}
-```
-
-Two notations ``contact: { email: 'an email'}`` and ``contact.email: 'an email'`` can be used to update the `email` field embedded in `contact` field.
-
 
 Limitations
 ~~~~~~~~~~~
