@@ -20,6 +20,7 @@ New
 
 Fixed
 ~~~~~
+- PATCH incorrectly normalizes default values in subdocuments (`#1234`_)
 - Unauthorized Exception not working with Werkzeug >= 15.0 (`#1245`_, `#1251`_)
 - Embedded documents not being sorted correctly (`#1217`_)
 - Eve crashes on malformed sort parameters (`#1248`_)
@@ -56,6 +57,7 @@ Improved
 - Add a "Python 3 is highly preferred" note on the homepage (`#1198`_)
 - Drop sphinx-contrib-embedly when building docs.
 
+.. _`#1234`: https://github.com/pyeve/eve/issues/1234
 .. _`#1251`: https://github.com/pyeve/eve/pull/1251
 .. _`#1245`: https://github.com/pyeve/eve/pull/1245
 .. _`#1217`: https://github.com/pyeve/eve/pull/1217
