@@ -9,7 +9,8 @@ Version 0.8.2
 Breaking changes
 ~~~~~~~~~~~~~~~~
 - Werkzeug v0.15.1+ is required. You want to upgrade, otherwise your Eve
-  environment is likely to break. For the full story, see `#1245`_ and `#1251`_.
+  environment is likely to break. For the full story, see `#1245`_ and
+  `#1251`_.
 
 New
 ~~~
@@ -27,7 +28,8 @@ Fixed
 - Insertion failure when replacing a same document containing dbref (`#1216`_)
 - Datasource projection is not respected for POST requests (`#1189`_)
 - Soft delete removes ``auth_field`` from document (`#1188`_)
-- On Mongo 3.6+, we don't return 400 'immutable field' on PATCH and PUT (`#1243`_)
+- On Mongo 3.6+, we don't return 400 'immutable field' on PATCH and PUT
+  (`#1243`_)
 - Expecting JSON response for rate limit exceeded scenario (`#1227`_)
 - Multiple concurrent patches to the same record, from different processes,
   should result in at least one patch failing with a 412 error (Precondition
@@ -39,14 +41,16 @@ Fixed
 - Warning: Unexpected keys present on black: ``python_version`` (`#1244`_)
 - UserWarning: JSON setting is deprecated. Use RENDERERS instead (`#1241`_).
 - DeprecationWarning: decodestring is deprecated, use decodebytes (`#1242`_)
-- DeprecationWarning: count is deprecated. Use Collection.count_documents instead (`#1202`_)
+- DeprecationWarning: count is deprecated. Use Collection.count_documents
+  instead (`#1202`_)
 - Documentation typos (`#1218`_, `#1240`_)
 
 Improved
 ~~~~~~~~
 - Bump Werkzeug version to v0.15.1+ (`#1245`_, `#1251`_)
 - Bump PyMongo version to v3.7+ (`#1202`_)
-- Option to omit the aggregation stage when its parameter is empty/unset (`#1209`_)
+- Option to omit the aggregation stage when its parameter is empty/unset
+  (`#1209`_)
 - HATEOAS: now the ``_links`` dictionary may have a ``related`` dictionary
   inside, and each key-value pair yields the related links for a data relation
   field (`#1204`_)
@@ -104,12 +108,16 @@ New
 
 Fixed
 ~~~~~
-- ``mongo_indexes``: "OperationFailure" when changing the keys of an existing index (`#1180`_)
+- ``mongo_indexes``: "OperationFailure" when changing the keys of an existing
+  index (`#1180`_)
 - v0.8: "OperationFailure" performing MongoDB full text searches (`#1176`_)
-- "AttributeError" on Python 2.7 when obsolete ``JSON`` or ``XML`` settings are used (`#1175`_).
-- "TypeError argument of type 'NoneType' is not iterable" error when using document embedding in conjuction with soft deletes (`#1120`_)
+- "AttributeError" on Python 2.7 when obsolete ``JSON`` or ``XML`` settings
+  are used (`#1175`_).
+- "TypeError argument of type 'NoneType' is not iterable" error when using
+  document embedding in conjuction with soft deletes (`#1120`_)
 - ``allow_unknown`` validation rule fails with nested dict fields (`#1163`_)
-- Updating a field with a nullable data relation fails when value is null (`#1159`_)
+- Updating a field with a nullable data relation fails when value is null
+  (`#1159`_)
 - "cerberus.schema.SchemaError" when ``VALIDATE_FILTERS = True``. (`#1154`_)
 - Serializers fails when array of types is in schema. (`#1112`_)
 - Replace the broken ``make audit`` shortcut with ``make check``, add the
@@ -130,7 +138,7 @@ Docs
 ~~~~
 - Typos (`#1183`_, `#1184`_, `#1185`_)
 - Add ``MONGO_AUTH_SOURCE`` to Quickstart. (`#1168`_)
-- Fix Sphinx-embedly error when embedding speakerdeck.com slide deck. (`#1158`_)
+- Fix Sphinx-embedly error when embedding speakerdeck.com slide deck (`#1158`_)
 - Fix broken link to the Postman app. (`#1150`_)
 - Update obsolete PyPI link in docs sidebar. (`#1152`_)
 - Only display the version number on the docs homepage. (`#1151`_)
@@ -354,7 +362,8 @@ Version 0.7.10
 
 Released on July 15, 2018.
 
-- Fix: Pin Flask-PyMongo dependency to avoid crash with Flask-PyMongo 2. Closes #1172.
+- Fix: Pin Flask-PyMongo dependency to avoid crash with Flask-PyMongo 2.
+  Closes #1172.
 
 Version 0.7.9
 ~~~~~~~~~~~~~
@@ -569,8 +578,9 @@ Released on 6 February, 2017
 
 - Fix: fix intermittently failing test. Closes #934 (Conrad Burchert).
 
-- Fix: Multiple, fast (within a 1 second window) and neutral (no actual changes)
-  PATCH requests should not raise ``412 Precondition Failed``. Closes #920.
+- Fix: Multiple, fast (within a 1 second window) and neutral (no actual
+  changes) PATCH requests should not raise ``412 Precondition Failed``.
+  Closes #920.
 
 - Fix: Resource titles are not properly escaped during the XML rendering of the
   root document (Kris Lambrechts).
@@ -1048,8 +1058,9 @@ Released on 12 Jan, 2015.
 - Change: HATEOAS links are now relative to the API root. Closes #398 #401.
 - Change: If-Modified-Since has been disabled on resource (collections)
   endpoints. Same functionality is available with a ``?where={"_udpated":
-  {"$gt": "<RFC1123 date>"}}`` request. The OpLog also allows retrieving detailed
-  changes happened at any endpoint, deleted documents included. Closes #334.
+  {"$gt": "<RFC1123 date>"}}`` request. The OpLog also allows retrieving
+  detailed changes happened at any endpoint, deleted documents included.
+  Closes #334.
 - Change: etags are now persisted with the documents. This ensures that etags
   are consistent across queries, even when projection queries are issued.
   Please note that etags will only be stored along with new documents created
