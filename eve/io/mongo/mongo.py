@@ -24,6 +24,7 @@ from pymongo import WriteConcern
 from werkzeug.exceptions import HTTPException
 import decimal
 from bson import decimal128
+from collections import OrderedDict
 
 from eve.auth import resource_auth
 from eve.io.base import DataLayer, ConnectionException, BaseJSONEncoder
@@ -41,6 +42,9 @@ class MongoJSONEncoder(BaseJSONEncoder):
     """ Proprietary JSONEconder subclass used by the json render function.
     This is needed to address the encoding of special values.
 
+    .. versionchanged:: 0.8.2
+       Key-value pair order in DBRef are honored when encoding. Closes #1255.
+
     .. versionchanged:: 0.6.2
        Do not attempt to serialize callables. Closes #790.
 
@@ -57,7 +61,9 @@ class MongoJSONEncoder(BaseJSONEncoder):
             # (and we probably don't want it to be exposed anyway). See #790.
             return "<callable>"
         if isinstance(obj, DBRef):
-            retval = {"$id": str(obj.id), "$ref": obj.collection}
+            retval = OrderedDict()
+            retval["$ref"] = obj.collection
+            retval["$id"] = str(obj.id)
             if obj.database:
                 retval["$db"] = obj.database
             return retval
