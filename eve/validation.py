@@ -59,7 +59,13 @@ class Validator(cerberus.Validator):
 
     def _normalize_default(self, mapping, schema, field):
         """ {'nullable': True} """
-        if not self.persisted_document or field not in self.persisted_document:
+
+        challenge = self.persisted_document
+        if challenge:
+            for sub_field in self.document_path:
+                challenge = challenge[sub_field]
+
+        if not challenge or field not in challenge:
             super(Validator, self)._normalize_default(mapping, schema, field)
 
     def _normalize_default_setter(self, mapping, schema, field):
