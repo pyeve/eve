@@ -819,7 +819,7 @@ class Mongo(DataLayer):
                         try:
                             r = ObjectId(unicode(v))
                         except NameError:
-                            # We're on Python 3 so it's all unicode # already.
+                            # We're on Python 3 so it's all unicode already.
                             r = ObjectId(v)
                         return r
                     except:

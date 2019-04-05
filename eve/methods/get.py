@@ -196,7 +196,7 @@ def _perform_aggregation(resource, pipeline, options):
         if len(stage.keys()) > 0:
             req_pipeline_pruned.append(stage)
 
-    if req.max_results > 1:
+    if req.max_results > 0:
         limit = {"$limit": req.max_results}
         skip = {"$skip": (req.page - 1) * req.max_results}
         req_pipeline_pruned.append(skip)
