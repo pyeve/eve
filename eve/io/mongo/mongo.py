@@ -66,7 +66,7 @@ class MongoJSONEncoder(BaseJSONEncoder):
             retval["$id"] = str(obj.id)
             if obj.database:
                 retval["$db"] = obj.database
-            return retval
+            return json.RawJSON(json.dumps(retval))
         if isinstance(obj, decimal128.Decimal128):
             return str(obj)
         # delegate rendering to base class method
