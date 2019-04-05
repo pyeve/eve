@@ -1381,6 +1381,14 @@ class TestGet(TestBase):
         response, status = self.get('aggregate_test?aggregate={"$unknown":1}')
         self.assert200(status)
 
+        # max_results is considered
+        response, status = self.get(
+            'aggregate_test?aggregate={"$field1":1}&max_results=1'
+        )
+        self.assert200(status)
+        docs = response["_items"]
+        self.assertEqual(len(docs), 1)
+
     def test_get_aggregation_parsing(self):
 
         date = datetime.utcnow()
