@@ -21,6 +21,7 @@ New
 
 Fixed
 ~~~~~
+- Insertion failure when replacing unknown field with dbref value (`#1255`_)
 - ``max_results=1`` should be honored on aggregation endpoints (`#1250`_)
 - PATCH incorrectly normalizes default values in subdocuments (`#1234`_)
 - Unauthorized Exception not working with Werkzeug >= 15.0 (`#1245`_, `#1251`_)
@@ -62,6 +63,7 @@ Improved
 - Add a "Python 3 is highly preferred" note on the homepage (`#1198`_)
 - Drop sphinx-contrib-embedly when building docs.
 
+.. _`#1255`: https://github.com/pyeve/eve/issues/1255
 .. _`#1250`: https://github.com/pyeve/eve/issues/1250
 .. _`#1234`: https://github.com/pyeve/eve/issues/1234
 .. _`#1251`: https://github.com/pyeve/eve/pull/1251
