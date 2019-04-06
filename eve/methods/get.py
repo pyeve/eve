@@ -189,9 +189,16 @@ def _perform_aggregation(resource, pipeline, options):
             for stage in req_pipeline:
                 parse_aggregation_stage(stage, key, value)
 
+    # remove the stages whose conditions are not yet set
+    req_pipeline_pruned = []
+    for stage in req_pipeline:
+        prune_aggregation_stage(stage)
+        if len(stage.keys()) > 0:
+            req_pipeline_pruned.append(stage)
+
     paginated_results = []
 
-    if req.max_results > 1:
+    if req.max_results > 0:
         limit = {"$limit": req.max_results}
         skip = {"$skip": (req.page - 1) * req.max_results}
         paginated_results.append(skip)
@@ -207,14 +214,14 @@ def _perform_aggregation(resource, pipeline, options):
 
     facet = {"$facet": facet_pipelines}
 
-    getattr(app, "before_aggregation")(resource, req_pipeline)
+    getattr(app, "before_aggregation")(resource, req_pipeline_pruned)
 
     # Appending $facet afer the before_aggregation hook allows for
     # easy modification of the orginal pipline, however, pagination
     # (skip, limit) cannot be accessed.
-    req_pipeline.append(facet)
+    req_pipeline_pruned.append(facet)
 
-    cursor = app.data.aggregate(resource, req_pipeline, options).next()
+    cursor = app.data.aggregate(resource, req_pipeline_pruned, options).next()
 
     for document in cursor["paginated_results"]:
         documents.append(document)
