@@ -478,7 +478,7 @@ HATEOAS links are always relative to the API entry point, so if your API home
 is at ``examples.com/api/v1``, the ``self`` link in the above example would
 mean that the *people* endpoint is located at ``examples.com/api/v1/people``.
 
-Please note that ``next``, ``previous`` and ``last`` items will only be
+Please note that ``next``, ``previous``, ``last`` and ``related`` items will only be
 included when appropriate.
 
 Disabling HATEOAS
@@ -733,6 +733,43 @@ field actually matches your own country VAT algorithm; you can do that too. As
 a matter of fact, Eve's MongoDB data-layer itself extends Cerberus
 validation by implementing the ``unique`` schema field constraint. For more
 information see :ref:`validation`.
+
+Editing a Document (PATCH)
+--------------------------
+Clients can edit a document with the ``PATCH`` method, while ``PUT`` will
+replace it. ``PATCH`` cannot remove a field, but only update its value.
+
+Consider the following schema:
+
+.. code-block:: javascript
+
+    'entity': {
+        'name': {
+            'type': 'string',
+            'required': True
+        },
+        'contact': {
+            'type': 'dict',
+            'required': True,
+            'schema': {
+                'phone': {
+                    'type': 'string',
+                    'required': False,
+                    'default': '1234567890'
+                },
+                'email': {
+                    'type': 'string',
+                    'required': False,
+                    'default': 'abc@efg.com'
+                },
+            }
+        }
+    }
+
+
+Two notations: ``{contact: {email: 'an email'}}`` and ``{contact.email: 'an
+email'}`` can be used to update the ``email`` field in the ``contact`` subdocument.
+
 
 .. _cache_control:
 
@@ -1270,6 +1307,12 @@ Let's see an overview of what events are available:
 |       |        |      +--------------------------------------------------+
 |       |        |      || ``on_fetched_item_<resource_name>``             |
 |       |        |      || ``def event(response)``                         |
+|       +--------+------+--------------------------------------------------+
+|       |Diffs   |After || ``on_fetched_diffs``                            |
+|       |        |      || ``def event(resource_name, response)``          |
+|       |        |      +--------------------------------------------------+
+|       |        |      || ``on_fetched_diffs_<resource_name>``            |
+|       |        |      || ``def event(response)``                         |
 +-------+--------+------+--------------------------------------------------+
 |Insert |Items   |Before|| ``on_insert``                                   |
 |       |        |      || ``def event(resource_name, items)``             |
@@ -1349,6 +1392,8 @@ These are the fetch events with their method signature:
 - ``on_fetched_resource_<resource_name>(response)``
 - ``on_fetched_item(resource_name, response)``
 - ``on_fetched_item_<resource_name>(response)``
+- ``on_fetched_diffs(resource_name, response)``
+- ``on_fetched_diffs_<resource_name>(response)``
 
 They are raised when items have just been read from the database and are
 about to be sent to the client. Registered callback functions can manipulate
@@ -1374,10 +1419,12 @@ the items as needed before they are returned to the client.
     >>> app.on_fetched_item += before_returning_item
     >>> app.on_fetched_item_contacts += before_returning_contact
 
-It is important to note that fetch events will work with `Document
-Versioning`_ for specific document versions or accessing all document
-versions with ``?version=all``, but they *will not* work when accessing diffs
-of all versions with ``?version=diffs``.
+It is important to note that item fetch events will work with `Document
+Versioning`_ for specific document versions like ``?version=5`` and all
+document versions with ``?version=all``. Accessing diffs of all versions
+with ``?version=diffs`` will only work with the diffs fetch events. Note
+that diffs returns partial documents which should be handled in the
+callback.
 
 
 Insert Events
@@ -2239,6 +2286,37 @@ to a keyword of your liking, just set ``QUERY_AGGREGATION`` in your settings.
 You can also set all options natively supported by PyMongo. For more
 information on aggregation see :ref:`datasource`.
 
+You can pass ``{}`` to fields which you want to ignore. Considering the following pipelines:
+
+::
+
+    posts = {
+        'datasource': {
+            'aggregation': {
+                'pipeline': [
+                    {"$match": { "name": "$name", "time": "$time"}}
+                    {"$unwind": "$tags"},
+                    {"$group": {"_id": "$tags", "count": {"$sum": 1}}},
+                ]
+            }
+        }
+    }
+
+If performing the following request:
+
+::
+
+    $ curl -i http://example.com/posts?aggregate={"$name": {"$regex": "Apple"}, "$time": {}}
+
+The stage ``{"$match": { "name": "$name", "time": "$time"}}`` in the pipeline will be executed as ``{"$match": { "name": {"$regex": "Apple"}}}``. And for the following request:
+
+::
+
+    $ curl -i http://example.com/posts?aggregate={"$name": {}, "$time": {}}
+
+The stage ``{"$match": { "name": "$name", "time": "$time"}}`` in the pipeline will be completely skipped.
+
+The request above will ignore ``"count": {"$sum": "$value"}}``. A
 Custom callback functions can be attached to the ``before_aggregation`` and ``after_aggregation`` event hooks. For more information, see :ref:`aggregation_hooks`.
 
 Limitations

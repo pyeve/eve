@@ -493,7 +493,11 @@ class DataLayer(object):
                             != request_auth_value
                         ):
                             desc = "Incompatible User-Restricted Resource " "request."
-                            abort(401, description=desc)
+                            abort(
+                                401,
+                                desc,
+                                ("WWW-Authenticate", 'Basic realm="%s"' % __package__),
+                            )
                         else:
                             query = self.app.data.combine_queries(
                                 query, {auth_field: request_auth_value}

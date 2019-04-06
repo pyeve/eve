@@ -15,7 +15,7 @@ from datetime import datetime
 from flask import current_app as app, abort
 from eve.utils import config, parse_request, debug_error_message
 from eve.auth import requires_auth
-from eve.validation import DocumentError
+from cerberus.validator import DocumentError
 from eve.methods.common import (
     parse,
     payload,

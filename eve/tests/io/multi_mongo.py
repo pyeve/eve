@@ -223,7 +223,7 @@ class TestMethodsAcrossMultiMongo(TestMultiMongo):
 
         # check if index was created using MONGO1 prefix
         db = self.connection[MONGO1_DBNAME]
-        self.assertTrue("mongodb_features" in db.collection_names())
+        self.assertTrue("mongodb_features" in db.list_collection_names())
         coll = db["mongodb_features"]
         indexes = coll.index_information()
 

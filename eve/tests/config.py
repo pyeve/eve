@@ -84,7 +84,7 @@ class TestConfig(TestBase):
         self.assertEqual(self.app.config["SHOW_DELETED_PARAM"], "show_deleted")
         self.assertEqual(
             self.app.config["STANDARD_ERRORS"],
-            [400, 401, 404, 405, 406, 409, 410, 412, 422, 428],
+            [400, 401, 404, 405, 406, 409, 410, 412, 422, 428, 429],
         )
         self.assertEqual(self.app.config["UPSERT_ON_PUT"], True)
         self.assertEqual(
@@ -173,18 +173,18 @@ class TestConfig(TestBase):
     def test_validate_schema(self):
         # lack of 'collection' key for 'data_collection' rule
         schema = self.domain["invoices"]["schema"]
-        del (schema["person"]["data_relation"]["resource"])
+        del schema["person"]["data_relation"]["resource"]
         self.assertValidateSchemaFailure("invoices", schema, "resource")
 
     def test_validate_invalid_field_names(self):
         schema = self.domain["invoices"]["schema"]
         schema["te$t"] = {"type": "string"}
         self.assertValidateSchemaFailure("invoices", schema, "te$t")
-        del (schema["te$t"])
+        del schema["te$t"]
 
         schema["te.t"] = {"type": "string"}
         self.assertValidateSchemaFailure("invoices", schema, "te.t")
-        del (schema["te.t"])
+        del schema["te.t"]
 
         schema["test_a_dict_schema"] = {
             "type": "dict",
@@ -356,7 +356,7 @@ class TestConfig(TestBase):
         self.assertNotEqual(self.app.config.get("SOURCES"), None)
         self.assertEqual(type(self.app.config["SOURCES"]), dict)
 
-        del (self.domain["internal_transactions"])
+        del self.domain["internal_transactions"]
         for resource, settings in self.domain.items():
             self.assertEqual(
                 settings["datasource"], self.app.config["SOURCES"][resource]
@@ -374,11 +374,11 @@ class TestConfig(TestBase):
     def test_url_rules(self):
         map_adapter = self.app.url_map.bind("")
 
-        del (self.domain["peopleinvoices"])
-        del (self.domain["peoplerequiredinvoices"])
-        del (self.domain["peoplesearches"])
-        del (self.domain["internal_transactions"])
-        del (self.domain["child_products"])
+        del self.domain["peopleinvoices"]
+        del self.domain["peoplerequiredinvoices"]
+        del self.domain["peoplesearches"]
+        del self.domain["internal_transactions"]
+        del self.domain["child_products"]
         for _, settings in self.domain.items():
             for method in settings["resource_methods"]:
                 self.assertTrue(map_adapter.test("/%s/" % settings["url"], method))
@@ -423,7 +423,7 @@ class TestConfig(TestBase):
         self.app.config["OPLOG_ENDPOINT"] = "oplog"
         self.app._init_oplog()
         self.assertOplog("oplog", "oplog")
-        del (self.domain["oplog"])
+        del self.domain["oplog"]
 
         # OPLOG can be also with a custom name (which will be used
         # as the collection/table name on the db)
@@ -431,7 +431,7 @@ class TestConfig(TestBase):
         self.app.config["OPLOG_NAME"] = oplog
         self.app._init_oplog()
         self.assertOplog(oplog, "oplog")
-        del (self.domain[oplog])
+        del self.domain[oplog]
 
         # oplog can be defined as a regular API endpoint, with a couple caveats
         self.domain["oplog"] = {

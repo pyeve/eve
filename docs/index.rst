@@ -35,6 +35,8 @@ community extensions_.
 
 The codebase is thoroughly tested under Python 2.7, 3.4+, and PyPy.
 
+.. note:: The use of **Python 3** is *highly* preferred over Python 2. Consider upgrading your applications and infrastructure if you find yourself *still* using Python 2 in production today.
+
 Eve is Simple
 -------------
 .. code-block:: python

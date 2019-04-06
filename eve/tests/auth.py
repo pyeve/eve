@@ -66,7 +66,10 @@ class TestBasicAuth(TestBase):
             ("Authorization", "Basic YWRtaW46c2VjcmV0"),
             self.content_type,
         ]
-        self.invalid_auth = [("Authorization", "Basic IDontThinkSo"), self.content_type]
+        self.invalid_auth = [
+            ("Authorization", "Basic YWRtaW46c2VjcmV1"),
+            self.content_type,
+        ]
         self.valid_media_auth = [
             ("Authorization", "Basic YWRtaW46c2VjcmV0"),
             ("Content-Type", "multipart/form-data"),
@@ -202,13 +205,13 @@ class TestBasicAuth(TestBase):
         self.app.config["PUBLIC_METHODS"] = ["GET"]
         domain = self.app.config["DOMAIN"]
         for resource, settings in domain.items():
-            del (settings["public_methods"])
+            del settings["public_methods"]
         self.app.set_defaults()
-        del (domain["peopleinvoices"])
-        del (domain["peoplerequiredinvoices"])
-        del (domain["peoplesearches"])
-        del (domain["internal_transactions"])
-        del (domain["child_products"])
+        del domain["peopleinvoices"]
+        del domain["peoplerequiredinvoices"]
+        del domain["peoplesearches"]
+        del domain["internal_transactions"]
+        del domain["child_products"]
         for resource in domain:
             url = self.app.config["URLS"][resource]
             r = self.test_client.get(url)
@@ -223,7 +226,7 @@ class TestBasicAuth(TestBase):
         self.app.config["PUBLIC_METHODS"] = ["GET"]
         domain = self.app.config["DOMAIN"]
         for _, settings in domain.items():
-            del (settings["public_methods"])
+            del settings["public_methods"]
         self.app.set_defaults()
         domain[self.known_resource]["public_methods"] = []
         r = self.test_client.get(self.known_resource_url)
@@ -233,7 +236,7 @@ class TestBasicAuth(TestBase):
         self.app.config["PUBLIC_ITEM_METHODS"] = ["GET"]
         domain = self.app.config["DOMAIN"]
         for _, settings in domain.items():
-            del (settings["public_item_methods"])
+            del settings["public_item_methods"]
         self.app.set_defaults()
         domain[self.known_resource]["public_item_methods"] = []
         r = self.test_client.get(self.item_id_url)
@@ -242,7 +245,7 @@ class TestBasicAuth(TestBase):
     def test_public_methods_item(self):
         self.app.config["PUBLIC_ITEM_METHODS"] = ["GET"]
         for _, settings in self.app.config["DOMAIN"].items():
-            del (settings["public_item_methods"])
+            del settings["public_item_methods"]
         self.app.set_defaults()
         # we're happy with testing just one client endpoint, but for sake of
         # completeness we shold probably test item endpoints for every resource
@@ -836,8 +839,8 @@ class TestUserRestrictedAccess(TestBase):
         _db = self.connection[MONGO_DBNAME]
 
         # make sure that other documents in the collections are untouched.
-        cursor = _db.contacts.find()
-        docs_num = cursor.count()
+        _db.contacts.find()
+        docs_num = _db.contacts.count_documents({})
 
         _, _ = self.post()
 
@@ -865,15 +868,13 @@ class TestUserRestrictedAccess(TestBase):
         self.assertEqual(len(response[self.app.config["ITEMS"]]), 0)
 
         # make sure no other document has been deleted.
-        cursor = _db.contacts.find()
-        self.assertEqual(cursor.count(), docs_num)
+        self.assertEqual(_db.contacts.count_documents({}), docs_num)
 
     def test_delete_item(self):
         _db = self.connection[MONGO_DBNAME]
 
         # make sure that other documents in the collections are untouched.
-        cursor = _db.contacts.find()
-        docs_num = cursor.count()
+        docs_num = _db.contacts.count_documents({})
 
         data, _ = self.post()
 
@@ -890,8 +891,34 @@ class TestUserRestrictedAccess(TestBase):
         self.assert204(status)
 
         # make sure no other document has been deleted.
-        cursor = _db.contacts.find()
-        self.assertEqual(cursor.count(), docs_num)
+        self.assertEqual(_db.contacts.count_documents({}), docs_num)
+
+    def test_delete_item_soft_delete_enabled(self):
+        self.app.config["DOMAIN"]["restricted"]["soft_delete"] = True
+        _db = self.connection[MONGO_DBNAME]
+        docs_num = _db.contacts.count_documents({})
+
+        data, _ = self.post()
+
+        url = "%s/%s" % (self.url, data["_id"])
+        response = self.test_client.get(url, headers=self.valid_auth)
+        etag = response.headers["ETag"]
+        headers = [("If-Match", etag), ("Authorization", "Basic YWRtaW46c2VjcmV0")]
+
+        # delete the document
+        response, status = self.parse_response(
+            self.test_client.delete(url, headers=headers)
+        )
+        self.assert204(status)
+
+        # make sure no other document has been deleted.
+        self.assertEqual(
+            _db.contacts.count_documents({"_deleted": {"$ne": True}}), docs_num
+        )
+        self.assertEqual(_db.contacts.count_documents({"_deleted": True}), 1)
+
+        challenge = _db.contacts.find_one({"_deleted": True})
+        self.assertEqual(challenge["username"], "admin")
 
     def post(self):
         r = self.test_client.post(

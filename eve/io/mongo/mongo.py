@@ -24,6 +24,7 @@ from pymongo import WriteConcern
 from werkzeug.exceptions import HTTPException
 import decimal
 from bson import decimal128
+from collections import OrderedDict
 
 from eve.auth import resource_auth
 from eve.io.base import DataLayer, ConnectionException, BaseJSONEncoder
@@ -41,6 +42,9 @@ class MongoJSONEncoder(BaseJSONEncoder):
     """ Proprietary JSONEconder subclass used by the json render function.
     This is needed to address the encoding of special values.
 
+    .. versionchanged:: 0.8.2
+       Key-value pair order in DBRef are honored when encoding. Closes #1255.
+
     .. versionchanged:: 0.6.2
        Do not attempt to serialize callables. Closes #790.
 
@@ -57,7 +61,9 @@ class MongoJSONEncoder(BaseJSONEncoder):
             # (and we probably don't want it to be exposed anyway). See #790.
             return "<callable>"
         if isinstance(obj, DBRef):
-            retval = {"$id": str(obj.id), "$ref": obj.collection}
+            retval = OrderedDict()
+            retval["$ref"] = obj.collection
+            retval["$id"] = str(obj.id)
             if obj.database:
                 retval["$db"] = obj.database
             return retval
@@ -94,7 +100,9 @@ class Mongo(DataLayer):
             str(v).lower()
         ],
         "dbref": lambda value: DBRef(
-            value["$col"], value["$id"], value["$db"] if "$db" in value else None
+            value["$col"] if "$col" in value else value["$ref"],
+            value["$id"],
+            value["$db"] if "$db" in value else None,
         )
         if value is not None
         else None,
@@ -117,6 +125,7 @@ class Mongo(DataLayer):
         + ["$geometry", "$maxDistance", "$box"]
         + ["$all", "$elemMatch", "$size"]
         + ["$bitsAllClear", "$bitsAllSet", "$bitsAnyClear", "$bitsAnySet"]
+        + ["$center", "$expr"]
     )
 
     def init_app(self, app):
@@ -209,45 +218,8 @@ class Mongo(DataLayer):
         # TODO should validate on unknown sort fields (mongo driver doesn't
         # return an error)
 
-        client_sort = {}
-        spec = {}
-
-        if req and req.sort:
-            try:
-                # assume it's mongo syntax (ie. ?sort=[("name", 1)])
-                client_sort = ast.literal_eval(req.sort)
-            except ValueError:
-                # it's not mongo so let's see if it's a comma delimited string
-                # instead (ie. "?sort=-age, name").
-                sort = []
-                for sort_arg in [s.strip() for s in req.sort.split(",")]:
-                    if sort_arg[0] == "-":
-                        sort.append((sort_arg[1:], -1))
-                    else:
-                        sort.append((sort_arg, 1))
-                if len(sort) > 0:
-                    client_sort = sort
-            except Exception as e:
-                self.app.logger.exception(e)
-                abort(400, description=debug_error_message(str(e)))
-
-        if req and req.where:
-            try:
-                spec = self._sanitize(json.loads(req.where))
-            except HTTPException as e:
-                # _sanitize() is raising an HTTP exception; let it fire.
-                raise
-            except:
-                # couldn't parse as mongo query; give the python parser a shot.
-                try:
-                    spec = parse(req.where)
-                except ParseError:
-                    abort(
-                        400,
-                        description=debug_error_message(
-                            "Unable to parse `where` clause"
-                        ),
-                    )
+        client_sort = self._convert_sort_request_to_dict(req)
+        spec = self._convert_where_request_to_dict(req)
 
         bad_filter = validate_filters(spec, resource)
         if bad_filter:
@@ -286,7 +258,40 @@ class Mongo(DataLayer):
         if projection:
             args["projection"] = projection
 
-        return self.pymongo(resource).db[datasource].find(**args)
+        self.__last_target = self.pymongo(resource).db[datasource], spec
+        try:
+            self.__last_cursor = self.pymongo(resource).db[datasource].find(**args)
+        except TypeError as e:
+            # pymongo raises ValueError when invalid query paramenters are
+            # included. We do our best to catch them beforehand but, especially
+            # with key/value sort syntax, invalid ones might still slip in.
+            self.app.logger.exception(e)
+            abort(400, description=debug_error_message(str(e)))
+
+        return self.__last_cursor
+
+    @property
+    def last_documents_count(self):
+        if not self.__last_target:
+            return None
+
+        try:
+            target, spec = self.__last_target
+            return target.count_documents(spec)
+        except:
+            # fallback to deprecated method. this might happen when the query
+            # includes operators not supported by count_documents(). one
+            # documented use-case is when we're running on mongo 3.4 and below,
+            # which does not support $expr ($expr must replace $where # in
+            # count_documents()).
+
+            # 1. Mongo 3.6+; $expr: pass
+            # 2. Mongo 3.6+; $where: pass (via fallback)
+            # 3. Mongo 3.4; $where: pass (via fallback)
+            # 4. Mongo 3.4; $expr: fail (operator not supported by db)
+
+            # See: http://api.mongodb.com/python/current/api/pymongo/collection.html#pymongo.collection.Collection.count
+            return self.__last_cursor.count()
 
     def find_one(
         self,
@@ -506,9 +511,18 @@ class Mongo(DataLayer):
 
         coll = self.get_collection_with_write_concern(datasource, resource)
         try:
-            coll.replace_one(filter_, changes) if replace else coll.update_one(
-                filter_, changes
+            result = (
+                coll.replace_one(filter_, changes)
+                if replace
+                else coll.update_one(filter_, changes)
             )
+            if (
+                config.ETAG in original
+                and result
+                and result.acknowledged
+                and result.modified_count == 0
+            ):
+                raise self.OriginalChangedError()
         except pymongo.errors.DuplicateKeyError as e:
             abort(
                 400,
@@ -520,7 +534,8 @@ class Mongo(DataLayer):
             # server error codes and messages changed between 2.4 and 2.6/3.0.
             server_version = self.driver.db.client.server_info()["version"][:3]
             if (server_version == "2.4" and e.code in (13596, 10148)) or (
-                server_version in ("2.6", "3.0", "3.2", "3.4") and e.code in (66, 16837)
+                server_version in ("2.6", "3.0", "3.2", "3.4", "3.6", "4.0")
+                and e.code in (66, 16837)
             ):
                 # attempt to update an immutable field. this usually
                 # happens when a PATCH or PUT includes a mismatching ID_FIELD.
@@ -731,10 +746,11 @@ class Mongo(DataLayer):
         return True
 
     def is_empty(self, resource):
-        """ Returns True if resource is empty; False otherwise. If there is no
-        predefined filter on the resource we're relying on the
-        db.collection.count(). However, if we do have a predefined filter we
-        have to fallback on the find() method, which can be much slower.
+        """ Returns True if resource is empty; False otherwise. If there is
+        no predefined filter on the resource we're relying on the
+        db.collection.count_documents. However, if we do have a predefined
+        filter we have to fallback on the find() method, which can be much
+        slower.
 
         .. versionchanged:: 0.6
            Support for multiple databases.
@@ -747,7 +763,7 @@ class Mongo(DataLayer):
             if not filter_:
                 # faster, but we can only afford it if there's now predefined
                 # filter on the datasource.
-                return coll.count() == 0
+                return coll.count_documents({}) == 0
             else:
                 # fallback on find() since we have a filter to apply.
                 try:
@@ -756,7 +772,7 @@ class Mongo(DataLayer):
                     del filter_[config.LAST_UPDATED]
                 except:
                     pass
-                return coll.find(filter_).count() == 0
+                return coll.count_documents(filter_) == 0
         except pymongo.errors.OperationFailure as e:
             # see comment in :func:`insert()`.
             self.app.logger.exception(e)
@@ -803,7 +819,7 @@ class Mongo(DataLayer):
                         try:
                             r = ObjectId(unicode(v))
                         except NameError:
-                            # We're on Python 3 so it's all unicode # already.
+                            # We're on Python 3 so it's all unicode already.
                             r = ObjectId(v)
                         return r
                     except:
@@ -869,6 +885,55 @@ class Mongo(DataLayer):
                 self._sanitize(value)
 
         return spec
+
+    def _convert_sort_request_to_dict(self, req):
+        """ Converts the contents of a `ParsedRequest`'s `sort` property to
+        a dict
+        """
+        client_sort = {}
+        if req and req.sort:
+            try:
+                # assume it's mongo syntax (ie. ?sort=[("name", 1)])
+                client_sort = ast.literal_eval(req.sort)
+            except ValueError:
+                # it's not mongo so let's see if it's a comma delimited string
+                # instead (ie. "?sort=-age, name").
+                sort = []
+                for sort_arg in [s.strip() for s in req.sort.split(",")]:
+                    if sort_arg[0] == "-":
+                        sort.append((sort_arg[1:], -1))
+                    else:
+                        sort.append((sort_arg, 1))
+                if len(sort) > 0:
+                    client_sort = sort
+            except Exception as e:
+                self.app.logger.exception(e)
+                abort(400, description=debug_error_message(str(e)))
+        return client_sort
+
+    def _convert_where_request_to_dict(self, req):
+        """ Converts the contents of a `ParsedRequest`'s `where` property to
+        a dict
+        """
+        query = {}
+        if req and req.where:
+            try:
+                query = self._sanitize(json.loads(req.where))
+            except HTTPException:
+                # _sanitize() is raising an HTTP exception; let it fire.
+                raise
+            except:
+                # couldn't parse as mongo query; give the python parser a shot.
+                try:
+                    query = parse(req.where)
+                except ParseError:
+                    abort(
+                        400,
+                        description=debug_error_message(
+                            "Unable to parse `where` clause"
+                        ),
+                    )
+        return query
 
     def _wc(self, resource):
         """ Syntactic sugar for the current collection write_concern setting.

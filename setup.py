@@ -15,12 +15,13 @@ INSTALL_REQUIRES = [
     "cerberus>=1.1",
     "events>=0.3,<0.4",
     "flask>=1.0",
-    "pymongo>=3.5",
+    "pymongo>=3.7",
     "simplejson>=3.3.0,<4.0",
+    "werkzeug>=0.15.1",
 ]
 
 EXTRAS_REQUIRE = {
-    "docs": ["sphinx", "alabaster", "sphinxcontrib-embedly"],
+    "docs": ["sphinx", "alabaster"],
     "tests": ["redis", "testfixtures", "pytest", "tox"],
 }
 EXTRAS_REQUIRE["dev"] = EXTRAS_REQUIRE["tests"] + EXTRAS_REQUIRE["docs"]
@@ -58,6 +59,7 @@ setup(
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
         "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
         "Topic :: Software Development :: Libraries :: Application Frameworks",

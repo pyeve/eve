@@ -1161,7 +1161,7 @@ streams.
 ::
 
     # 'people' schema definition
-    'schema'= {
+    schema = {
         'firstname': {
             'type': 'string',
             'minlength': 1,
