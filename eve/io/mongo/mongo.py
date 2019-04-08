@@ -66,7 +66,7 @@ class MongoJSONEncoder(BaseJSONEncoder):
             retval["$id"] = str(obj.id)
             if obj.database:
                 retval["$db"] = obj.database
-            return retval
+            return json.RawJSON(json.dumps(retval))
         if isinstance(obj, decimal128.Decimal128):
             return str(obj)
         # delegate rendering to base class method
@@ -495,6 +495,9 @@ class Mongo(DataLayer):
     def _change_request(self, resource, id_, changes, original, replace=False):
         """ Performs a change, be it a replace or update.
 
+        .. versionchanged:: 0.8.2
+           Return 400 if update/replace with malformed DBRef field. See #1257.
+
         .. versionchanged:: 0.6.1
            Support for PyMongo 3.0.
 
@@ -529,6 +532,11 @@ class Mongo(DataLayer):
                 description=debug_error_message(
                     "pymongo.errors.DuplicateKeyError: %s" % e
                 ),
+            )
+        except pymongo.errors.WriteError as e:
+            abort(
+                400,
+                description=debug_error_message("pymongo.errors.WriteError: %s" % e),
             )
         except pymongo.errors.OperationFailure as e:
             # server error codes and messages changed between 2.4 and 2.6/3.0.
