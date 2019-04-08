@@ -533,12 +533,7 @@ class Mongo(DataLayer):
                     "pymongo.errors.DuplicateKeyError: %s" % e
                 ),
             )
-        except pymongo.errors.WriteError as e:
-            abort(
-                400,
-                description=debug_error_message("pymongo.errors.WriteError: %s" % e),
-            )
-        except pymongo.errors.OperationFailure as e:
+        except (pymongo.errors.WriteError, pymongo.errors.OperationFailure) as e:
             # server error codes and messages changed between 2.4 and 2.6/3.0.
             server_version = self.driver.db.client.server_info()["version"][:3]
             if (server_version == "2.4" and e.code in (13596, 10148)) or (
