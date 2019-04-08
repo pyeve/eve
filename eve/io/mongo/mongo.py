@@ -536,9 +536,7 @@ class Mongo(DataLayer):
         except pymongo.errors.WriteError as e:
             abort(
                 400,
-                description=debug_error_message(
-                    "pymongo.errors.WriteError: %s" % e
-                ),
+                description=debug_error_message("pymongo.errors.WriteError: %s" % e),
             )
         except pymongo.errors.OperationFailure as e:
             # server error codes and messages changed between 2.4 and 2.6/3.0.
