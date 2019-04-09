@@ -6,10 +6,92 @@ Here you can see the full list of changes between each Eve release.
 Version 0.8.2
 -------------
 
+Breaking changes
+~~~~~~~~~~~~~~~~
+- Werkzeug v0.15.1+ is required. You want to upgrade, otherwise your Eve
+  environment is likely to break. For the full story, see `#1245`_ and
+  `#1251`_.
+
+New
+~~~
+- ``on_fetched_diffs`` event hooks (`#1224`_)
+- Python 3.7 added to the CI matrix (`#1199`_)
+- Support for Mongo 3.6+ ``$expr`` query operator.
+- Support for Mongo 3.6+ ``$center`` query operator.
+
 Fixed
 ~~~~~
+- Insertion failure when replacing unknown field with dbref value (`#1255`_)
+- ``max_results=1`` should be honored on aggregation endpoints (`#1250`_)
+- PATCH incorrectly normalizes default values in subdocuments (`#1234`_)
+- Unauthorized Exception not working with Werkzeug >= 15.0 (`#1245`_, `#1251`_)
+- Embedded documents not being sorted correctly (`#1217`_)
+- Eve crashes on malformed sort parameters (`#1248`_)
+- Insertion failure when replacing a same document containing dbref (`#1216`_)
+- Datasource projection is not respected for POST requests (`#1189`_)
+- Soft delete removes ``auth_field`` from document (`#1188`_)
+- On Mongo 3.6+, we don't return 400 'immutable field' on PATCH and PUT
+  (`#1243`_)
+- Expecting JSON response for rate limit exceeded scenario (`#1227`_)
+- Multiple concurrent patches to the same record, from different processes,
+  should result in at least one patch failing with a 412 error (Precondition
+  Failed) (`#1231`_)
+- Embedding only does not follow ``data_relation.field`` (`#1069`_)
+- HATEOAS ``_links`` seems to get an extra ``&version=diffs`` (`#1228`_)
+- Do not alter ETag when performing an oplog_push (`#1206`_)
 - CORS response headers missing for media endpoint (`#1197`_)
+- Warning: Unexpected keys present on black: ``python_version`` (`#1244`_)
+- UserWarning: JSON setting is deprecated. Use RENDERERS instead (`#1241`_).
+- DeprecationWarning: decodestring is deprecated, use decodebytes (`#1242`_)
+- DeprecationWarning: count is deprecated. Use Collection.count_documents
+  instead (`#1202`_)
+- Documentation typos (`#1218`_, `#1240`_)
 
+Improved
+~~~~~~~~
+- Bump Werkzeug version to v0.15.1+ (`#1245`_, `#1251`_)
+- Bump PyMongo version to v3.7+ (`#1202`_)
+- Option to omit the aggregation stage when its parameter is empty/unset
+  (`#1209`_)
+- HATEOAS: now the ``_links`` dictionary may have a ``related`` dictionary
+  inside, and each key-value pair yields the related links for a data relation
+  field (`#1204`_)
+- XML renderer now supports data field tag attributes such as ``href`` and
+  ``title`` (`#1204`_)
+- Make the parsing of ``req.sort`` and ``req.where`` easily reusable by moving
+  their logic to dedicated methods (`#1194`_)
+- Add a "Python 3 is highly preferred" note on the homepage (`#1198`_)
+- Drop sphinx-contrib-embedly when building docs.
+
+.. _`#1255`: https://github.com/pyeve/eve/issues/1255
+.. _`#1250`: https://github.com/pyeve/eve/issues/1250
+.. _`#1234`: https://github.com/pyeve/eve/issues/1234
+.. _`#1251`: https://github.com/pyeve/eve/pull/1251
+.. _`#1245`: https://github.com/pyeve/eve/pull/1245
+.. _`#1217`: https://github.com/pyeve/eve/pull/1217
+.. _`#1248`: https://github.com/pyeve/eve/issues/1248
+.. _`#1234`: https://github.com/pyeve/eve/issues/1234
+.. _`#1216`: https://github.com/pyeve/eve/issues/1216
+.. _`#1244`: https://github.com/pyeve/eve/issues/1244
+.. _`#1189`: https://github.com/pyeve/eve/issues/1189
+.. _`#1188`: https://github.com/pyeve/eve/issues/1188
+.. _`#1198`: https://github.com/pyeve/eve/issues/1198
+.. _`#1199`: https://github.com/pyeve/eve/issues/1199
+.. _`#1243`: https://github.com/pyeve/eve/issues/1243
+.. _`#1241`: https://github.com/pyeve/eve/issues/1241
+.. _`#1242`: https://github.com/pyeve/eve/issues/1242
+.. _`#1202`: https://github.com/pyeve/eve/issues/1202
+.. _`#1240`: https://github.com/pyeve/eve/issues/1240
+.. _`#1227`: https://github.com/pyeve/eve/issues/1227
+.. _`#1231`: https://github.com/pyeve/eve/issues/1231
+.. _`#1069`: https://github.com/pyeve/eve/issues/1069
+.. _`#1224`: https://github.com/pyeve/eve/pull/1224
+.. _`#1228`: https://github.com/pyeve/eve/pull/1228
+.. _`#1218`: https://github.com/pyeve/eve/pull/1218
+.. _`#1209`: https://github.com/pyeve/eve/issues/1209
+.. _`#1206`: https://github.com/pyeve/eve/issues/1206
+.. _`#1204`: https://github.com/pyeve/eve/pull/1204
+.. _`#1194`: https://github.com/pyeve/eve/pull/1194
 .. _`#1197`: https://github.com/pyeve/eve/issues/1197
 
 Version 0.8.1
@@ -30,12 +112,16 @@ New
 
 Fixed
 ~~~~~
-- ``mongo_indexes``: "OperationFailure" when changing the keys of an existing index (`#1180`_)
+- ``mongo_indexes``: "OperationFailure" when changing the keys of an existing
+  index (`#1180`_)
 - v0.8: "OperationFailure" performing MongoDB full text searches (`#1176`_)
-- "AttributeError" on Python 2.7 when obsolete ``JSON`` or ``XML`` settings are used (`#1175`_).
-- "TypeError argument of type 'NoneType' is not iterable" error when using document embedding in conjuction with soft deletes (`#1120`_)
+- "AttributeError" on Python 2.7 when obsolete ``JSON`` or ``XML`` settings
+  are used (`#1175`_).
+- "TypeError argument of type 'NoneType' is not iterable" error when using
+  document embedding in conjuction with soft deletes (`#1120`_)
 - ``allow_unknown`` validation rule fails with nested dict fields (`#1163`_)
-- Updating a field with a nullable data relation fails when value is null (`#1159`_)
+- Updating a field with a nullable data relation fails when value is null
+  (`#1159`_)
 - "cerberus.schema.SchemaError" when ``VALIDATE_FILTERS = True``. (`#1154`_)
 - Serializers fails when array of types is in schema. (`#1112`_)
 - Replace the broken ``make audit`` shortcut with ``make check``, add the
@@ -56,7 +142,7 @@ Docs
 ~~~~
 - Typos (`#1183`_, `#1184`_, `#1185`_)
 - Add ``MONGO_AUTH_SOURCE`` to Quickstart. (`#1168`_)
-- Fix Sphinx-embedly error when embedding speakerdeck.com slide deck. (`#1158`_)
+- Fix Sphinx-embedly error when embedding speakerdeck.com slide deck (`#1158`_)
 - Fix broken link to the Postman app. (`#1150`_)
 - Update obsolete PyPI link in docs sidebar. (`#1152`_)
 - Only display the version number on the docs homepage. (`#1151`_)
@@ -280,7 +366,8 @@ Version 0.7.10
 
 Released on July 15, 2018.
 
-- Fix: Pin Flask-PyMongo dependency to avoid crash with Flask-PyMongo 2. Closes #1172.
+- Fix: Pin Flask-PyMongo dependency to avoid crash with Flask-PyMongo 2.
+  Closes #1172.
 
 Version 0.7.9
 ~~~~~~~~~~~~~
@@ -495,8 +582,9 @@ Released on 6 February, 2017
 
 - Fix: fix intermittently failing test. Closes #934 (Conrad Burchert).
 
-- Fix: Multiple, fast (within a 1 second window) and neutral (no actual changes)
-  PATCH requests should not raise ``412 Precondition Failed``. Closes #920.
+- Fix: Multiple, fast (within a 1 second window) and neutral (no actual
+  changes) PATCH requests should not raise ``412 Precondition Failed``.
+  Closes #920.
 
 - Fix: Resource titles are not properly escaped during the XML rendering of the
   root document (Kris Lambrechts).
@@ -974,8 +1062,9 @@ Released on 12 Jan, 2015.
 - Change: HATEOAS links are now relative to the API root. Closes #398 #401.
 - Change: If-Modified-Since has been disabled on resource (collections)
   endpoints. Same functionality is available with a ``?where={"_udpated":
-  {"$gt": "<RFC1123 date>"}}`` request. The OpLog also allows retrieving detailed
-  changes happened at any endpoint, deleted documents included. Closes #334.
+  {"$gt": "<RFC1123 date>"}}`` request. The OpLog also allows retrieving
+  detailed changes happened at any endpoint, deleted documents included.
+  Closes #334.
 - Change: etags are now persisted with the documents. This ensures that etags
   are consistent across queries, even when projection queries are issued.
   Please note that etags will only be stored along with new documents created

@@ -106,7 +106,7 @@ class TestPut(TestBase):
         self.assertTrue("OK" in r[STATUS])
 
     def test_put_x_www_form_urlencoded_number_serialization(self):
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         field = "anumber"
         test_value = 41
         changes = {field: test_value}
@@ -313,7 +313,7 @@ class TestPut(TestBase):
     def test_put_dependency_fields_with_default(self):
         # Test that if a dependency is missing but has a default value then the
         # field is still accepted. See #353.
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         field = "dependency_field2"
         test_value = "a value"
         changes = {field: test_value}
@@ -323,7 +323,7 @@ class TestPut(TestBase):
 
     def test_put_dependency_fields_with_wrong_value(self):
         # Test that if a dependency is not met, the put is refused
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         r, status = self.put(
             self.item_id_url,
             data={"dependency_field3": "value"},

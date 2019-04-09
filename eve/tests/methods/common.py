@@ -1,11 +1,11 @@
 import time
 from datetime import datetime
-
+from random import shuffle
 import simplejson as json
 from bson import ObjectId, decimal128
 from bson.dbref import DBRef
-
-from eve.methods.common import serialize, normalize_dotted_fields
+from eve.tests.suite_generator import EmbeddedDoc
+from eve.methods.common import serialize, normalize_dotted_fields, sort_per_resource
 from eve.tests import TestBase
 from eve.tests.auth import ValidBasicAuth, ValidTokenAuth, ValidHMACAuth
 from eve.tests.test_settings import MONGO_DBNAME
@@ -533,9 +533,8 @@ class TestOpLogEndpointDisabled(TestOpLogBase):
 
         # however the oplog collection has been updated.
         db = self.connection[MONGO_DBNAME]
-        cursor = db.oplog.find()
-        self.assertEqual(cursor.count(), 1)
-        self.assertOpLogEntry(cursor[0], "POST")
+        self.assertEqual(db.oplog.count_documents({}), 1)
+        self.assertOpLogEntry(db.oplog.find()[0], "POST")
 
 
 class TestOpLogEndpointEnabled(TestOpLogBase):
@@ -570,9 +569,9 @@ class TestOpLogEndpointEnabled(TestOpLogBase):
 
         # however the oplog collection has the field.
         db = self.connection[MONGO_DBNAME]
-        cursor = db.oplog.find()
-        self.assertEqual(cursor.count(), 1)
-        oplog_entry = cursor[0]
+        db.oplog.find()
+        self.assertEqual(db.oplog.count_documents({}), 1)
+        oplog_entry = db.oplog.find()[0]
         self.assertTrue("extra" in oplog_entry)
         self.assertTrue("customvalue" in oplog_entry["extra"]["customfield"])
 
@@ -603,6 +602,23 @@ class TestOpLogEndpointEnabled(TestOpLogBase):
         oplog_entry = r["_items"][0]
         self.assertOpLogEntry(oplog_entry, "POST")
         self.assertTrue("extra" not in oplog_entry)
+
+    def test_post_oplog_does_not_alter_document(self):
+        """ Make sure we don't alter document ETag when performing an
+        oplog_push. See #590 and #1206. """
+        self.app.config["OPLOG_CHANGE_METHODS"].append("POST")
+        r = self.test_client.post(
+            self.different_resource_url,
+            data=json.dumps({"username": "test", "ref": "1234567890123456789012345"}),
+            headers=self.headers,
+            environ_base={"REMOTE_ADDR": "127.0.0.1"},
+        )
+
+        item_id = json.loads(r.get_data())["_id"]
+        etag1 = json.loads(r.get_data())["_etag"]
+        item, _ = self.get(self.different_resource, item=item_id)
+        etag2 = item["_etag"]
+        self.assertEqual(etag1, etag2)
 
     def test_patch_oplog(self):
         self.headers.append(("If-Match", self.item_etag))
@@ -743,3 +759,16 @@ class TestTickets(TestBase):
         # See https://github.com/pyeve/eve/issues/681
         with self.app.test_request_context("not_an_existing_endpoint"):
             self.app.data.driver.db["again"]
+
+
+class TestEmbeddedDocuments(TestBase):
+    def setUp(self, url_converters=None):
+        super(TestEmbeddedDocuments, self).setUp()
+
+    def test_sort_per_resource_embedded_docs(self):
+        object_ids = [ObjectId() for _ in range(8)]
+        embedded_docs = [EmbeddedDoc(_id=_id).__dict__ for _id in object_ids]
+
+        shuffle(object_ids)
+        sorted_docs = sort_per_resource(embedded_docs, object_ids[:7], "_id")
+        self.assertEqual(len(sorted_docs), 7)

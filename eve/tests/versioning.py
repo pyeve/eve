@@ -30,14 +30,12 @@ class TestVersioningBase(TestBase):
         self.connection.close()
 
     def enableVersioning(self, partial=False):
-        del (self.domain["contacts"]["schema"]["title"]["default"])
-        del (self.domain["contacts"]["schema"]["dependency_field1"]["default"])
-        del (self.domain["contacts"]["schema"]["read_only_field"]["default"])
-        del (
-            self.domain["contacts"]["schema"]["dict_with_read_only"]["schema"][
-                "read_only_in_dict"
-            ]["default"]
-        )
+        del self.domain["contacts"]["schema"]["title"]["default"]
+        del self.domain["contacts"]["schema"]["dependency_field1"]["default"]
+        del self.domain["contacts"]["schema"]["read_only_field"]["default"]
+        del self.domain["contacts"]["schema"]["dict_with_read_only"]["schema"][
+            "read_only_in_dict"
+        ]["default"]
         if partial is True:
             contact_schema = self.domain["contacts"]["schema"]
             contact_schema[self.unversioned_field]["versioned"] = False
@@ -107,16 +105,14 @@ class TestVersioningBase(TestBase):
         if _id is not None:
             query[self.id_field] = ObjectId(_id)
 
-        documents = self._db[self.known_resource].find(query)
-        return documents.count()
+        return self._db[self.known_resource].count_documents(query)
 
     def countShadowDocuments(self, _id=None):
         query = {}
         if _id is not None:
             query[self.document_id_field] = ObjectId(_id)
 
-        documents = self._db[self.known_resource_shadow].find(query)
-        return documents.count()
+        return self._db[self.known_resource_shadow].count_documents(query)
 
     def assertGoodPutPatch(self, response, status):
         self.assert200(status)
@@ -508,6 +504,65 @@ class TestCompleteVersioning(TestNormalVersioning):
             self.known_resource, item=self.item_id, query="?version=diffs"
         )
         self.assertEqual(None, devent.called)
+
+        # TODO: also test with HATEOS off
+
+    def test_on_fetched_diffs(self):
+        """ Verify that on_fetched_item events are fired for
+        version=diffs requests.
+        """
+        devent = DummyEvent(lambda: True)
+        self.app.on_fetched_diffs += devent
+        response, status = self.get(
+            self.known_resource, item=self.item_id, query="?version=1"
+        )
+        self.assertEqual(None, devent.called)
+
+        # check for ?version=all requests
+        devent = DummyEvent(lambda: True)
+        self.app.on_fetched_diffs += devent
+        response, status = self.get(
+            self.known_resource, item=self.item_id, query="?version=all"
+        )
+        self.assertEqual(None, devent.called)
+
+        # check for ?version=diffs requests
+        devent = DummyEvent(lambda: True)
+        self.app.on_fetched_diffs += devent
+        response, status = self.get(
+            self.known_resource, item=self.item_id, query="?version=diffs"
+        )
+        self.assertEqual(self.known_resource, devent.called[0])
+        self.assertEqual(2, len(devent.called))
+
+    def test_on_fetched_diffs_contacts(self):
+        """ Verify that on_fetched_diffs_contacts events are fired for
+        version=diffs requests.
+        """
+        devent = DummyEvent(lambda: True)
+        self.app.on_fetched_diffs_contacts += devent
+        response, status = self.get(
+            self.known_resource, item=self.item_id, query="?version=1"
+        )
+        self.assertEqual(None, devent.called)
+
+        # check for ?version=all requests
+        devent = DummyEvent(lambda: True)
+        self.app.on_fetched_diffs_contacts += devent
+        response, status = self.get(
+            self.known_resource, item=self.item_id, query="?version=all"
+        )
+        self.assertEqual(None, devent.called)
+
+        # check for ?version=diffs requests
+        devent = DummyEvent(lambda: True)
+        self.app.on_fetched_diffs_contacts += devent
+        response, status = self.get(
+            self.known_resource, item=self.item_id, query="?version=diffs"
+        )
+        # Verify first document has id_field
+        self.assertEqual(self.item_id, str(devent.called[0][0][self.id_field]))
+        self.assertEqual(1, len(devent.called))
 
         # TODO: also test with HATEOS off
 

@@ -16,7 +16,7 @@ from werkzeug import exceptions
 from datetime import datetime
 from eve.utils import config, debug_error_message, parse_request
 from eve.auth import requires_auth
-from eve.validation import DocumentError
+from cerberus.validator import DocumentError
 from eve.methods.common import (
     get_document,
     parse,
@@ -215,8 +215,11 @@ def patch_internal(
                 resolve_document_etag(updated, resource)
                 # now storing the (updated) ETAG with every document (#453)
                 updates[config.ETAG] = updated[config.ETAG]
-
-            app.data.update(resource, object_id, updates, original)
+            try:
+                app.data.update(resource, object_id, updates, original)
+            except app.data.OriginalChangedError:
+                if concurrency_check:
+                    abort(412, description="Client and server etags don't match")
 
             # update oplog if needed
             oplog_push(resource, updates, "PATCH", object_id)

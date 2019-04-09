@@ -28,15 +28,7 @@ sys.path.append(os.path.abspath("_themes"))
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = [
-    "sphinx.ext.autodoc",
-    "sphinx.ext.intersphinx",
-    "alabaster",
-    "sphinxcontrib.embedly",
-]
-
-# sphinxcontrib.embedly
-embedly_key = "76207aa23dde489bba6bcbc9e56193a6"
+extensions = ["sphinx.ext.autodoc", "sphinx.ext.intersphinx", "alabaster"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -290,7 +282,7 @@ pygments_style = "flask_theme_support.FlaskyStyle"
 # fall back if theme is not there
 try:
     __import__("flask_theme_support")
-except ImportError as e:
+except ImportError:
     print("-" * 74)
     print("Warning: Flask themes unavailable.  Building with default theme")
     print("If you want the Flask themes, run this command and build again:")

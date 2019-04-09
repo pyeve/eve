@@ -94,7 +94,13 @@ def deleteitem_internal(
     """
     resource_def = config.DOMAIN[resource]
     soft_delete_enabled = resource_def["soft_delete"]
-    original = get_document(resource, concurrency_check, original, **lookup)
+    original = get_document(
+        resource,
+        concurrency_check,
+        original,
+        force_auth_field_projection=soft_delete_enabled,
+        **lookup
+    )
     if not original or (soft_delete_enabled and original.get(config.DELETED) is True):
         abort(404)
 

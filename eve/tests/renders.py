@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from bson import ObjectId
 from eve.tests import TestBase
 from eve.utils import api_prefix
 from eve.tests.test_settings import MONGO_DBNAME
@@ -62,6 +63,32 @@ class TestRenders(TestBase):
         idx2 = data.index(b"next")
         idx3 = data.index(b"parent")
         self.assertTrue(idx1 < idx2 < idx3)
+
+    def test_xml_data_relation_hateoas(self):
+        # We need to assign a `person` to our test invoice
+        _db = self.connection[MONGO_DBNAME]
+
+        fake_contact = self.random_contacts(1)[0]
+        fake_contact_id = _db.contacts.insert_one(fake_contact).inserted_id
+        url = self.domain[self.known_resource]["url"]
+        item_title = self.domain[self.known_resource]["item_title"]
+        invoices = self.domain["invoices"]
+
+        # Test object id data relation fields
+        _db.invoices.update_one(
+            {"_id": ObjectId(self.invoice_id)}, {"$set": {"person": fake_contact_id}}
+        )
+
+        r = self.test_client.get(
+            "%s/%s" % (invoices["url"], self.invoice_id),
+            headers=[("Accept", "application/xml")],
+        )
+        data_relation_opening_tag = '<person href="%s/%s" title="%s">' % (
+            url,
+            fake_contact_id,
+            item_title,
+        )
+        self.assertTrue(data_relation_opening_tag in r.data.decode())
 
     def test_unknown_render(self):
         r = self.test_client.get("/", headers=[("Accept", "application/html")])
@@ -198,7 +225,7 @@ class TestRenders(TestBase):
     def test_CORS_regex(self):
         # test if X_DOMAINS_RE is set with a list of regexes,
         # origins are matched against this list (#974)
-        self.app.config["X_DOMAINS_RE"] = ["^http://sub-\d{3}\.domain\.com$"]
+        self.app.config["X_DOMAINS_RE"] = [r"^http://sub-\d{3}\.domain\.com$"]
 
         r = self.test_client.get("/", headers=[("Origin", "http://sub-123.domain.com")])
         self.assert200(r.status_code)
@@ -311,11 +338,11 @@ class TestRenders(TestBase):
             self.app.config["URL_PREFIX"], self.app.config["API_VERSION"]
         )
 
-        del (self.domain["peopleinvoices"])
-        del (self.domain["peoplerequiredinvoices"])
-        del (self.domain["peoplesearches"])
-        del (self.domain["internal_transactions"])
-        del (self.domain["child_products"])
+        del self.domain["peopleinvoices"]
+        del self.domain["peoplerequiredinvoices"]
+        del self.domain["peoplesearches"]
+        del self.domain["internal_transactions"]
+        del self.domain["child_products"]
         for _, settings in self.app.config["DOMAIN"].items():
             # resource endpoint
             url = "%s/%s/" % (prefix, settings["url"])
@@ -342,7 +369,7 @@ class TestRenders(TestBase):
 
     def test_deprecated_renderers_supports_py27(self):
         """ Make sure #1175 is fixed """
-        self.app.config["JSON"] = False
+        self.app.config["RENDERES"] = False
         try:
             self.app.check_deprecated_features()
         except AttributeError:

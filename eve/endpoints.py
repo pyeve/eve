@@ -161,12 +161,20 @@ def home_endpoint():
 def error_endpoint(error):
     """ Response returned when an error is raised by the API (e.g. my means of
     an abort(4xx).
-
-    .. versionadded:: 0.4
     """
-    headers = None
-    if error.response:
-        headers = error.response.headers
+    headers = []
+
+    try:
+        headers.append(error.response.headers)
+    except AttributeError:
+        pass
+
+    try:
+        if error.www_authenticate != (None,):
+            headers.append(error.www_authenticate)
+    except AttributeError:
+        pass
+
     response = {
         config.STATUS: config.STATUS_ERR,
         config.ERROR: {"code": error.code, "message": error.description},
@@ -204,7 +212,7 @@ def media_endpoint(_id):
 
         size = file_.length
         try:
-            m = re.search("(\d+)-(\d*)", range_header)
+            m = re.search(r"(\d+)-(\d*)", range_header)
             begin, end = m.groups()
             begin = int(begin)
             end = int(end)

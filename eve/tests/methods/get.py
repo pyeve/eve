@@ -4,6 +4,7 @@ from io import BytesIO
 import simplejson as json
 from datetime import datetime, timedelta
 from bson import ObjectId
+from bson.dbref import DBRef
 from bson.son import SON
 from werkzeug.datastructures import ImmutableMultiDict
 from eve.tests import TestBase
@@ -818,9 +819,9 @@ class TestGet(TestBase):
         returned = response["image_file"]["file"]
         # encodedstring will raise a DeprecationWarning under Python3.3, but
         # the alternative encodebytes is not available in Python 2.
-        encoded = base64.encodestring(asset).decode("utf-8")
+        encoded = base64.b64encode(asset).decode("utf-8")
         self.assertEqual(returned, encoded)
-        self.assertEqual(base64.decodestring(returned.encode()), asset)
+        self.assertEqual(base64.b64decode(returned.encode()), asset)
 
     def test_get_embedded(self):
         # We need to assign a `person` to our test invoice
@@ -1150,6 +1151,8 @@ class TestGet(TestBase):
         """ test that invalid sort syntax returns a 400 """
         response, status = self.get(self.known_resource, '?sort=[("prog":1)]')
         self.assert400(status)
+        response, status = self.get(self.known_resource, '?sort="firstname"')
+        self.assert400(status)
 
     def test_get_allowed_filters_operators(self):
         """ test that supported operators are not considered invalid filters
@@ -1378,6 +1381,14 @@ class TestGet(TestBase):
         response, status = self.get('aggregate_test?aggregate={"$unknown":1}')
         self.assert200(status)
 
+        # max_results is considered
+        response, status = self.get(
+            'aggregate_test?aggregate={"$field1":1}&max_results=1'
+        )
+        self.assert200(status)
+        docs = response["_items"]
+        self.assertEqual(len(docs), 1)
+
     def test_get_aggregation_parsing(self):
 
         date = datetime.utcnow()
@@ -1464,6 +1475,68 @@ class TestGet(TestBase):
         docs = response["_items"]
         self.assertEqual(len(docs), 1)
 
+    def test_get_aggregation_pruning(self):
+
+        date = datetime.utcnow()
+
+        _db = self.connection[MONGO_DBNAME]
+        _db.aggregate_test.insert_many(
+            [
+                {"x": 1, "date": date},
+                {"x": 2, "date": date},
+                {"x": 3, "date": date},
+                {"x": 4, "date": date + timedelta(days=-1)},
+            ]
+        )
+
+        self.app.register_resource(
+            "aggregate_test",
+            {
+                "datasource": {
+                    "aggregation": {
+                        "pipeline": [{"$match": {"date": {"$gte": "$date"}, "x": "$x"}}]
+                    }
+                }
+            },
+        )
+
+        # look for date = now, x = 4, which shall return empty result
+        challenge = date.strftime(self.app.config["DATE_FORMAT"])
+        response, status = self.get(
+            'aggregate_test?aggregate={"$date": "%s", "$x": 4}' % challenge
+        )
+        self.assert200(status)
+        docs = response["_items"]
+        self.assertEqual(len(docs), 0)
+
+        # look for date = yesterday, x = 4, which shall return only one result
+        challenge = (date + timedelta(days=-1)).strftime(self.app.config["DATE_FORMAT"])
+        response, status = self.get(
+            'aggregate_test?aggregate={"$date": "%s", "$x": 4}' % challenge
+        )
+        self.assert200(status)
+        docs = response["_items"]
+        self.assertEqual(len(docs), 1)
+        self.assertEqual(docs[0]["x"], 4)
+
+        # look  for date = yesterday, which shall return all four results
+        challenge = (date + timedelta(days=-1)).strftime(self.app.config["DATE_FORMAT"])
+        response, status = self.get(
+            'aggregate_test?aggregate={"$date": "%s", "$x": {}}' % challenge
+        )
+
+        self.assert200(status)
+        docs = response["_items"]
+        self.assertEqual(len(docs), 4)
+
+        # look  for x = 3, which shall return only one result
+        response, status = self.get('aggregate_test?aggregate={"$x": 3, "$date": {}}')
+
+        self.assert200(status)
+        docs = response["_items"]
+        self.assertEqual(len(docs), 1)
+        self.assertEqual(docs[0]["x"], 3)
+
     def test_get_aggregation_pagination(self):
         _db = self.connection[MONGO_DBNAME]
 
@@ -1549,7 +1622,7 @@ class TestGet(TestBase):
         self.assertEqual(len(items), num)
 
     def test_get_query_bitwise_query_operators(self):
-        del (self.domain["contacts"]["schema"]["ref"]["required"])
+        del self.domain["contacts"]["schema"]["ref"]["required"]
         response, status = self.delete(self.known_resource_url)
         self.assert204(status)
 
@@ -1595,7 +1668,7 @@ class TestGetItem(TestBase):
         self.assert200(status)
         self.assertTrue(self.app.config["ETAG"] in response)
         links = response["_links"]
-        self.assertEqual(len(links), 3)
+        self.assertTrue(len(links) == 3 or len(links) == 4)
         self.assertHomeLink(links)
         self.assertCollectionLink(links, resource or self.known_resource)
         self.assertItem(response, resource or self.known_resource)
@@ -1833,6 +1906,62 @@ class TestGetItem(TestBase):
         self.assert200(status)
         self.assertEqual(response["person"], str(fake_contact_id))
         self.assertEqual(response["_id"], self.invoice_id)
+
+    def test_getitem_data_relation_hateoas(self):
+        # We need to assign a `person` to our test invoice
+        _db = self.connection[MONGO_DBNAME]
+
+        fake_contact = self.random_contacts(1)[0]
+        fake_contact_id = _db.contacts.insert_one(fake_contact).inserted_id
+        url = self.domain[self.known_resource]["url"]
+        item_title = self.domain[self.known_resource]["item_title"]
+        invoices = self.domain["invoices"]
+
+        # Test nullable data relation fields
+        _db.invoices.update_one(
+            {"_id": ObjectId(self.invoice_id)}, {"$set": {"person": None}}
+        )
+
+        response, status = self.get("%s/%s" % (invoices["url"], self.invoice_id))
+        self.assertTrue("related" not in response["_links"])
+
+        # Test object id data relation fields
+        _db.invoices.update_one(
+            {"_id": ObjectId(self.invoice_id)}, {"$set": {"person": fake_contact_id}}
+        )
+
+        response, status = self.get("%s/%s" % (invoices["url"], self.invoice_id))
+        self.assertRelatedLink(response["_links"], "person")
+        related_links = response["_links"]["related"]
+        self.assertEqual(related_links["person"]["title"], item_title)
+        self.assertEqual(
+            related_links["person"]["href"], "%s/%s" % (url, fake_contact_id)
+        )
+
+        # Test DBRef data relation fields
+        _db.invoices.update_one(
+            {"_id": ObjectId(self.invoice_id)},
+            {"$set": {"persondbref": DBRef("contacts", fake_contact_id)}},
+        )
+
+        response, status = self.get("%s/%s" % (invoices["url"], self.invoice_id))
+        self.assertRelatedLink(response["_links"], "persondbref")
+        related_links = response["_links"]["related"]
+        self.assertEqual(related_links["persondbref"]["title"], item_title)
+        self.assertEqual(
+            related_links["persondbref"]["href"], "%s/%s" % (url, fake_contact_id)
+        )
+
+        # Test list of object id data relation fields
+        _db.invoices.update_one(
+            {"_id": ObjectId(self.invoice_id)},
+            {"$set": {"invoicing_contacts": [fake_contact_id] * 5}},
+        )
+
+        response, status = self.get("%s/%s" % (invoices["url"], self.invoice_id))
+        self.assertRelatedLink(response["_links"], "invoicing_contacts")
+        related_links = response["_links"]["related"]
+        self.assertEqual(len(related_links["invoicing_contacts"]), 5)
 
     def test_getitem_ifmatch_disabled(self):
         # when IF_MATCH is disabled no etag is present in payload

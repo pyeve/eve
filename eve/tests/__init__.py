@@ -311,6 +311,19 @@ class TestMinimal(unittest.TestCase):
         else:
             self.assertTrue("last" not in links)
 
+    def assertRelatedLink(self, links, field):
+        self.assertTrue("related" in links)
+        data_relation_links = links["related"]
+        self.assertTrue(field in data_relation_links)
+        related_field_links = data_relation_links[field]
+        for related_field_link in (
+            related_field_links
+            if isinstance(related_field_links, list)
+            else [related_field_links]
+        ):
+            self.assertTrue("title" in related_field_link)
+            self.assertTrue("href" in related_field_link)
+
     def assertCustomParams(self, link, params):
         self.assertTrue("href" in link)
         url_params = parse_qs(urlparse(link["href"]).query)
@@ -339,6 +352,9 @@ class TestMinimal(unittest.TestCase):
 
     def assert428(self, status):
         self.assertEqual(status, 428)
+
+    def assert429(self, status):
+        self.assertEqual(status, 429)
 
     def assert500(self, status):
         self.assertEqual(status, 500)
@@ -460,6 +476,9 @@ class TestBase(TestMinimal):
 
         self.child_products = "child_products"
         self.child_products_url = "/%s" % self.domain[self.child_products]["url"]
+
+        self.test_patch = "test_patch"
+        self.test_patch_url = "/%s" % self.domain[self.test_patch]["url"]
 
     def response_item(self, response, i=0):
         if self.app.config["HATEOAS"]:

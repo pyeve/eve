@@ -418,10 +418,14 @@ class XMLRenderer(Renderer):
     @classmethod
     def xml_add_links(cls, data):
         """ Returns as many <link> nodes as there are in the datastream. The
-        links are then removed from the datastream to allow for further
+        added links are then removed from the datastream to allow for further
         processing.
 
         :param data: the data stream to be rendered as xml.
+
+        .. versionchanged:: 0.8.2
+           Keep data relation links in the datastream as they will be
+           processed as node attributes in xml_dict
 
         .. versionchanged:: 0.5
            Always return ordered items (#441).
@@ -436,7 +440,12 @@ class XMLRenderer(Renderer):
         links = data.pop(config.LINKS, {})
         ordered_links = OrderedDict(sorted(links.items()))
         for rel, link in ordered_links.items():
-            if isinstance(link, list):
+            if rel == "related":
+                # add data relation links back for
+                # future processing of hateoas attributes
+                data.update({config.LINKS: {rel: link}})
+
+            elif isinstance(link, list):
                 xml += "".join(
                     [
                         chunk % (rel, utils.escape(d["href"]), utils.escape(d["title"]))
@@ -491,6 +500,9 @@ class XMLRenderer(Renderer):
 
         :param data: the data stream to be rendered as xml.
 
+        .. versionchanged:: 0.8.2
+           Renders hateoas attributes on XML nodes. See #1204.
+
         .. versionchanged:: 0.5
            Always return ordered items (#441).
 
@@ -500,6 +512,7 @@ class XMLRenderer(Renderer):
         .. versionadded:: 0.0.3
         """
         xml = ""
+        related_links = data.pop(config.LINKS, {}).pop("related", {})
         ordered_items = OrderedDict(sorted(data.items()))
         for k, v in ordered_items.items():
             if isinstance(v, datetime.datetime):
@@ -508,13 +521,51 @@ class XMLRenderer(Renderer):
                 v = v.isoformat()
             if not isinstance(v, list):
                 v = [v]
-            for value in v:
+            for idx, value in enumerate(v):
                 if isinstance(value, dict):
                     links = cls.xml_add_links(value)
-                    xml += "<%s>" % k
+                    xml += cls.xml_field_open(k, idx, related_links)
                     xml += cls.xml_dict(value)
                     xml += links
-                    xml += "</%s>" % k
+                    xml += cls.xml_field_close(k)
                 else:
-                    xml += "<%s>%s</%s>" % (k, utils.escape(value), k)
+                    xml += cls.xml_field_open(k, idx, related_links)
+                    xml += "%s" % utils.escape(value)
+                    xml += cls.xml_field_close(k)
         return xml
+
+    @classmethod
+    def xml_field_open(cls, field, idx, related_links):
+        """ Returns opening tag for XML field element node.
+
+        :param field: field name for the element node
+        :param idx: the index in the data relation links if serializing a list of same field to XML
+        :param related_links: a dictionary that stores all data relation links
+
+        .. versionadded:: 0.8.2
+        """
+        if field in related_links:
+            if isinstance(related_links[field], list):
+                return '<%s href="%s" title="%s">' % (
+                    field,
+                    utils.escape(related_links[field][idx]["href"]),
+                    related_links[field][idx]["title"],
+                )
+            else:
+                return '<%s href="%s" title="%s">' % (
+                    field,
+                    utils.escape(related_links[field]["href"]),
+                    related_links[field]["title"],
+                )
+        else:
+            return "<%s>" % field
+
+    @classmethod
+    def xml_field_close(cls, field):
+        """ Returns closing tag of XML field element node.
+
+        :param field: field name for the element node
+
+        .. versionadded:: 0.8.2
+        """
+        return "</%s>" % field

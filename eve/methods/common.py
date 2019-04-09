@@ -9,6 +9,7 @@
     :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
+import re
 import base64
 import time
 from copy import copy
@@ -19,7 +20,7 @@ import simplejson as json
 from bson.dbref import DBRef
 from bson.errors import InvalidId
 from cerberus import schema_registry, rules_set_registry
-from flask import Response, abort, current_app as app, g, request
+from flask import abort, current_app as app, g, request
 from werkzeug.datastructures import MultiDict, CombinedMultiDict
 
 from eve.utils import (
@@ -308,7 +309,7 @@ def ratelimit():
                 )
                 rlimit = RateLimit(key, limit, period, True)
                 if rlimit.over_limit:
-                    return Response("Rate limit exceeded", 429)
+                    abort(429, "Rate limit exceeded")
                 # store the rate limit for further processing by
                 # send_response
                 g._rate_limit = rlimit
@@ -603,6 +604,9 @@ def build_response_document(document, resource, embedded_fields, latest_doc=None
     :param embedded_fields: the list of fields we are allowed to embed.
     :param document: the latest version of document.
 
+    .. versionchanged:: 0.8.2
+       Add data relation fields hateoas support (#1204).
+
     .. versionchanged:: 0.5
        Only compute ETAG if necessary (#369).
        Add version support (#475).
@@ -610,6 +614,8 @@ def build_response_document(document, resource, embedded_fields, latest_doc=None
     .. versionadded:: 0.4
     """
     resource_def = config.DOMAIN[resource]
+
+    resolve_resource_projection(document, resource)
 
     # need to update the document field since the etag must be computed on the
     # same document representation that might have been used in the collection
@@ -638,6 +644,9 @@ def build_response_document(document, resource, embedded_fields, latest_doc=None
         elif "self" not in document[config.LINKS]:
             document[config.LINKS].update(self_dict)
 
+        # add data relation links if hateoas enabled
+        resolve_data_relation_links(document, resource)
+
     # add version numbers
     resolve_document_version(document, resource, "GET", latest_doc)
 
@@ -657,6 +666,28 @@ def build_response_document(document, resource, embedded_fields, latest_doc=None
     resolve_embedded_documents(document, resource, embedded_fields)
 
 
+def resolve_resource_projection(document, resource):
+    """ Purges a document of fields that are not included in its resource
+    projecton.
+
+    :param document: the original document.
+    :param resource: the resource name.
+    """
+
+    if config.BANDWIDTH_SAVER:
+        return
+
+    resource_def = config.DOMAIN[resource]
+    projection = resource_def["datasource"]["projection"]
+    fields = {
+        field for field, value in projection.items() if value and field in document
+    }
+    fields.add(resource_def["id_field"])
+
+    for field in set(document.keys()) - fields:
+        del document[field]
+
+
 def field_definition(resource, chained_fields):
     """ Resolves query string to resource with dot notation like
     'people.address.city' and returns corresponding field definition
@@ -664,6 +695,9 @@ def field_definition(resource, chained_fields):
 
     :param resource: the resource name whose field to be accepted.
     :param chained_fields: query string to retrieve field definition
+
+    .. versionchanged:: 0.8.2
+       fix field definition for list without a schema. See #1204.
 
     .. versionadded 0.5
     """
@@ -681,10 +715,77 @@ def field_definition(resource, chained_fields):
         definition = definition["schema"][field]
         field_type = definition.get("type")
         if field_type == "list":
-            definition = definition["schema"]
+            # the list can be 1) a list of allowed values for string and list types
+            #                 2) a list of references that have schema
+            # we want to resolve field definition deeper for the second one
+            definition = definition.get("schema", definition)
         elif field_type == "objectid":
             pass
     return definition
+
+
+def resolve_data_relation_links(document, resource):
+    """ Resolves all fields in a document that has data relation to other resources
+
+    :param document: the document to include data relation links.
+    :param resource: the resource name.
+
+    .. versionadded:: 0.8.2
+    """
+    resource_def = config.DOMAIN[resource]
+    related_dict = {}
+
+    for field in resource_def.get("schema", {}):
+
+        field_def = field_definition(resource, field)
+        if "data_relation" not in field_def:
+            continue
+
+        if field in document and document[field] is not None:
+            related_links = []
+
+            # Make the code DRY for list of linked relation and single linked relation
+            for related_document_id in (
+                document[field]
+                if isinstance(document[field], list)
+                else [document[field]]
+            ):
+                # Get the resource endpoint string for the linked relation
+                related_resource = (
+                    related_document_id.collection
+                    if isinstance(related_document_id, DBRef)
+                    else field_def["data_relation"]["resource"]
+                )
+
+                # Get the item endpoint id for the linked relation
+                if isinstance(related_document_id, DBRef):
+                    related_document_id = related_document_id.id
+                if isinstance(related_document_id, dict):
+                    related_resource_field = field_definition(resource, field)[
+                        "data_relation"
+                    ]["field"]
+                    related_document_id = related_document_id[related_resource_field]
+
+                # Get the version for the item endpoint id
+                related_version = (
+                    related_document_id.get("_version")
+                    if isinstance(related_document_id, dict)
+                    else None
+                )
+
+                related_links.append(
+                    document_link(
+                        related_resource, related_document_id, related_version
+                    )
+                )
+
+            if isinstance(document[field], list):
+                related_dict.update({field: related_links})
+            else:
+                related_dict.update({field: related_links[0]})
+
+    if related_dict != {}:
+        document[config.LINKS].update({"related": related_dict})
 
 
 def resolve_embedded_fields(resource, req):
@@ -850,27 +951,25 @@ def sort_db_response(embedded_docs, id_value_to_sort, list_of_id_field_name):
     return temp_embedded_docs
 
 
-def sort_per_resource(embedded_docs, id_value_to_sort, id_field_name):
+def sort_per_resource(embedded_docs, id_values_to_sort, id_field_name):
     """ Sorts the documents fetched from the database per single resource
 
-        :param embedded_docs: the documents fetch from the database.
-        :param id_value_to_sort: id_value sort criteria.
+        :param embedded_docs: list of the documents fetched from the database.
+        :param id_values_to_sort: list of the id_values sort criteria.
         :param list_of_id_field_name: list of name of fields
+        :param id_field_name: key name of the id field; `_id`
         :return embedded_docs: the list of documents sorted as per input
         """
-    # Removing None
-    number_of_none = embedded_docs.count(None)
-    if number_of_none:
-        embedded_docs = [x for x in embedded_docs if x is not None]
+    if id_values_to_sort is None:
+        id_values_to_sort = []
+    embedded_docs = [x for x in embedded_docs if x is not None]
     id2dict = dict((d[id_field_name], d) for d in embedded_docs)
     temporary_embedded_docs = []
-    if number_of_none:
-        for id_value_ in id_value_to_sort:
-            if id_value_ in id2dict:
-                temporary_embedded_docs.append(id2dict[id_value_])
-            else:
-                temporary_embedded_docs.append(None)
-    return embedded_docs
+    for id_value_ in id_values_to_sort:
+        if id_value_ in id2dict:
+            temporary_embedded_docs.append(id2dict[id_value_])
+
+    return temporary_embedded_docs
 
 
 def generate_query_and_sorting_criteria(data_relation, references):
@@ -907,7 +1006,8 @@ def generate_query_and_sorting_criteria(data_relation, references):
         id_field_name = (
             "_id"
             if isinstance(reference, DBRef)
-            else config.DOMAIN[subresource]["id_field"]
+            else data_relation.get("field", False)
+            or config.DOMAIN[subresource]["id_field"]
         )
         id_field_value = reference.id if isinstance(reference, DBRef) else reference
         query["$or"].append({id_field_name: id_field_value})
@@ -1023,7 +1123,7 @@ def resolve_one_media(file_id, resource):
         # otherwise we have a valid file and should send extended response
         # start with the basic file object
         if config.RETURN_MEDIA_AS_BASE64_STRING:
-            ret_file = base64.encodestring(_file.read())
+            ret_file = base64.b64encode(_file.read())
         elif config.RETURN_MEDIA_AS_URL:
             prefix = (
                 config.MEDIA_BASE_URL
@@ -1081,7 +1181,7 @@ def marshal_write_response(document, resource):
         auth_field = resource_def.get("auth_field")
         if auth_field and auth_field not in resource_def["schema"]:
             try:
-                del (document[auth_field])
+                del document[auth_field]
             except:
                 # 'auth_field' value has not been set by the auth class.
                 pass
@@ -1261,6 +1361,9 @@ def document_link(resource, document_id, version=None):
     :param document_id: the document unique identifier.
     :param version: the document version. Defaults to None.
 
+    .. versionchanged:: 0.8.2
+       Support document link for data relation resources. See #1204.
+
     .. versionchanged:: 0.5
        Add version support (#475).
 
@@ -1276,16 +1379,22 @@ def document_link(resource, document_id, version=None):
     version_part = "?version=%s" % version if version else ""
     return {
         "title": "%s" % config.DOMAIN[resource]["item_title"],
-        "href": "%s/%s%s" % (resource_link(), document_id, version_part),
+        "href": "%s/%s%s" % (resource_link(resource), document_id, version_part),
     }
 
 
-def resource_link():
+def resource_link(resource=None):
     """ Returns the current resource path relative to the API entry point.
     Mostly going to be used by hateoas functions when building
     document/resource links. The resource URL stored in the config settings
     might contain regexes and custom variable names, all of which are not
     needed in the response payload.
+
+    :param resource: the resource name if not using the resource from request.path
+
+    .. versionchanged:: 0.8.2
+       Support resource link for data relation resources
+       which may be different from request.path resource. See #1204.
 
     .. versionchanged:: 0.5
        URL is relative to API root.
@@ -1304,7 +1413,13 @@ def resource_link():
         path = strip_prefix(config.URL_PREFIX + "/")
     if config.API_VERSION:
         path = strip_prefix(config.API_VERSION + "/")
-    return path
+
+    # If request path does not match resource URL regex definition
+    # We are creating a path for data relation resources
+    if resource and not re.search(config.DOMAIN[resource]["url"], path):
+        return config.DOMAIN[resource]["url"]
+    else:
+        return path
 
 
 def oplog_push(resource, document, op, id=None):
@@ -1379,13 +1494,12 @@ def oplog_push(resource, document, op, id=None):
             entry["u"] = auth.get_user_or_token() if auth else "n/a"
 
             if op in config.OPLOG_CHANGE_METHODS:
-                # these fields are already contained in 'entry'.
-                del (update[config.LAST_UPDATED])
-                # legacy documents (v0.4 or less) could be missing the etag
-                # field
-                if config.ETAG in update:
-                    del (update[config.ETAG])
-                entry["c"] = update
+                entry["c"] = {
+                    key: value
+                    for key, value in update.items()
+                    # these fields are already contained in 'entry'.
+                    if key not in [config.ETAG, config.LAST_UPDATED]
+                }
             else:
                 pass
 
