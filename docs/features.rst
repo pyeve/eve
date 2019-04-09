@@ -2243,10 +2243,6 @@ Custom callback functions can be attached to the ``before_aggregation`` and ``af
 
 Limitations
 ~~~~~~~~~~~
-``HATEOAS`` is not available at aggregation endpoints. This should not
-be surprising as documents returned by these endpoints are aggregation results
-and do not reside on the database, so there is no static link available for them.
-
 Client pagination (``?page=2``) is enabled by default. This is currently
 achieved by injecting two additional stages (``$limit`` first, then ``$skip``)
 to the very end of the aggregation pipeline. You can turn pagination off by setting
