@@ -14,6 +14,7 @@ Breaking changes
 
 New
 ~~~
+- HATEOAS support added to aggregation results (`#1208`_)
 - ``on_fetched_diffs`` event hooks (`#1224`_)
 - Python 3.7 added to the CI matrix (`#1199`_)
 - Support for Mongo 3.6+ ``$expr`` query operator.
@@ -64,6 +65,7 @@ Improved
 - Add a "Python 3 is highly preferred" note on the homepage (`#1198`_)
 - Drop sphinx-contrib-embedly when building docs.
 
+.. _`#1208`: https://github.com/pyeve/eve/issues/1208
 .. _`#1257`: https://github.com/pyeve/eve/issues/1257
 .. _`#1255`: https://github.com/pyeve/eve/issues/1255
 .. _`#1250`: https://github.com/pyeve/eve/issues/1250

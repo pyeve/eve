@@ -1556,6 +1556,11 @@ class TestGet(TestBase):
         response, status = self.get("aggregate_test")
         self.assert200(status)
 
+        links = response["_links"]
+        self.assertNextLink(links, 2)
+        self.assertLastLink(links, 3)
+        self.assertPagination(response, 1, 75, 25)
+
         items = response["_items"]
         expected_length = self.app.config["PAGINATION_DEFAULT"]
         self.assertEqual(len(items), expected_length)
@@ -1569,6 +1574,12 @@ class TestGet(TestBase):
         response, status = self.get("aggregate_test?page=2")
         self.assert200(status)
 
+        links = response["_links"]
+        self.assertNextLink(links, 3)
+        self.assertPrevLink(links, 1)
+        self.assertLastLink(links, 3)
+        self.assertPagination(response, 2, 75, 25)
+
         items = response["_items"]
         expected_length = self.app.config["PAGINATION_DEFAULT"]
         self.assertEqual(len(items), expected_length)
@@ -1581,6 +1592,11 @@ class TestGet(TestBase):
         # third page
         response, status = self.get("aggregate_test?page=3")
         self.assert200(status)
+
+        links = response["_links"]
+        self.assertPrevLink(links, 2)
+        self.assertLastLink(links, None)
+        self.assertPagination(response, 3, 75, 25)
 
         items = response["_items"]
         expected_length = num - self.app.config["PAGINATION_DEFAULT"] * 2

@@ -196,26 +196,52 @@ def _perform_aggregation(resource, pipeline, options):
         if len(stage.keys()) > 0:
             req_pipeline_pruned.append(stage)
 
+    paginated_results = []
+
     if req.max_results > 0:
         limit = {"$limit": req.max_results}
         skip = {"$skip": (req.page - 1) * req.max_results}
-        req_pipeline_pruned.append(skip)
-        req_pipeline_pruned.append(limit)
+        paginated_results.append(skip)
+        paginated_results.append(limit)
+    else:
+        # sub-pipeline in $facet stage cannot be empty
+        skip = {"$skip": 0}
+        paginated_results.append(skip)
+
+    facet_pipelines = {}
+    facet_pipelines["paginated_results"] = paginated_results
+    facet_pipelines["total_count"] = [{"$count": "count"}]
+
+    facet = {"$facet": facet_pipelines}
 
     getattr(app, "before_aggregation")(resource, req_pipeline_pruned)
 
-    cursor = app.data.aggregate(resource, req_pipeline_pruned, options)
+    # Appending $facet afer the before_aggregation hook allows for
+    # easy modification of the orginal pipline, however, pagination
+    # (skip, limit) cannot be accessed.
+    req_pipeline_pruned.append(facet)
 
-    for document in cursor:
+    cursor = app.data.aggregate(resource, req_pipeline_pruned, options).next()
+
+    for document in cursor["paginated_results"]:
         documents.append(document)
 
     getattr(app, "after_aggregation")(resource, documents)
 
     response[config.ITEMS] = documents
 
-    # PyMongo's CommandCursor does not return a count, so we cannot
-    # provide pagination/total count info as we do with a normal
-    # (non-aggregate) GET request.
+    if cursor["total_count"]:
+        # IndexError: list index out of range
+        count = cursor["total_count"][0]["count"]
+    else:
+        count = 0
+
+    # add pagination info
+    if config.DOMAIN[resource]["pagination"]:
+        response[config.META] = _meta_links(req, count)
+
+    if config.DOMAIN[resource]["hateoas"]:
+        response[config.LINKS] = _pagination_links(resource, req, count)
 
     return response, None, None, 200, []
 
