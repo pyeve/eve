@@ -16,7 +16,6 @@ New
 ~~~
 - HATEOAS support added to aggregation results (`#1208`_)
 - ``on_fetched_diffs`` event hooks (`#1224`_)
-- Python 3.7 added to the CI matrix (`#1199`_)
 - Support for Mongo 3.6+ ``$expr`` query operator.
 - Support for Mongo 3.6+ ``$center`` query operator.
 
@@ -53,6 +52,7 @@ Improved
 ~~~~~~~~
 - Bump Werkzeug version to v0.15.1+ (`#1245`_, `#1251`_)
 - Bump PyMongo version to v3.7+ (`#1202`_)
+- Python 3.7 added to the CI matrix (`#1199`_)
 - Option to omit the aggregation stage when its parameter is empty/unset
   (`#1209`_)
 - HATEOAS: now the ``_links`` dictionary may have a ``related`` dictionary
