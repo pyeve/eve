@@ -81,12 +81,6 @@ show you how easy it is to run an API with Eve. You will also find `usage
 examples`_ for all common use cases (GET, POST, PATCH, DELETE and more). There
 is also a simple `client app`_ available.
 
-Development Version
---------------------
-If you are on python-eve.org_ then you are looking at the documentation of the
-development version. Looking for last release docs? Follow `this
-link <http://eve.readthedocs.org/en/stable/>`_.
-
 .. toctree::
     :hidden:
 
