@@ -12,7 +12,7 @@ test-all: clean-pyc install-dev
 tox: test-all
 
 wheel:
-	python setup.py sdist bdist_wheel --universal
+	python setup.py sdist bdist_wheel
 
 BUILDDIR = _build
 docs: install-dev
