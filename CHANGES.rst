@@ -6,6 +6,8 @@ Here you can see the full list of changes between each Eve release.
 Version 0.9
 -----------
 
+Released on April 11, 2019.
+
 Breaking changes
 ~~~~~~~~~~~~~~~~
 - Werkzeug v0.15.1+ is required. You want to upgrade, otherwise your Eve
