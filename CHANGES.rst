@@ -50,6 +50,7 @@ Fixed
 
 Improved
 ~~~~~~~~
+- Eve package is now distributed as a Python wheel (`#1260`_)
 - Bump Werkzeug version to v0.15.1+ (`#1245`_, `#1251`_)
 - Bump PyMongo version to v3.7+ (`#1202`_)
 - Python 3.7 added to the CI matrix (`#1199`_)
@@ -65,6 +66,7 @@ Improved
 - Add a "Python 3 is highly preferred" note on the homepage (`#1198`_)
 - Drop sphinx-contrib-embedly when building docs.
 
+.. _`#1260`: https://github.com/pyeve/eve/issues/1260
 .. _`#1208`: https://github.com/pyeve/eve/issues/1208
 .. _`#1257`: https://github.com/pyeve/eve/issues/1257
 .. _`#1255`: https://github.com/pyeve/eve/issues/1255

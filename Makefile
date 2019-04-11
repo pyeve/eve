@@ -1,4 +1,4 @@
-.PHONY: all install-dev test test-all tox docs audit clean-pyc docs-upload
+.PHONY: all install-dev test test-all tox docs audit clean-pyc docs-upload wheel
 
 install-dev:
 	pip install -q -e .[dev]
@@ -10,6 +10,9 @@ test-all: clean-pyc install-dev
 	tox
 
 tox: test-all
+
+wheel:
+	python setup.py sdist bdist_wheel --universal
 
 BUILDDIR = _build
 docs: install-dev
