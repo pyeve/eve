@@ -29,9 +29,9 @@ Eve is an :doc:`open source <license>` Python REST API framework designed for
 human beings. It allows to effortlessly build and deploy highly customizable,
 fully featured RESTful Web Services.
 
-Eve is powered by Flask_ and Cerberus_ and it offers native support for MongoDB_ data
-stores. Support for SQL, Elasticsearch and Neo4js backends is provided by
-community extensions_.
+Eve is powered by Flask_ and Cerberus_ and it offers native support for
+MongoDB_ data stores. Support for SQL, Elasticsearch and Neo4js backends is
+provided by community extensions_.
 
 The codebase is thoroughly tested under Python 2.7, 3.4+, and PyPy.
 
