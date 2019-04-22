@@ -265,3 +265,8 @@ MONGO_QUERY_BLACKLIST = ["$where", "$regex"]
 # aknowledged writes). This is also the current PyMongo/Mongo default setting.
 MONGO_WRITE_CONCERN = {"w": 1}
 MONGO_OPTIONS = {"connect": True, "tz_aware": True}
+
+# if true, the document will be normalized according to the schema during patch
+# this means the fields will be reset to the default value, if not contained in
+# the patch body.
+NORMALIZE_DOCUMENT_FOR_PATCH = True

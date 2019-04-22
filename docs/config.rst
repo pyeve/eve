@@ -776,6 +776,11 @@ uppercase.
                                     note that with the default Mongo layer,
                                     setting this to ``False`` will result in an
                                     error. Defaults to ``True``.
+``NORMALIZE_DOCUMENT_FOR_PATCH``    If ``True``, the patch document will be
+                                    normalized according to schema. This means
+                                    if a field is not included in the patch
+                                    body, it will be reset to the default value
+                                    in its schema.
 
 =================================== =========================================
 
@@ -1117,6 +1122,11 @@ always lowercase.
                                 with the default Mongo layer, setting this to
                                 ``False`` will result in an error. Defaults to
                                 ``True``.
+``normalize_document_for_patch``    If ``True``, the patch document will be
+                                    normalized according to schema. This means
+                                    if a field is not included in the patch
+                                    body, it will be reset to the default value
+                                    in its schema.
 
 =============================== ===============================================
 
