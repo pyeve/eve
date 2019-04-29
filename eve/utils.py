@@ -344,7 +344,7 @@ def document_etag(value, ignore_fields=None):
             # to nested keys such as  ["foo", "dict.bar", "dict.joe"]
             for field in fields:
                 key, _, value = field.partition(".")
-                if value:
+                if value and key in d:
                     filter_ignore_fields(d[key], [value])
                 elif field in d:
                     d.pop(field)
