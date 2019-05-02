@@ -6,9 +6,17 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
+Fixed
+~~~~~
 - Fix crash when trying to ignore a nested field that doesn't exist (`#1263`_)
 
 .. _`#1263`: https://github.com/pyeve/eve/pull/1263
+
+Improved
+~~~~~~~~
+- Remove unsupported ``transparent_schema_rules`` option from docs (`#1264`_)
+
+.. _`#1264`: https://github.com/pyeve/eve/issues/1264
 
 Version 0.9
 -----------

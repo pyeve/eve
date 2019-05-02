@@ -978,9 +978,6 @@ always lowercase.
                                 ``ALLOW_UNKNOWN``. See :ref:`unknown` for more
                                 information. Defaults to ``False``.
 
-``transparent_schema_rules``    When ``True``, this option disables
-                                :ref:`schema_validation` for the endpoint.
-
 ``projection``                  When ``True``, this option enables the
                                 :ref:`projections` feature. Locally overrides
                                 ``PROJECTION``. Defaults to ``True``.
