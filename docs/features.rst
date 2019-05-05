@@ -768,7 +768,53 @@ Consider the following schema:
 
 
 Two notations: ``{contact: {email: 'an email'}}`` and ``{contact.email: 'an
-email'}`` can be used to update the ``email`` field in the ``contact`` subdocument.
+email'}`` can be used to update the ``email`` field in the ``contact``
+subdocument.
+
+Keep in mind that ``PATCH`` cannot remove a field, but only update existing
+values. Also, by default ``PATCH`` will normalize missing body fields that
+have defautl values defined in the schema. Consider the schema above. If your
+``PATCH`` has a body like this:
+
+::
+
+    {'contact.email': 'xyz@gmail.com'}
+
+and targets this document:
+
+::
+
+    {
+      'name': 'test account',
+      'contact': {'email': '123@yahoo.com', 'phone': '9876543210'}
+    }
+
+Then the updated document will look like this:
+
+::
+
+    {
+      'name': 'test account',
+      'contact': {
+        'email': 'xyz@gmail.com',
+        'phone': '1234567890'
+      }
+    }
+
+That is, ``contact.phone`` has been reset to its default value. This might
+now been the desired behavior. To change it, you can set
+``normalize_on_patch`` (or ``NORMALIZE_ON_PATCH`` globally) to ``False``.
+Now the updated document will look like this:
+
+::
+
+    {
+      'name': 'test account',
+      'contact': {
+        'email': '123@yahoo.com',
+        'phone': '9876543210'
+      }
+    }
 
 
 .. _cache_control:
@@ -2286,7 +2332,8 @@ to a keyword of your liking, just set ``QUERY_AGGREGATION`` in your settings.
 You can also set all options natively supported by PyMongo. For more
 information on aggregation see :ref:`datasource`.
 
-You can pass ``{}`` to fields which you want to ignore. Considering the following pipelines:
+You can pass ``{}`` to fields which you want to ignore. Considering the
+following pipelines:
 
 ::
 
@@ -2308,83 +2355,33 @@ If performing the following request:
 
     $ curl -i http://example.com/posts?aggregate={"$name": {"$regex": "Apple"}, "$time": {}}
 
-The stage ``{"$match": { "name": "$name", "time": "$time"}}`` in the pipeline will be executed as ``{"$match": { "name": {"$regex": "Apple"}}}``. And for the following request:
+The stage ``{"$match": { "name": "$name", "time": "$time"}}`` in the pipeline
+will be executed as ``{"$match": { "name": {"$regex": "Apple"}}}``. And for
+the following request:
 
 ::
 
     $ curl -i http://example.com/posts?aggregate={"$name": {}, "$time": {}}
 
-The stage ``{"$match": { "name": "$name", "time": "$time"}}`` in the pipeline will be completely skipped.
+The stage ``{"$match": { "name": "$name", "time": "$time"}}`` in the pipeline
+will be completely skipped.
 
-The request above will ignore ``"count": {"$sum": "$value"}}``. A
-Custom callback functions can be attached to the ``before_aggregation`` and ``after_aggregation`` event hooks. For more information, see :ref:`aggregation_hooks`.
-
-# Special Note on PATCH
-~~~~~~~~~~~
-``PATCH`` **cannot** remove a field but only update value of the field.
-
-Consider the following schema:
-
-```
-'entity': {
-  'name': {
-    'type': 'string',
-    'required': True },
-  'contact': {
-    'type': 'dict',
-    'required': True,
-    'schema': {
-      'phone': {
-        'type': 'string',
-        'required': False,
-        'default': '1234567890' },
-      'email': {
-        'type': 'string',
-        'required': False,
-        'default': 'abc@efg.com' },
-    }
-  }
-}
-```
-
-Two notations ``contact: { email: 'an email'}`` and ``contact.email: 'an email'`` can be used to update the `email` field embedded in `contact` field.
-
-``PATCH`` incorrectly normalizes default values in sub-documents.
-
-Consider the example above, by default, if you apply PATCH with body
-
-```
-{'contact.email': 'xyz@gmail.com'}
-```
-
-to the document:
-
-```
-{'name': 'test account', 'contact': {'email': '123@yahoo.com', 'phone': '9876543210'}}
-```
-
-The document will be updated as:
-
-```
-{'name': 'test account', 'contact': {'email': 'xyz@gmail.com', 'phone': '1234567890'}}
-```
-
-That is the ``contact.phone`` has been reset to the default value in the schema. To avoid this, you could set `False` to the parameter: ``normalize_document_for_patch`` (or ``NORMALIZE_DOCUMENT_FOR_PATCH`` globally), in which case, the document will be updated as:
-
-```
-{'name': 'test account', 'contact': {'email': '123@yahoo.com', 'phone': '9876543210'}}
-```
+The request above will ignore ``"count": {"$sum": "$value"}}``. A Custom
+callback functions can be attached to the ``before_aggregation`` and
+``after_aggregation`` event hooks. For more information, see
+:ref:`aggregation_hooks`.
 
 Limitations
 ~~~~~~~~~~~
 Client pagination (``?page=2``) is enabled by default. This is currently
 achieved by injecting a ``$facet`` stage contianing two sub-pipelines,
-total_count (``$count``) and paginated_results (``$limit`` first, then ``$skip``)
-to the very end of the aggregation pipeline after the ``before_aggregation`` hook.
-You can turn pagination off by setting ``pagination`` to ``False`` for the endpoint. Keep in mind that, when pagination
-is disabled, all aggregation results are included with every response.
-Disabling pagination might be appropriate (and actually advisable) only if the
-expected response payload is not huge.
+total_count (``$count``) and paginated_results (``$limit`` first, then
+``$skip``) to the very end of the aggregation pipeline after the
+``before_aggregation`` hook. You can turn pagination off by setting
+``pagination`` to ``False`` for the endpoint. Keep in mind that, when
+pagination is disabled, all aggregation results are included with every
+response. Disabling pagination might be appropriate (and actually advisable)
+only if the expected response payload is not huge.
 
 Client sorting (``?sort=field1``) is not supported at aggregation endpoints.
 You can of course add one or more ``$sort`` stages to the pipeline, as we did

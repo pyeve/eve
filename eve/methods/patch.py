@@ -152,7 +152,7 @@ def patch_internal(
 
     resource_def = app.config["DOMAIN"][resource]
     schema = resource_def["schema"]
-    normalize_document = resource_def.get("normalize_document_for_patch")
+    normalize_document = resource_def.get("normalize_on_patch")
     validator = app.validator(
         schema, resource=resource, allow_unknown=resource_def["allow_unknown"]
     )
