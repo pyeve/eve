@@ -246,6 +246,7 @@ products = {
 
 test_patch = {
     "datasource": {"source": "test_patch"},
+    "normalize_on_patch": False,
     "schema": {
         "name": {"type": "string", "required": True},
         "contact": {

@@ -27,17 +27,22 @@ class Validator(cerberus.Validator):
 
         super(Validator, self).__init__(*args, **kwargs)
 
-    def validate_update(self, document, document_id, persisted_document=None):
+    def validate_update(
+        self, document, document_id, persisted_document=None, normalize_document=True
+    ):
         """ Validate method to be invoked when performing an update, not an
         insert.
 
         :param document: the document to be validated.
         :param document_id: the unique id of the document.
         :param persisted_document: the persisted document to be updated.
+        :param normalize_document: whether apply normalization during patch.
         """
         self.document_id = document_id
         self.persisted_document = persisted_document
-        return super(Validator, self).validate(document, update=True)
+        return super(Validator, self).validate(
+            document, update=True, normalize=normalize_document
+        )
 
     def validate_replace(self, document, document_id, persisted_document=None):
         """ Validation method to be invoked when performing a document

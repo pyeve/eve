@@ -152,6 +152,7 @@ def patch_internal(
 
     resource_def = app.config["DOMAIN"][resource]
     schema = resource_def["schema"]
+    normalize_document = resource_def.get("normalize_on_patch")
     validator = app.validator(
         schema, resource=resource, allow_unknown=resource_def["allow_unknown"]
     )
@@ -174,7 +175,9 @@ def patch_internal(
         if skip_validation:
             validation = True
         else:
-            validation = validator.validate_update(updates, object_id, original)
+            validation = validator.validate_update(
+                updates, object_id, original, normalize_document
+            )
             updates = validator.document
 
         if validation:
