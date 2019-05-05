@@ -6,6 +6,12 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
+New
+~~~~~
+- ``NORMALIZE_ON_PATCH`` switches normalization on patch requests (`#1234`_)
+
+.. _`#1234`: https://github.com/pyeve/eve/issues/1234
+
 Fixed
 ~~~~~
 - Fix crash when trying to ignore a nested field that doesn't exist (`#1263`_)
