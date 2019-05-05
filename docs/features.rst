@@ -2349,6 +2349,31 @@ Consider the following schema:
 
 Two notations ``contact: { email: 'an email'}`` and ``contact.email: 'an email'`` can be used to update the `email` field embedded in `contact` field.
 
+``PATCH`` incorrectly normalizes default values in sub-documents.
+
+Consider the example above, by default, if you apply PATCH with body
+
+```
+{'contact.email': 'xyz@gmail.com'}
+```
+
+to the document:
+
+```
+{'name': 'test account', 'contact': {'email': '123@yahoo.com', 'phone': '9876543210'}}
+```
+
+The document will be updated as:
+
+```
+{'name': 'test account', 'contact': {'email': 'xyz@gmail.com', 'phone': '1234567890'}}
+```
+
+That is the ``contact.phone`` has been reset to the default value in the schema. To avoid this, you could set `False` to the parameter: ``normalize_document_for_patch`` (or ``NORMALIZE_DOCUMENT_FOR_PATCH`` globally), in which case, the document will be updated as:
+
+```
+{'name': 'test account', 'contact': {'email': '123@yahoo.com', 'phone': '9876543210'}}
+```
 
 Limitations
 ~~~~~~~~~~~
