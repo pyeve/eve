@@ -780,7 +780,9 @@ uppercase.
                                     normalized according to schema. This means
                                     if a field is not included in the patch
                                     body, it will be reset to the default value
-                                    in its schema.
+                                    in its schema. If ``False``, the field which
+                                    is not included in the patch body will be
+                                    kept untouched. Defaults to ``True``.
 
 =================================== =========================================
 
@@ -1126,7 +1128,9 @@ always lowercase.
                                     normalized according to schema. This means
                                     if a field is not included in the patch
                                     body, it will be reset to the default value
-                                    in its schema.
+                                    in its schema. If ``False``, the field which
+                                    is not included in the patch body will be
+                                    kept untouched. Defaults to ``True``.
 
 =============================== ===============================================
 
