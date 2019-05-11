@@ -1,7 +1,7 @@
 .PHONY: all install-dev test test-all tox docs audit clean-pyc docs-upload wheel
 
 install-dev:
-	pip install -q -e .[dev] --no-use-pep517
+	pip install -q -e .[dev]
 
 test: clean-pyc install-dev
 	pytest
