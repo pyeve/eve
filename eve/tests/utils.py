@@ -169,6 +169,7 @@ class TestUtils(TestBase):
 
     def test_document_etag_ignore_fields(self):
         test = {"key1": "value1", "key2": "value2"}
+        test_copy = copy.deepcopy(test)
         ignore_fields = ["key2"]
         test_without_ignore = {"key1": "value1"}
         challenge = dumps(test_without_ignore, sort_keys=True).encode("utf-8")
@@ -176,6 +177,7 @@ class TestUtils(TestBase):
             self.assertEqual(
                 hashlib.sha1(challenge).hexdigest(), document_etag(test, ignore_fields)
             )
+            self.assertEqual(test, test_copy)
 
         # not required fields can not be present
         test = {"key1": "value1", "key2": "value2"}
@@ -189,6 +191,7 @@ class TestUtils(TestBase):
 
         # ignore fiels nested using doting notation
         test = {"key1": "value1", "dict": {"key2": "value2", "key3": "value3"}}
+        test_copy = copy.deepcopy(test)
         ignore_fields = ["dict.key2"]
         test_without_ignore = {"key1": "value1", "dict": {"key3": "value3"}}
         challenge = dumps(test_without_ignore, sort_keys=True).encode("utf-8")
@@ -196,6 +199,7 @@ class TestUtils(TestBase):
             self.assertEqual(
                 hashlib.sha1(challenge).hexdigest(), document_etag(test, ignore_fields)
             )
+            self.assertEqual(test, test_copy)
 
         # ignore fiels nested using doting notation when a root part of the field is not present
         test = {"key1": "value1", "dict": {"key2": "value2"}}
