@@ -10,18 +10,20 @@ New
 ~~~~~
 - ``NORMALIZE_ON_PATCH`` switches normalization on patch requests (`#1234`_)
 
-.. _`#1234`: https://github.com/pyeve/eve/issues/1234
 
 Fixed
 ~~~~~
+- Creah with Werzeug >= 0.15.3 (`#1267`_)
 - Fix crash when trying to ignore a nested field that doesn't exist (`#1263`_)
-
-.. _`#1263`: https://github.com/pyeve/eve/pull/1263
 
 Improved
 ~~~~~~~~
 - Remove unsupported ``transparent_schema_rules`` option from docs (`#1264`_)
+- Bump (and pin) Wekzeug to 0.15.4 (`#1267`_)
 
+.. _`#1234`: https://github.com/pyeve/eve/issues/1234
+.. _`#1267`: https://github.com/pyeve/eve/issues/1267
+.. _`#1263`: https://github.com/pyeve/eve/pull/1263
 .. _`#1264`: https://github.com/pyeve/eve/issues/1264
 
 Version 0.9

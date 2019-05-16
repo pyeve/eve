@@ -18,7 +18,7 @@ INSTALL_REQUIRES = [
     "flask>=1.0",
     "pymongo>=3.7",
     "simplejson>=3.3.0,<4.0",
-    "werkzeug>=0.15.1",
+    "werkzeug==0.15.3",
 ]
 
 EXTRAS_REQUIRE = {
