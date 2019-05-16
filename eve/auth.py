@@ -149,7 +149,7 @@ class BasicAuth(object):
         abort(
             401,
             "Please provide proper credentials",
-            ("WWW-Authenticate", 'Basic realm="%s"' % __package__),
+            www_authenticate = ("WWW-Authenticate", 'Basic realm="%s"' % __package__),
         )
 
     def authorized(self, allowed_roles, resource, method):
