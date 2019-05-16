@@ -282,7 +282,7 @@ def _perform_find(resource, lookup):
     if config.OPTIMIZE_PAGINATION_FOR_SPEED:
         count = None
     else:
-        count = app.data.last_documents_count
+        count = cursor.count(with_limit_and_skip=False)
         headers.append((config.HEADER_TOTAL_COUNT, count))
 
     if config.DOMAIN[resource]["hateoas"]:
