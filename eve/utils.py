@@ -16,7 +16,7 @@ from importlib import import_module
 import eve
 import hashlib
 import werkzeug.exceptions
-from copy import copy
+from copy import deepcopy
 from flask import request
 from flask import current_app as app
 from datetime import datetime, timedelta
@@ -352,7 +352,7 @@ def document_etag(value, ignore_fields=None):
                     # not required fields can be not present
                     pass
 
-        value_ = copy(value)
+        value_ = deepcopy(value)
         filter_ignore_fields(value_, ignore_fields)
     else:
         value_ = value
