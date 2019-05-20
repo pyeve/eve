@@ -893,7 +893,7 @@ def embedded_document(references, data_relation, field_name):
         )
         for subresource in subresources_query:
             result, _ = app.data.find(
-                subresource, None, subresources_query[subresource]
+                subresource, None, subresources_query[subresource], perform_count=False
             )
             list_embedded_doc = list(result)
 
