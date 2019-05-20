@@ -559,24 +559,24 @@ class TestSoftDelete(TestDelete):
             # show_deleted == True is passed or if the deleted field is part of
             # the lookup
             req.show_deleted = False
-            self.app.data.find(self.known_resource, req, None)
-            undeleted_count = self.app.data.last_documents_count
+            _, undeleted_count = self.app.data.find(self.known_resource, req, None)
 
             req.show_deleted = True
-            self.app.data.find(self.known_resource, req, None)
-            self.assertEqual(undeleted_count, self.app.data.last_documents_count - 1)
+            _, challenge = self.app.data.find(self.known_resource, req, None)
+            self.assertEqual(undeleted_count, challenge - 1)
 
             req.show_deleted = False
-            self.app.data.find(self.known_resource, req, {self.deleted_field: True})
-            deleted_count = self.app.data.last_documents_count
+            _, deleted_count = self.app.data.find(
+                self.known_resource, req, {self.deleted_field: True}
+            )
             self.assertEqual(deleted_count, 1)
 
             # find_list_of_ids will return deleted documents if given their id
-            self.app.data.find_list_of_ids(
+            ids = self.app.data.find_list_of_ids(
                 self.known_resource, [ObjectId(self.item_id)]
             )
 
-            self.assertEqual(self.app.data.last_documents_count, 1)
+            self.assertEqual(str(ids[0]["_id"]), self.item_id)
 
     def test_softdelete_db_fields(self):
         """Documents created when soft delete is enabled should include and

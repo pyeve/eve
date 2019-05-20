@@ -849,7 +849,7 @@ def embedded_document(references, data_relation, field_name):
     :param data_relation: the relation schema definition.
     :param field_name: field name used in abort message only
 
-    .. versionadded:: 0.5
+)    .. versionadded:: 0.5
     """
     embedded_docs = []
 
@@ -892,9 +892,10 @@ def embedded_document(references, data_relation, field_name):
             data_relation, references
         )
         for subresource in subresources_query:
-            list_embedded_doc = list(
-                app.data.find(subresource, None, subresources_query[subresource])
+            result, _ = app.data.find(
+                subresource, None, subresources_query[subresource]
             )
+            list_embedded_doc = list(result)
 
             if not list_embedded_doc:
                 embedded_docs.extend(
