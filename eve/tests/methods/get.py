@@ -1051,13 +1051,13 @@ class TestGet(TestBase):
         _find = self.app.data.find
         hits = {"total_hits": 0}
 
-        def find(resource, req, sub_resource_lookup):
+        def find(resource, req, sub_resource_lookup, perform_count=True):
             def extra(response):
                 response["_hits"] = hits
 
-            cursor = _find(resource, req, sub_resource_lookup)
+            cursor, _ = _find(resource, req, sub_resource_lookup)
             cursor.extra = extra
-            return cursor
+            return cursor, _
 
         self.app.data.find = find
         r, status = self.get(self.known_resource)

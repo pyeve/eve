@@ -13,6 +13,7 @@ New
 
 Fixed
 ~~~~~
+- Document count broken with concurrent requests (`#1271`_)
 - If ``ignore_fields`` contains a nested field, document is mutated (`#1266`_)
 - Crash with Werzeug >= 0.15.3 (`#1267`_)
 - Fix crash when trying to ignore a nested field that doesn't exist (`#1263`_)
@@ -22,6 +23,7 @@ Improved
 - Remove unsupported ``transparent_schema_rules`` option from docs (`#1264`_)
 - Bump (and pin) Wekzeug to 0.15.4 (`#1267`_)
 
+.. _`#1271`: https://github.com/pyeve/eve/issues/1271
 .. _`#1266`: https://github.com/pyeve/eve/pull/1266
 .. _`#1234`: https://github.com/pyeve/eve/issues/1234
 .. _`#1267`: https://github.com/pyeve/eve/issues/1267

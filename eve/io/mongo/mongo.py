@@ -141,7 +141,7 @@ class Mongo(DataLayer):
         self.driver = PyMongos(self)
         self.mongo_prefix = None
 
-    def find(self, resource, req, sub_resource_lookup):
+    def find(self, resource, req, sub_resource_lookup, perform_count=True):
         """ Retrieves a set of documents matching a given request. Queries can
         be expressed in two different formats: the mongo query syntax, and the
         python syntax. The first kind of query would look like: ::
@@ -258,9 +258,9 @@ class Mongo(DataLayer):
         if projection:
             args["projection"] = projection
 
-        self.__last_target = self.pymongo(resource).db[datasource], spec
+        target = self.pymongo(resource).db[datasource]
         try:
-            self.__last_cursor = self.pymongo(resource).db[datasource].find(**args)
+            result = target.find(**args)
         except TypeError as e:
             # pymongo raises ValueError when invalid query paramenters are
             # included. We do our best to catch them beforehand but, especially
@@ -268,30 +268,27 @@ class Mongo(DataLayer):
             self.app.logger.exception(e)
             abort(400, description=debug_error_message(str(e)))
 
-        return self.__last_cursor
+        if perform_count:
+            try:
+                count = target.count_documents(spec)
+            except:
+                # fallback to deprecated method. this might happen when the query
+                # includes operators not supported by count_documents(). one
+                # documented use-case is when we're running on mongo 3.4 and below,
+                # which does not support $expr ($expr must replace $where # in
+                # count_documents()).
 
-    @property
-    def last_documents_count(self):
-        if not self.__last_target:
-            return None
+                # 1. Mongo 3.6+; $expr: pass
+                # 2. Mongo 3.6+; $where: pass (via fallback)
+                # 3. Mongo 3.4; $where: pass (via fallback)
+                # 4. Mongo 3.4; $expr: fail (operator not supported by db)
 
-        try:
-            target, spec = self.__last_target
-            return target.count_documents(spec)
-        except:
-            # fallback to deprecated method. this might happen when the query
-            # includes operators not supported by count_documents(). one
-            # documented use-case is when we're running on mongo 3.4 and below,
-            # which does not support $expr ($expr must replace $where # in
-            # count_documents()).
+                # See: http://api.mongodb.com/python/current/api/pymongo/collection.html#pymongo.collection.Collection.count
+                count = target.count()
+        else:
+            count = None
 
-            # 1. Mongo 3.6+; $expr: pass
-            # 2. Mongo 3.6+; $where: pass (via fallback)
-            # 3. Mongo 3.4; $where: pass (via fallback)
-            # 4. Mongo 3.4; $expr: fail (operator not supported by db)
-
-            # See: http://api.mongodb.com/python/current/api/pymongo/collection.html#pymongo.collection.Collection.count
-            return self.__last_cursor.count()
+        return result, count
 
     def find_one(
         self,

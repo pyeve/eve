@@ -217,7 +217,8 @@ def delete(resource, **lookup):
         # get_document should always fetch soft deleted documents from the db
         # callers must handle soft deleted documents
         default_request.show_deleted = True
-    originals = list(app.data.find(resource, default_request, lookup))
+    result, _ = app.data.find(resource, default_request, lookup)
+    originals = list(result)
     if not originals:
         abort(404)
     # I add new callback as I want the framework to be retro-compatible
