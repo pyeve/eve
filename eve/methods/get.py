@@ -262,7 +262,9 @@ def _perform_find(resource, lookup):
     # If-Modified-Since disabled on collections (#334)
     req.if_modified_since = None
 
-    cursor = app.data.find(resource, req, lookup)
+    cursor, count = app.data.find(
+        resource, req, lookup, perform_count=not config.OPTIMIZE_PAGINATION_FOR_SPEED
+    )
     # If soft delete is enabled, data.find will not include items marked
     # deleted unless req.show_deleted is True
     for document in cursor:
@@ -279,10 +281,7 @@ def _perform_find(resource, lookup):
 
     response[config.ITEMS] = documents
 
-    if config.OPTIMIZE_PAGINATION_FOR_SPEED:
-        count = None
-    else:
-        count = app.data.last_documents_count
+    if count:
         headers.append((config.HEADER_TOTAL_COUNT, count))
 
     if config.DOMAIN[resource]["hateoas"]:
@@ -454,11 +453,11 @@ def getitem_internal(resource, **lookup):
             # default sort for 'all', required sort for 'diffs'
             req.sort = '[("%s", 1)]' % config.VERSION
         req.if_modified_since = None  # we always want the full history here
-        cursor = app.data.find(resource + config.VERSIONS, req, lookup)
+        cursor, count = app.data.find(resource + config.VERSIONS, req, lookup)
 
         # build all versions
         documents = []
-        if app.data.last_documents_count == 0:
+        if count == 0:
             # this is the scenario when the document existed before
             # document versioning got turned on
             documents.append(latest_doc)
@@ -510,7 +509,6 @@ def getitem_internal(resource, **lookup):
     if config.DOMAIN[resource]["hateoas"]:
         # use the id of the latest document for multi-document requests
         if cursor:
-            count = app.data.last_documents_count
             response[config.LINKS] = _pagination_links(
                 resource, req, count, latest_doc[resource_def["id_field"]]
             )
