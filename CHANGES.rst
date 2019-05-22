@@ -6,6 +6,13 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
+- hic sunt leones.
+
+Version 0.9.1
+-------------
+
+Released on May 22, 2019.
+
 New
 ~~~~~
 - ``NORMALIZE_ON_PATCH`` switches normalization on patch requests (`#1234`_)
