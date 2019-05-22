@@ -21,7 +21,7 @@ Fixed
 Improved
 ~~~~~~~~
 - Remove unsupported ``transparent_schema_rules`` option from docs (`#1264`_)
-- Bump (and pin) Wekzeug to 0.15.3 (`#1267`_)
+- Bump (and pin) Wekzeug to 0.15.4 (`#1267`_)
 - Quickstart: a better ``MONGO_AUTH_SOURCE`` explanation (`#1168`_)
 
 Breaking Changes
