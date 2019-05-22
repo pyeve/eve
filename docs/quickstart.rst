@@ -128,10 +128,12 @@ Let's connect to a database by adding the following lines to settings.py:
     MONGO_HOST = 'localhost'
     MONGO_PORT = 27017
 
-    # Skip these if your db has no auth. But it really should.
+    # Skip this block if your db has no auth. But it really should.
     MONGO_USERNAME = '<your username>'
     MONGO_PASSWORD = '<your password>'
-    MONGO_AUTH_SOURCE = 'admin'  # needed if --auth mode is enabled
+    # Name of the database on which the user can be authenticated,
+    # needed if --auth mode is enabled.
+    MONGO_AUTH_SOURCE = '<dbname>'
 
     MONGO_DBNAME = 'apitest'
 

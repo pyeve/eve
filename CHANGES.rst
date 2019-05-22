@@ -22,6 +22,7 @@ Improved
 ~~~~~~~~
 - Remove unsupported ``transparent_schema_rules`` option from docs (`#1264`_)
 - Bump (and pin) Wekzeug to 0.15.4 (`#1267`_)
+- Quickstart: a better ``MONGO_AUTH_SOURCE`` explanation (`#1168`_)
 
 Breaking Changes
 ~~~~~~~~~~~~~~~~
@@ -37,6 +38,7 @@ consuming the developer API:
 
 .. _`#1271`: https://github.com/pyeve/eve/issues/1271
 .. _`#1268`: https://github.com/pyeve/eve/issues/1268
+.. _`#1168`: https://github.com/pyeve/eve/issues/1168
 .. _`#1266`: https://github.com/pyeve/eve/pull/1266
 .. _`#1234`: https://github.com/pyeve/eve/issues/1234
 .. _`#1267`: https://github.com/pyeve/eve/issues/1267
