@@ -281,7 +281,7 @@ def _perform_find(resource, lookup):
 
     response[config.ITEMS] = documents
 
-    if count:
+    if count is not None:
         headers.append((config.HEADER_TOTAL_COUNT, count))
 
     if config.DOMAIN[resource]["hateoas"]:
