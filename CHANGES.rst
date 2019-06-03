@@ -6,7 +6,13 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
-- hic sunt leones.
+Fixed
+~~~~~
+- The condition that avoids returning ``X-Total-Count`` when counting is
+  disabled also filters out the case where the resource is empty and count is
+  0 (`#1279`_)
+
+.. _`#1279`: https://github.com/pyeve/eve/issues/1279
 
 Version 0.9.1
 -------------
