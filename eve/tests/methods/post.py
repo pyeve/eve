@@ -145,8 +145,10 @@ class TestPost(TestBase):
         self.assertPostItem(data, test_field, test_value)
 
     def test_post_default_value(self):
-        test_field = "title"
-        test_value = "Mr."
+        test_field = "unsetted_default_value_field"
+        test_value = self.domain["contacts"]["schema"]["unsetted_default_value_field"][
+            "default"
+        ]
         data = {"ref": "9234567890123456789054321"}
         self.assertPostItem(data, test_field, test_value)
 
@@ -767,6 +769,24 @@ class TestPost(TestBase):
         data = {test_field: test_value}
         r, status = self.post(self.known_resource_url, data=data)
         self.assertValidationErrorStatus(status)
+
+    def test_post_with_nested_default(self):
+        """ Test that in post of a field that has nested fields with default values
+            those default values are set
+        """
+        del self.domain["contacts"]["schema"]["ref"]["required"]
+        test_field = "dict_with_nested_default"
+        test_value = {}
+        data = {test_field: test_value}
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assert201(status)
+
+        item_id = r[self.domain[self.known_resource]["id_field"]]
+        raw_r = self.test_client.get("%s/%s" % (self.known_resource_url, item_id))
+        item, status = self.parse_response(raw_r)
+        self.assertEqual(
+            item["dict_with_nested_default"], {"nested_field_with_default": "nested"}
+        )
 
     def test_post_readonly_in_dict(self):
         # Test that a post with a readonly field inside a dict is properly

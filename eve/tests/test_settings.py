@@ -85,6 +85,12 @@ contacts = {
             "type": "string",
             "dependencies": {"dependency_field1": "value"},
         },
+        "dependency_field4": {"type": "string"},
+        "dependency_field5": {"type": "string", "dependencies": ["dependency_field4"]},
+        "dependency_field6": {
+            "type": "string",
+            "dependencies": {"dependency_field4": "value"},
+        },
         "read_only_field": {"type": "string", "default": "default", "readonly": True},
         "dict_with_read_only": {
             "type": "dict",
@@ -94,6 +100,13 @@ contacts = {
                     "default": "default",
                     "readonly": True,
                 }
+            },
+        },
+        "dict_with_nested_default": {
+            "type": "dict",
+            "schema": {
+                "nested_field": {"type": "string"},
+                "nested_field_with_default": {"type": "string", "default": "nested"},
             },
         },
         "key1": {"type": "string"},
@@ -112,6 +125,7 @@ contacts = {
                 "schema": {"challenge": {"type": "objectid"}},
             },
         },
+        "unsetted_default_value_field": {"type": "string", "default": "value"},
     },
 }
 

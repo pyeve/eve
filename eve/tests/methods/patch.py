@@ -228,7 +228,12 @@ class TestPatch(TestBase):
         test_value = "1234567890123456789012345"
         changes = {field: test_value}
         r = self.perform_patch(changes)
-        self.assertEqual(self.compare_patch_with_get("title", r), "Mr.")
+        self.assertEqual(
+            self.compare_patch_with_get("unsetted_default_value_field", r),
+            self.domain["contacts"]["schema"]["unsetted_default_value_field"][
+                "default"
+            ],
+        )
 
     def test_patch_missing_default_with_post_override(self):
         """ PATCH an object which is missing a field with a default value.
@@ -239,8 +244,32 @@ class TestPatch(TestBase):
         test_value = "1234567890123456789012345"
         r = self.perform_patch_with_post_override(field, test_value)
         self.assert200(r.status_code)
-        title = self.compare_patch_with_get("title", json.loads(r.get_data()))
-        self.assertEqual(title, "Mr.")
+        unsetted_default_value_field = self.compare_patch_with_get(
+            "unsetted_default_value_field", json.loads(r.get_data())
+        )
+        self.assertEqual(
+            unsetted_default_value_field,
+            self.domain["contacts"]["schema"]["unsetted_default_value_field"][
+                "default"
+            ],
+        )
+
+    def test_patch_missing_nested_default(self):
+        """ PATCH an object which is missing a field with a default value.
+
+        This should result in setting the field to its default value, even if
+        the field is not provided in the PATCH's payload. """
+        field = "dict_with_nested_default"
+        test_value = {}
+        changes = {field: test_value}
+        r = self.perform_patch(changes)
+
+        item_id = r[self.domain[self.known_resource]["id_field"]]
+        raw_r = self.test_client.get("%s/%s" % (self.known_resource_url, item_id))
+        item, status = self.parse_response(raw_r)
+        self.assertEqual(
+            item["dict_with_nested_default"], {"nested_field_with_default": "nested"}
+        )
 
     def test_patch_multiple_fields(self):
         fields = ["ref", "prog", "role"]
@@ -646,41 +675,61 @@ class TestPatch(TestBase):
         self.assertEqual(r["other"], {"name": "other_name"})
 
     def test_patch_dependent_field_on_origin_document(self):
-        """ Test that when patching a field which is dependent on another and
-        this other field is not provided with the patch but is still present
-        on the target document, the patch will be accepted. See #363.
-        """
-        # this will fail as dependent field is missing even in the
-        # document we are trying to update.
-        del self.domain["contacts"]["schema"]["dependency_field1"]["default"]
-        changes = {"dependency_field2": "value"}
-        r, status = self.patch(
-            self.item_id_url, data=changes, headers=[("If-Match", self.item_etag)]
-        )
-        self.assert422(status)
+        """ Test that when patching a field which is dependent on another field's
+        existance, and this other field is not provided in the patch, but does
+        exist on the persisted document, the patch will be accepted.
 
-        # update the stored document by adding dependency field.
-        changes = {"dependency_field1": "value"}
+        The value on the document can be there either because is was set
+        explicitly or because it was set as a default value by Eve.
+
+        See #363.
+        """
+
+        # this will succeed as even if the value is not present in the PATCH
+        # payload, it is in the persisted document because the dependency_field1
+        # had a default value defined
+        changes = {"dependency_field2": "value"}
         r, status = self.patch(
             self.item_id_url, data=changes, headers=[("If-Match", self.item_etag)]
         )
         self.assert200(status)
 
-        # now the field2 update will be accepted as the dependency field is
-        # present in the stored document already.
+        # this will fail, as dependent field is missing in the PATCH payload
+        # and is not present in the persisted document (it doesn't even have a
+        # default value)
         etag = r["_etag"]
-        changes = {"dependency_field2": "value"}
+        changes = {"dependency_field5": "value"}
+        r, status = self.patch(
+            self.item_id_url, data=changes, headers=[("If-Match", etag)]
+        )
+        self.assert422(status)
+
+        # update the stored document by adding the dependency field with some
+        # unknown value
+        changes = {"dependency_field4": "unknown_value"}
+        r, status = self.patch(
+            self.item_id_url, data=changes, headers=[("If-Match", etag)]
+        )
+        self.assert200(status)
+
+        # This will succeed as now the field is present in the persisted document
+        # even if it's not provided in the patch payload
+        etag = r["_etag"]
+        changes = {"dependency_field5": "value"}
         r, status = self.patch(
             self.item_id_url, data=changes, headers=[("If-Match", etag)]
         )
         self.assert200(status)
 
     def test_patch_dependent_field_value_on_origin_document(self):
-        """ Test that when patching a field which is dependent on another and
-        this other field is not provided with the patch but is still present
-        on the target document, the patch will be accepted. See #363.
+        """ Test that when patching a field which is dependent on another field's
+        value, and this other field is not provided in the patch, but is present
+        on the persisted document, the patch will be accepted.
+
+        See #363.
         """
-        # this will fail as dependent field is missing even in the
+
+        # this will fail as the dependent field has value that doesn't
         # document we are trying to update.
         changes = {"dependency_field3": "value"}
         r, status = self.patch(
@@ -696,7 +745,7 @@ class TestPatch(TestBase):
         )
         self.assert200(status)
 
-        # now the field2 update will be accepted as the dependency field is
+        # now the field3 update will be accepted as the dependency field is
         # present in the stored document already.
         etag = r["_etag"]
         changes = {"dependency_field3": "value"}
