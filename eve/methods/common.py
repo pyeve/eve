@@ -1332,9 +1332,14 @@ def pre_event(f):
         resource = args[0] if args else None
         gh_params = ()
         rh_params = ()
+        combined_args = kwargs
+
+        if len(args) > 1:
+            combined_args.update(args[1].items())
+
         if method in ("GET", "PATCH", "DELETE", "PUT"):
-            gh_params = (resource, request, kwargs)
-            rh_params = (request, kwargs)
+            gh_params = (resource, request, combined_args)
+            rh_params = (request, combined_args)
         elif method in ("POST",):
             # POST hook does not support the kwargs argument
             gh_params = (resource, request)
@@ -1346,9 +1351,6 @@ def pre_event(f):
             # resource hook
             getattr(app, event_name + "_" + resource)(*rh_params)
 
-        combined_args = kwargs
-        if len(args) > 1:
-            combined_args.update(args[1].items())
         r = f(resource, **combined_args)
         return r
 
