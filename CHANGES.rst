@@ -17,10 +17,12 @@ Fixed
 - The condition that avoids returning ``X-Total-Count`` when counting is
   disabled also filters out the case where the resource is empty and count is
   0 (`#1279`_)
+- First example of Eve use doesn't really work (`#1277`_)
 
 .. _`#1283`: https://github.com/pyeve/eve/issues/1283
 .. _`#1281`: https://github.com/pyeve/eve/issues/1281
 .. _`#1280`: https://github.com/pyeve/eve/issues/1280
+.. _`#1277`: https://github.com/pyeve/eve/issues/1277
 .. _`#1275`: https://github.com/pyeve/eve/issues/1275
 .. _`#1274`: https://github.com/pyeve/eve/issues/1274
 .. _`#1279`: https://github.com/pyeve/eve/issues/1279

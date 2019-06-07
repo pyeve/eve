@@ -43,7 +43,9 @@ Eve is Simple
 
     from eve import Eve
 
-    app = Eve()
+    settings = {'DOMAIN': {'people': {}}}
+
+    app = Eve(settings=settings)
     app.run()
 
 The API is now live, ready to be consumed:
@@ -54,8 +56,8 @@ The API is now live, ready to be consumed:
     HTTP/1.1 200 OK
 
 All you need to bring your API online is a database, a configuration file
-(defaults to ``settings.py``) and a launch script.  Overall, you will find that
-configuring and fine-tuning your API is a very simple process.
+(defaults to ``settings.py``) or dictionary, and a launch script. Overall, you
+will find that configuring and fine-tuning your API is a very simple process.
 
 Funding Eve
 -----------
