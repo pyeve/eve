@@ -8,10 +8,16 @@ In Development
 
 Fixed
 ~~~~~
+- PUT requests doesn't set default values for fields that have one defined
+  (`#1280`_)
+- PATCH crashes when normalizing default fields (`#1275`_, `#1274`_)
 - The condition that avoids returning ``X-Total-Count`` when counting is
   disabled also filters out the case where the resource is empty and count is
   0 (`#1279`_)
 
+.. _`#1280`: https://github.com/pyeve/eve/issues/1280
+.. _`#1275`: https://github.com/pyeve/eve/issues/1275
+.. _`#1274`: https://github.com/pyeve/eve/issues/1274
 .. _`#1279`: https://github.com/pyeve/eve/issues/1279
 
 Version 0.9.1
