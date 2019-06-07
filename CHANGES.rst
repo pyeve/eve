@@ -8,6 +8,7 @@ In Development
 
 Fixed
 ~~~~~
+- Geo queries lack support for the ``$minDistance`` mongo operator (`#1281`_)
 - Lookup argument does not get passed to ``pre_<event>`` hook with certain
   resource urls (`#1283`_)
 - PUT requests doesn't set default values for fields that have one defined
@@ -18,6 +19,7 @@ Fixed
   0 (`#1279`_)
 
 .. _`#1283`: https://github.com/pyeve/eve/issues/1283
+.. _`#1281`: https://github.com/pyeve/eve/issues/1281
 .. _`#1280`: https://github.com/pyeve/eve/issues/1280
 .. _`#1275`: https://github.com/pyeve/eve/issues/1275
 .. _`#1274`: https://github.com/pyeve/eve/issues/1274
