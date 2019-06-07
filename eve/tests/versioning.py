@@ -32,6 +32,7 @@ class TestVersioningBase(TestBase):
     def enableVersioning(self, partial=False):
         del self.domain["contacts"]["schema"]["title"]["default"]
         del self.domain["contacts"]["schema"]["dependency_field1"]["default"]
+        del self.domain["contacts"]["schema"]["unsetted_default_value_field"]["default"]
         del self.domain["contacts"]["schema"]["read_only_field"]["default"]
         del self.domain["contacts"]["schema"]["dict_with_read_only"]["schema"][
             "read_only_in_dict"

@@ -196,13 +196,65 @@ class TestPut(TestBase):
         self.assert200(r.status_code)
         self.assertPutResponse(json.loads(r.get_data()), self.item_id)
 
-    def test_put_default_value(self):
+    def test_put_sets_default_value_when_field_not_provided_neither_persisted(self):
+        """
+            Test that when replacing a document, any field that has default values
+            defined in the schema is set according to the schema default when
+            the current persisted document doesn't have the field value set.
+        """
+        test_field = "unsetted_default_value_field"
+        test_value = self.domain["contacts"]["schema"]["unsetted_default_value_field"][
+            "default"
+        ]
+        data = {"ref": "9234567890123456789054321"}
+        r = self.perform_put(data)
+        db_value = self.compare_put_with_get(test_field, r)
+        self.assertEqual(test_value, db_value)
+
+    def test_put_sets_default_value_when_field_not_provided_but_persisted(self):
+        """
+            Test that when replacing a document, any field that has default values
+            defined in the schema is set according to the schema default when
+            the current persisted document already had the field value set.
+
+            This effectively makes impossible to delete fields with default values
+            in the schema using a PUT request.
+        """
         test_field = "title"
         test_value = "Mr."
         data = {"ref": "9234567890123456789054321"}
         r = self.perform_put(data)
         db_value = self.compare_put_with_get(test_field, r)
         self.assertEqual(test_value, db_value)
+
+    def test_put_removes_non_provided_non_default_field(self):
+        """
+            Test that when replacing a document, any field that has doesn't have
+            a default value defined in the schema and has not been provided in
+            the request will be effectively deleted in the replaced version.
+
+        """
+        data = {"ref": "9234567890123456789054321"}
+        r = self.perform_put(data)
+
+        item_id = r[self.domain[self.known_resource]["id_field"]]
+        raw_r = self.test_client.get("%s/%s" % (self.known_resource_url, item_id))
+        item, status = self.parse_response(raw_r)
+
+        meta_fields = ["_etag", "_updated", "_id", "_links", "_created"]
+        explicitly_set_fields = ["ref"]
+        fields_with_defaults = [
+            "unsetted_default_value_field",
+            "ref",
+            "dependency_field1",
+            "title",
+            "read_only_field",
+        ]
+
+        self.assertEqual(
+            set(meta_fields + explicitly_set_fields + fields_with_defaults),
+            set(item.keys()),
+        )
 
     def test_put_readonly_value_same(self):
         data = {

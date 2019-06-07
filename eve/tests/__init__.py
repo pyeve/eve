@@ -495,6 +495,7 @@ class TestBase(TestMinimal):
                 "ref": self.random_string(schema["ref"]["maxlength"]),
                 "prog": i,
                 "role": random.choice(schema["role"]["allowed"]),
+                "title": schema["title"]["default"],
                 "rows": self.random_rows(random.randint(0, 5)),
                 "alist": self.random_list(random.randint(0, 5)),
                 "location": {
@@ -504,6 +505,10 @@ class TestBase(TestMinimal):
                 "born": datetime.today() + timedelta(days=random.randint(-10, 10)),
                 "tid": ObjectId(),
                 "read_only_field": schema["read_only_field"]["default"],
+                "dependency_field1": schema["dependency_field1"]["default"],
+                # The schema for contacts has a field named 'unsetted_default_value_field'
+                # That is not initialized here on purpose. See put test on
+                # tests.put.put_default_value_when_field_missing
             }
             if standard_date_fields:
                 contact[eve.LAST_UPDATED] = dt

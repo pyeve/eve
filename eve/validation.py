@@ -25,6 +25,7 @@ class Validator(cerberus.Validator):
         if not config.VALIDATION_ERROR_AS_LIST:
             kwargs["error_handler"] = SingleErrorAsStringErrorHandler
 
+        self.is_update_operation = False
         super(Validator, self).__init__(*args, **kwargs)
 
     def validate_update(
@@ -38,6 +39,7 @@ class Validator(cerberus.Validator):
         :param persisted_document: the persisted document to be updated.
         :param normalize_document: whether apply normalization during patch.
         """
+        self.is_update_operation = True
         self.document_id = document_id
         self.persisted_document = persisted_document
         return super(Validator, self).validate(
@@ -65,13 +67,26 @@ class Validator(cerberus.Validator):
     def _normalize_default(self, mapping, schema, field):
         """ {'nullable': True} """
 
-        challenge = self.persisted_document
-        if challenge:
-            for sub_field in self.document_path:
-                challenge = challenge[sub_field]
+        # fields with no default are of no use here
+        if "default" not in schema[field]:
+            return
 
-        if not challenge or field not in challenge:
-            super(Validator, self)._normalize_default(mapping, schema, field)
+        # if the request already contains the field, we don't set any default
+        if field in mapping:
+            return
+
+        # Field already set, we don't want to override with a default on an update
+        if self.is_update_operation and field in self.persisted_document:
+            return
+
+        # If we reach here we are processing a field that has a default in the schema
+        # and the request doesn't explicitly set it. So we are in one of this cases:
+        #
+        #   - An initial POST
+        #   - A PATCH to an existing document where the field is not set
+        #   - A PUT to a document where the field maybe is set
+
+        super(Validator, self)._normalize_default(mapping, schema, field)
 
     def _normalize_default_setter(self, mapping, schema, field):
         """ {'oneof': [
