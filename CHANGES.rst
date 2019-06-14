@@ -6,8 +6,17 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
+- hic sunt leones.
+
+Version 0.9.2
+-------------
+
+Released on June 14, 2019.
+
 Fixed
 ~~~~~
+
+
 - Geo queries lack support for the ``$minDistance`` mongo operator (`#1281`_)
 - Lookup argument does not get passed to ``pre_<event>`` hook with certain
   resource urls (`#1283`_)
