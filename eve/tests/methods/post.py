@@ -975,6 +975,12 @@ class TestPost(TestBase):
         self.assertTrue("ref" in r)
         self.assertTrue("aninteger" not in r)
 
+    def test_unique_value_different_resources(self):
+        r, status = self.post("tenant_a", data={"name": "John"})
+        self.assert201(status)
+        r, status = self.post("tenant_b", data={"name": "John"})
+        self.assert201(status)
+
     def perform_post(self, data, valid_items=[0]):
         r, status = self.post(self.known_resource_url, data=data)
         self.assert201(status)

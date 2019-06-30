@@ -74,6 +74,11 @@ class Validator(Validator):
 
         self._is_value_unique(unique, field, value, query)
 
+    def _validate_unique_within_resource(self, unique, field, value):
+        """ {'type': 'boolean'} """
+        _, filter_, _, _ = app.data.datasource(self.resource)
+        self._is_value_unique(unique, field, value, filter_)
+
     def _validate_unique(self, unique, field, value):
         """ {'type': 'boolean'} """
         self._is_value_unique(unique, field, value, {})
