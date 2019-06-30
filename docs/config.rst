@@ -1293,6 +1293,17 @@ defining the field validation rules. Allowed validation rules are:
                                 If URRA is not active on the endpoint, this
                                 rule behaves like ``unique``
 
+``unique_within_resource``      The value of the field must be unique within
+                                the resource.
+
+                                This differs from the ``unique`` rule in that
+                                it will use the datasource filter when searching
+                                for documents with the same value for the field.
+                                Use this when the resource shares the database
+                                collection with other resources but their documents
+                                should not be taken into account when evaluating
+                                the uniqueness of the field.
+
 ``data_relation``               Allows to specify a referential integrity rule
                                 that the value must satisfy in order to
                                 validate. It is a dict with four keys:
