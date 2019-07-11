@@ -12,7 +12,7 @@ class TestUtils(TestBase):
     def test_logging_info(self, l):
         self.app.logger.propagate = True
         self.app.logger.info("test info")
-        l.check(("flask.app", "INFO", "test info"))
+        l.check(("eve", "INFO", "test info"))
 
         log_record = l.records[0]
         self.assertEqual(log_record.clientip, None)

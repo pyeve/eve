@@ -17,6 +17,9 @@ New
 Fixed
 ~~~~~
 - Display the full release number on Eve frontpage.
+- Flask 1.1.1 breaks ``test_logging_info`` test (`#1296`_)
+
+.. _`#1296`: https://github.com/pyeve/eve/issues/1296
 
 Version 0.9.2
 -------------
