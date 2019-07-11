@@ -6,7 +6,7 @@
 Eve. The Simple Way to REST
 ===========================
 
-Version |version|.
+Version |release|.
 
 .. image:: https://img.shields.io/pypi/v/eve.svg?style=flat-square
     :target: https://pypi.org/project/eve

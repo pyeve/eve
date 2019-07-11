@@ -14,6 +14,10 @@ New
 
 .. _`#1291`: https://github.com/pyeve/eve/issues/1291
 
+Fixed
+~~~~~
+- Display the full release number on Eve frontpage.
+
 Version 0.9.2
 -------------
 
