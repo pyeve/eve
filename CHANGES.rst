@@ -8,10 +8,12 @@ In Development
 
 New
 ~~~
+- Drop support for Python 3.4 (`#1297`_)
 - ``unique_within_resource`` validation rule. Enforces the uniqueness of an
   attribute only at API resource level, contrasting with the ``unique`` rule
   that enforces uniqueness at database collection level (`#1291`_)
 
+.. _`#1297`: https://github.com/pyeve/eve/issues/1297
 .. _`#1291`: https://github.com/pyeve/eve/issues/1291
 
 Fixed
