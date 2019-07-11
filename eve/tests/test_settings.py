@@ -282,6 +282,22 @@ test_patch = {
     },
 }
 
+tenant_a = {
+    "datasource": {"source": "tenants", "filter": {"_tenant": "tenant_a"}},
+    "schema": {
+        "_tenant": {"type": "string", "readonly": True, "default": "tenant_a"},
+        "name": {"type": "string", "required": True, "unique_within_resource": True},
+    },
+}
+
+tenant_b = {
+    "datasource": {"source": "tenants", "filter": {"_tenant": "tenant_b"}},
+    "schema": {
+        "_tenant": {"type": "string", "readonly": True, "default": "tenant_b"},
+        "name": {"type": "string", "required": True, "unique_within_resource": True},
+    },
+}
+
 child_products = copy.deepcopy(products)
 child_products["url"] = 'products/<regex("[A-Z]+"):parent_product>/children'
 child_products["datasource"] = {"source": "products"}
@@ -316,4 +332,6 @@ DOMAIN = {
     "child_products": child_products,
     "exclusion": exclusion,
     "test_patch": test_patch,
+    "tenant_a": tenant_a,
+    "tenant_b": tenant_b,
 }

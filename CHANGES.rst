@@ -6,7 +6,13 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
-- hic sunt leones.
+New
+~~~
+- ``unique_within_resource`` validation rule. Enforces the uniqueness of an
+  attribute only at API resource level, contrasting with the ``unique`` rule
+  that enforces uniqueness at database collection level (`#1291`_)
+
+.. _`#1291`: https://github.com/pyeve/eve/issues/1291
 
 Version 0.9.2
 -------------
