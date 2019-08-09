@@ -55,6 +55,9 @@ class PyMongo(object):
             # w, wtimeout, j and fsync
             client_kwargs.update(app.config[key("WRITE_CONCERN")])
 
+        if key("REPLICA_SET") in app.config:
+            client_kwargs["replicaset"] = app.config[key("REPLICA_SET")]
+
         uri_parser.validate_options(client_kwargs)
 
         if key("URI") in app.config:
