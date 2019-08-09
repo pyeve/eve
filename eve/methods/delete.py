@@ -30,6 +30,10 @@ from datetime import datetime
 import copy
 
 
+def all_done():
+    return {}, None, None, 204
+
+
 @ratelimit()
 @requires_auth("item")
 @pre_event
@@ -102,7 +106,7 @@ def deleteitem_internal(
         **lookup
     )
     if not original or (soft_delete_enabled and original.get(config.DELETED) is True):
-        abort(404)
+        return all_done()
 
     # notify callbacks
     if suppress_callbacks is not True:
@@ -182,7 +186,7 @@ def deleteitem_internal(
         getattr(app, "on_deleted_item")(resource, original)
         getattr(app, "on_deleted_item_%s" % resource)(original)
 
-    return {}, None, None, 204
+    return all_done()
 
 
 @requires_auth("resource")
@@ -220,7 +224,7 @@ def delete(resource, **lookup):
     result, _ = app.data.find(resource, default_request, lookup)
     originals = list(result)
     if not originals:
-        abort(404)
+        return all_done()
     # I add new callback as I want the framework to be retro-compatible
     getattr(app, "on_delete_resource_originals")(resource, originals, lookup)
     getattr(app, "on_delete_resource_originals_%s" % resource)(originals, lookup)
@@ -228,12 +232,11 @@ def delete(resource, **lookup):
 
     if resource_def["soft_delete"]:
         # I need to check that I have at least some documents not soft_deleted
-        # Otherwise, I should abort 404
         # I skip all the soft_deleted documents
         originals = [x for x in originals if x.get(config.DELETED) is not True]
         if not originals:
             # Nothing to be deleted
-            abort(404)
+            return all_done()
         for document in originals:
             lookup[id_field] = document[id_field]
             deleteitem_internal(
@@ -258,4 +261,4 @@ def delete(resource, **lookup):
     getattr(app, "on_deleted_resource")(resource)
     getattr(app, "on_deleted_resource_%s" % resource)()
 
-    return {}, None, None, 204
+    return all_done()

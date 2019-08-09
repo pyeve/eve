@@ -143,7 +143,7 @@ class TestDelete(TestBase):
     def test_delete_non_existant(self):
         url = self.item_id_url[:-5] + "00000"
         r, status = self.delete(url, headers=self.etag_headers)
-        self.assert404(status)
+        self.assert204(status)
 
     def test_delete_write_concern(self):
         # should get a 500 since there's no replicaset on the mongod instance
@@ -371,7 +371,7 @@ class TestSoftDelete(TestDelete):
 
     def test_multiple_softdelete(self):
         """After an item has been soft deleted, subsequent DELETEs should
-        return a 404 Not Found response.
+        return a 204 Not Found response.
         """
         r, status = self.delete(self.item_id_url, headers=self.etag_headers)
         self.assert204(status)
@@ -381,7 +381,7 @@ class TestSoftDelete(TestDelete):
 
         # Second soft DELETE should return 404 Not Found
         r, status = self.delete(self.item_id_url, headers=[("If-Match", new_etag)])
-        self.assert404(status)
+        self.assert204(status)
 
     def test_softdelete_deleted_field(self):
         """The configured 'deleted' field should be added to all documents to indicate
@@ -738,9 +738,9 @@ class TestDeleteEvents(TestBase):
             lookup["_id"] = self.unknown_item_id
 
         self.app.on_pre_DELETE += filter_this
-        # Would normally delete the known document; will return 404 instead.
+        # Would normally delete the known document; will return 204 instead.
         r, s = self.parse_response(self.delete_item())
-        self.assert404(s)
+        self.assert204(s)
 
     def test_on_post_DELETE_for_item(self):
         devent = DummyEvent(self.after_delete)
