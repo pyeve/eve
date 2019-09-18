@@ -980,7 +980,7 @@ where the client dictates which fields should be returned by the API.
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people?projection={"lastname": 1, "born": 1}
+    $ curl -i -G http://eve-demo.herokuapp.com/people --data-urlencode 'projection={"lastname": 1, "born": 1}'
     HTTP/1.1 200 OK
 
 The query above will only return *lastname* and *born* out of all the fields
@@ -988,7 +988,7 @@ available in the 'people' resource. You can also exclude fields:
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people?projection={"born": 0}
+    $ curl -i -G http://eve-demo.herokuapp.com/people --data-urlencode 'projection={"born": 0}'
     HTTP/1.1 200 OK
 
 The above will return all fields but *born*. Please note that key fields such

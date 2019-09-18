@@ -18,6 +18,7 @@ New
 
 Fixed
 ~~~~~
+- Curl request in projection examples do not work (`#1298`_)
 - Update installation instructions (`#1303`_)
 - (*breaking*) Delete on empty resource returns 404, should return 204
   (`#1299`_)
@@ -27,6 +28,7 @@ Fixed
 - Display the full release number on Eve frontpage.
 - Update link to EveGenie repository. New maintainer: David Zisky.
 
+.. _`#1298`: https://github.com/pyeve/eve/issues/1298
 .. _`#1303`: https://github.com/pyeve/eve/pull/1303
 .. _`#1299`: https://github.com/pyeve/eve/issues/1299
 .. _`#1302`: https://github.com/pyeve/eve/issues/1302
