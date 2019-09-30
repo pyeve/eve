@@ -1059,7 +1059,7 @@ always lowercase.
                                 intensive operation. You might therefore want
                                 to handle this task manually, out of the
                                 context of API instantiation. Also remember
-                                that, by default, any already exsistent index
+                                that, by default, any already existent index
                                 for which the definition has been changed, will
                                 be dropped and re-created.
 
