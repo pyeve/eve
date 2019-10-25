@@ -773,7 +773,7 @@ subdocument.
 
 Keep in mind that ``PATCH`` cannot remove a field, but only update existing
 values. Also, by default ``PATCH`` will normalize missing body fields that
-have defautl values defined in the schema. Consider the schema above. If your
+have default values defined in the schema. Consider the schema above. If your
 ``PATCH`` has a body like this:
 
 ::
@@ -802,7 +802,7 @@ Then the updated document will look like this:
     }
 
 That is, ``contact.phone`` has been reset to its default value. This might
-now been the desired behavior. To change it, you can set
+not been the desired behavior. To change it, you can set
 ``normalize_on_patch`` (or ``NORMALIZE_ON_PATCH`` globally) to ``False``.
 Now the updated document will look like this:
 
