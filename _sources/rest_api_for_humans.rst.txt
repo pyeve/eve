@@ -6,7 +6,8 @@ rundown on Eve features, along with a few code snippets and examples. Hopefully
 it will do a good job in letting you decide whether Eve is valid solution for
 your use case.
 
-.. embedly:: https://speakerdeck.com/nicola/eve-rest-api-for-humans
+- `REST API for Humans @ SpeakerDeck <https://speakerdeck.com/nicola/eve-rest-api-for-humans>`_
+
 
 Conferences
 ------------

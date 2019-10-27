@@ -5,7 +5,7 @@ Installation
 This part of the documentation covers the installation of Eve. The first step
 to using any software package is getting it properly installed.
 
-Installing Eve is simple with `pip <http://www.pip-installer.org/>`_:
+Installing Eve is simple with `pip <https://pip.pypa.io/en/stable/>`_:
 
 .. code-block:: console
 
@@ -23,17 +23,20 @@ Get the git checkout in a new virtualenv and run in development mode.
 
 .. code-block:: console
 
-    $ git clone http://github.com/pyeve/eve.git
-    Initialized empty Git repository in ~/dev/eve/.git/
+    $ git clone https://github.com/pyeve/eve.git
+    Cloning into 'eve'...
+    ...
 
     $ cd eve
     $ virtualenv venv
-    New python executable in venv/bin/python
+    ...
+    Installing setuptools, pip, wheel...
+    done.
 
     $ . venv/bin/activate
-    $ python setup.py install
+    $ pip install .
     ...
-    Finished processing dependencies for Eve
+    Successfully installed ...
 
 This will pull in the dependencies and activate the git head as the current
 version inside the virtualenv.  Then all you have to do is run ``git pull
@@ -47,10 +50,8 @@ To just get the development version without git, do this instead:
     $ cd eve
     $ virtualenv venv
     $ . venv/bin/activate
-    New python executable in venv/bin/python
-
-    $ pip install git+git://github.com/pyeve/eve.git
+    $ pip install git+https://github.com/pyeve/eve.git
     ...
-    Cleaning up...
+    Successfully installed ...
 
 And you're done!

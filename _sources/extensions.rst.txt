@@ -116,7 +116,7 @@ power our iOS, Web and Windows applications.
 
 EveGenie
 --------
-*by Erin Corson and Matt Tucker*
+*by Erin Corson and Matt Tucker, maintained by David Zisky.*
 
 EveGenie_ is a tool for generating Eve schemas. It accepts a json document of
 one or more resources and provides you with a starting schema definition.
@@ -146,7 +146,7 @@ Olivier Poitrey, a long time Eve contributor and sustainer. REST Layer is
 .. _Flask-Sentinel: https://github.com/pyeve/flask-sentinel
 .. _Eve-Auth-JWT: https://github.com/rs/eve-auth-jwt
 .. _`REST Layer`: https://github.com/rs/rest-layer
-.. _EveGenie: https://github.com/newmediadenver/evegenie
+.. _EveGenie: https://github.com/DavidZisky/evegenie
 .. _Eve-Swagger: https://github.com/pyeve/eve-swagger
 .. _`Meet Eve-Swagger`: http://nicolaiarocci.com/announcing-eve-swagger/
 .. _Eve-Neo4j: https://github.com/Abraxas-Biosystems/eve-neo4j

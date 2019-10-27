@@ -734,6 +734,89 @@ a matter of fact, Eve's MongoDB data-layer itself extends Cerberus
 validation by implementing the ``unique`` schema field constraint. For more
 information see :ref:`validation`.
 
+Editing a Document (PATCH)
+--------------------------
+Clients can edit a document with the ``PATCH`` method, while ``PUT`` will
+replace it. ``PATCH`` cannot remove a field, but only update its value.
+
+Consider the following schema:
+
+.. code-block:: javascript
+
+    'entity': {
+        'name': {
+            'type': 'string',
+            'required': True
+        },
+        'contact': {
+            'type': 'dict',
+            'required': True,
+            'schema': {
+                'phone': {
+                    'type': 'string',
+                    'required': False,
+                    'default': '1234567890'
+                },
+                'email': {
+                    'type': 'string',
+                    'required': False,
+                    'default': 'abc@efg.com'
+                },
+            }
+        }
+    }
+
+
+Two notations: ``{contact: {email: 'an email'}}`` and ``{contact.email: 'an
+email'}`` can be used to update the ``email`` field in the ``contact``
+subdocument.
+
+Keep in mind that ``PATCH`` cannot remove a field, but only update existing
+values. Also, by default ``PATCH`` will normalize missing body fields that
+have default values defined in the schema. Consider the schema above. If your
+``PATCH`` has a body like this:
+
+::
+
+    {'contact.email': 'xyz@gmail.com'}
+
+and targets this document:
+
+::
+
+    {
+      'name': 'test account',
+      'contact': {'email': '123@yahoo.com', 'phone': '9876543210'}
+    }
+
+Then the updated document will look like this:
+
+::
+
+    {
+      'name': 'test account',
+      'contact': {
+        'email': 'xyz@gmail.com',
+        'phone': '1234567890'
+      }
+    }
+
+That is, ``contact.phone`` has been reset to its default value. This might
+not been the desired behavior. To change it, you can set
+``normalize_on_patch`` (or ``NORMALIZE_ON_PATCH`` globally) to ``False``.
+Now the updated document will look like this:
+
+::
+
+    {
+      'name': 'test account',
+      'contact': {
+        'email': '123@yahoo.com',
+        'phone': '9876543210'
+      }
+    }
+
+
 .. _cache_control:
 
 Resource-level Cache Control
@@ -897,7 +980,7 @@ where the client dictates which fields should be returned by the API.
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people?projection={"lastname": 1, "born": 1}
+    $ curl -i -G http://eve-demo.herokuapp.com/people --data-urlencode 'projection={"lastname": 1, "born": 1}'
     HTTP/1.1 200 OK
 
 The query above will only return *lastname* and *born* out of all the fields
@@ -905,7 +988,7 @@ available in the 'people' resource. You can also exclude fields:
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people?projection={"born": 0}
+    $ curl -i -G http://eve-demo.herokuapp.com/people --data-urlencode 'projection={"born": 0}'
     HTTP/1.1 200 OK
 
 The above will return all fields but *born*. Please note that key fields such
@@ -2249,7 +2332,8 @@ to a keyword of your liking, just set ``QUERY_AGGREGATION`` in your settings.
 You can also set all options natively supported by PyMongo. For more
 information on aggregation see :ref:`datasource`.
 
-You can pass ``{}`` to fields which you want to ignore. Considering the following pipelines:
+You can pass ``{}`` to fields which you want to ignore. Considering the
+following pipelines:
 
 ::
 
@@ -2271,30 +2355,33 @@ If performing the following request:
 
     $ curl -i http://example.com/posts?aggregate={"$name": {"$regex": "Apple"}, "$time": {}}
 
-The stage ``{"$match": { "name": "$name", "time": "$time"}}`` in the pipeline will be executed as ``{"$match": { "name": {"$regex": "Apple"}}}``. And for the following request:
+The stage ``{"$match": { "name": "$name", "time": "$time"}}`` in the pipeline
+will be executed as ``{"$match": { "name": {"$regex": "Apple"}}}``. And for
+the following request:
 
 ::
 
     $ curl -i http://example.com/posts?aggregate={"$name": {}, "$time": {}}
 
-The stage ``{"$match": { "name": "$name", "time": "$time"}}`` in the pipeline will be completely skipped.
+The stage ``{"$match": { "name": "$name", "time": "$time"}}`` in the pipeline
+will be completely skipped.
 
-The request above will ignore ``"count": {"$sum": "$value"}}``. A
-Custom callback functions can be attached to the ``before_aggregation`` and ``after_aggregation`` event hooks. For more information, see :ref:`aggregation_hooks`.
+The request above will ignore ``"count": {"$sum": "$value"}}``. A Custom
+callback functions can be attached to the ``before_aggregation`` and
+``after_aggregation`` event hooks. For more information, see
+:ref:`aggregation_hooks`.
 
 Limitations
 ~~~~~~~~~~~
-``HATEOAS`` is not available at aggregation endpoints. This should not
-be surprising as documents returned by these endpoints are aggregation results
-and do not reside on the database, so there is no static link available for them.
-
 Client pagination (``?page=2``) is enabled by default. This is currently
-achieved by injecting two additional stages (``$limit`` first, then ``$skip``)
-to the very end of the aggregation pipeline. You can turn pagination off by setting
-``pagination`` to ``False`` for the endpoint. Keep in mind that, when pagination
-is disabled, all aggregation results are included with every response.
-Disabling pagination might be appropriate (and actually advisable) only if the
-expected response payload is not huge.
+achieved by injecting a ``$facet`` stage contianing two sub-pipelines,
+total_count (``$count``) and paginated_results (``$limit`` first, then
+``$skip``) to the very end of the aggregation pipeline after the
+``before_aggregation`` hook. You can turn pagination off by setting
+``pagination`` to ``False`` for the endpoint. Keep in mind that, when
+pagination is disabled, all aggregation results are included with every
+response. Disabling pagination might be appropriate (and actually advisable)
+only if the expected response payload is not huge.
 
 Client sorting (``?sort=field1``) is not supported at aggregation endpoints.
 You can of course add one or more ``$sort`` stages to the pipeline, as we did

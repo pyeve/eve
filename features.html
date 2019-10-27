@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Features &#8212; Eve 0.8.2.dev0 documentation</title>
+    <title>Features &#8212; Eve 0.10.dev0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -681,6 +681,76 @@ a matter of fact, Eve’s MongoDB data-layer itself extends Cerberus
 validation by implementing the <code class="docutils literal notranslate"><span class="pre">unique</span></code> schema field constraint. For more
 information see <a class="reference internal" href="validation.html#validation"><span class="std std-ref">Data Validation</span></a>.</p>
 </div>
+<div class="section" id="editing-a-document-patch">
+<h2>Editing a Document (PATCH)<a class="headerlink" href="#editing-a-document-patch" title="Permalink to this headline">¶</a></h2>
+<p>Clients can edit a document with the <code class="docutils literal notranslate"><span class="pre">PATCH</span></code> method, while <code class="docutils literal notranslate"><span class="pre">PUT</span></code> will
+replace it. <code class="docutils literal notranslate"><span class="pre">PATCH</span></code> cannot remove a field, but only update its value.</p>
+<p>Consider the following schema:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;entity&#39;</span><span class="o">:</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s1">&#39;type&#39;</span><span class="o">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;required&#39;</span><span class="o">:</span> <span class="nx">True</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;contact&#39;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s1">&#39;type&#39;</span><span class="o">:</span> <span class="s1">&#39;dict&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;required&#39;</span><span class="o">:</span> <span class="nx">True</span><span class="p">,</span>
+        <span class="s1">&#39;schema&#39;</span><span class="o">:</span> <span class="p">{</span>
+            <span class="s1">&#39;phone&#39;</span><span class="o">:</span> <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="o">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;required&#39;</span><span class="o">:</span> <span class="nx">False</span><span class="p">,</span>
+                <span class="s1">&#39;default&#39;</span><span class="o">:</span> <span class="s1">&#39;1234567890&#39;</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;email&#39;</span><span class="o">:</span> <span class="p">{</span>
+                <span class="s1">&#39;type&#39;</span><span class="o">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;required&#39;</span><span class="o">:</span> <span class="nx">False</span><span class="p">,</span>
+                <span class="s1">&#39;default&#39;</span><span class="o">:</span> <span class="s1">&#39;abc@efg.com&#39;</span>
+            <span class="p">},</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Two notations: <code class="docutils literal notranslate"><span class="pre">{contact:</span> <span class="pre">{email:</span> <span class="pre">'an</span> <span class="pre">email'}}</span></code> and <code class="docutils literal notranslate"><span class="pre">{contact.email:</span> <span class="pre">'an</span>
+<span class="pre">email'}</span></code> can be used to update the <code class="docutils literal notranslate"><span class="pre">email</span></code> field in the <code class="docutils literal notranslate"><span class="pre">contact</span></code>
+subdocument.</p>
+<p>Keep in mind that <code class="docutils literal notranslate"><span class="pre">PATCH</span></code> cannot remove a field, but only update existing
+values. Also, by default <code class="docutils literal notranslate"><span class="pre">PATCH</span></code> will normalize missing body fields that
+have default values defined in the schema. Consider the schema above. If your
+<code class="docutils literal notranslate"><span class="pre">PATCH</span></code> has a body like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;contact.email&#39;</span><span class="p">:</span> <span class="s1">&#39;xyz@gmail.com&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>and targets this document:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;test account&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;contact&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;email&#39;</span><span class="p">:</span> <span class="s1">&#39;123@yahoo.com&#39;</span><span class="p">,</span> <span class="s1">&#39;phone&#39;</span><span class="p">:</span> <span class="s1">&#39;9876543210&#39;</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Then the updated document will look like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;test account&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;contact&#39;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s1">&#39;email&#39;</span><span class="p">:</span> <span class="s1">&#39;xyz@gmail.com&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;phone&#39;</span><span class="p">:</span> <span class="s1">&#39;1234567890&#39;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>That is, <code class="docutils literal notranslate"><span class="pre">contact.phone</span></code> has been reset to its default value. This might
+not been the desired behavior. To change it, you can set
+<code class="docutils literal notranslate"><span class="pre">normalize_on_patch</span></code> (or <code class="docutils literal notranslate"><span class="pre">NORMALIZE_ON_PATCH</span></code> globally) to <code class="docutils literal notranslate"><span class="pre">False</span></code>.
+Now the updated document will look like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;test account&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;contact&#39;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s1">&#39;email&#39;</span><span class="p">:</span> <span class="s1">&#39;123@yahoo.com&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;phone&#39;</span><span class="p">:</span> <span class="s1">&#39;9876543210&#39;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="resource-level-cache-control">
 <span id="cache-control"></span><h2>Resource-level Cache Control<a class="headerlink" href="#resource-level-cache-control" title="Permalink to this headline">¶</a></h2>
 <p>You can set global and individual cache-control directives for each resource.</p>
@@ -825,13 +895,13 @@ hypothetical <code class="docutils literal notranslate"><span class="pre">people
 or more precisely, to decide what fields should or should not be returned,
 using a ‘projection’. Put another way, Projections are conditional queries
 where the client dictates which fields should be returned by the API.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people?projection<span class="o">={</span><span class="s2">&quot;lastname&quot;</span>: <span class="m">1</span>, <span class="s2">&quot;born&quot;</span>: <span class="m">1</span><span class="o">}</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> curl -i -G http://eve-demo.herokuapp.com/people --data-urlencode <span class="s1">&#39;projection={&quot;lastname&quot;: 1, &quot;born&quot;: 1}&#39;</span>
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
 <p>The query above will only return <em>lastname</em> and <em>born</em> out of all the fields
 available in the ‘people’ resource. You can also exclude fields:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> curl -i http://eve-demo.herokuapp.com/people?projection<span class="o">={</span><span class="s2">&quot;born&quot;</span>: <span class="m">0</span><span class="o">}</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> curl -i -G http://eve-demo.herokuapp.com/people --data-urlencode <span class="s1">&#39;projection={&quot;born&quot;: 0}&#39;</span>
 <span class="go">HTTP/1.1 200 OK</span>
 </pre></div>
 </div>
@@ -2163,7 +2233,8 @@ field/value pairs. Like with all other keywords, you can change <code class="doc
 to a keyword of your liking, just set <code class="docutils literal notranslate"><span class="pre">QUERY_AGGREGATION</span></code> in your settings.</p>
 <p>You can also set all options natively supported by PyMongo. For more
 information on aggregation see <a class="reference internal" href="config.html#datasource"><span class="std std-ref">Advanced Datasource Patterns</span></a>.</p>
-<p>You can pass <code class="docutils literal notranslate"><span class="pre">{}</span></code> to fields which you want to ignore. Considering the following pipelines:</p>
+<p>You can pass <code class="docutils literal notranslate"><span class="pre">{}</span></code> to fields which you want to ignore. Considering the
+following pipelines:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">posts</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;datasource&#39;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s1">&#39;aggregation&#39;</span><span class="p">:</span> <span class="p">{</span>
@@ -2181,25 +2252,29 @@ information on aggregation see <a class="reference internal" href="config.html#d
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl -i http://example.com/posts?aggregate={&quot;$name&quot;: {&quot;$regex&quot;: &quot;Apple&quot;}, &quot;$time&quot;: {}}
 </pre></div>
 </div>
-<p>The stage <code class="docutils literal notranslate"><span class="pre">{&quot;$match&quot;:</span> <span class="pre">{</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">&quot;$name&quot;,</span> <span class="pre">&quot;time&quot;:</span> <span class="pre">&quot;$time&quot;}}</span></code> in the pipeline will be executed as <code class="docutils literal notranslate"><span class="pre">{&quot;$match&quot;:</span> <span class="pre">{</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">{&quot;$regex&quot;:</span> <span class="pre">&quot;Apple&quot;}}}</span></code>. And for the following request:</p>
+<p>The stage <code class="docutils literal notranslate"><span class="pre">{&quot;$match&quot;:</span> <span class="pre">{</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">&quot;$name&quot;,</span> <span class="pre">&quot;time&quot;:</span> <span class="pre">&quot;$time&quot;}}</span></code> in the pipeline
+will be executed as <code class="docutils literal notranslate"><span class="pre">{&quot;$match&quot;:</span> <span class="pre">{</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">{&quot;$regex&quot;:</span> <span class="pre">&quot;Apple&quot;}}}</span></code>. And for
+the following request:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ curl -i http://example.com/posts?aggregate={&quot;$name&quot;: {}, &quot;$time&quot;: {}}
 </pre></div>
 </div>
-<p>The stage <code class="docutils literal notranslate"><span class="pre">{&quot;$match&quot;:</span> <span class="pre">{</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">&quot;$name&quot;,</span> <span class="pre">&quot;time&quot;:</span> <span class="pre">&quot;$time&quot;}}</span></code> in the pipeline will be completely skipped.</p>
-<p>The request above will ignore <code class="docutils literal notranslate"><span class="pre">&quot;count&quot;:</span> <span class="pre">{&quot;$sum&quot;:</span> <span class="pre">&quot;$value&quot;}}</span></code>. A
-Custom callback functions can be attached to the <code class="docutils literal notranslate"><span class="pre">before_aggregation</span></code> and <code class="docutils literal notranslate"><span class="pre">after_aggregation</span></code> event hooks. For more information, see <a class="reference internal" href="#aggregation-hooks"><span class="std std-ref">Aggregation event hooks</span></a>.</p>
+<p>The stage <code class="docutils literal notranslate"><span class="pre">{&quot;$match&quot;:</span> <span class="pre">{</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">&quot;$name&quot;,</span> <span class="pre">&quot;time&quot;:</span> <span class="pre">&quot;$time&quot;}}</span></code> in the pipeline
+will be completely skipped.</p>
+<p>The request above will ignore <code class="docutils literal notranslate"><span class="pre">&quot;count&quot;:</span> <span class="pre">{&quot;$sum&quot;:</span> <span class="pre">&quot;$value&quot;}}</span></code>. A Custom
+callback functions can be attached to the <code class="docutils literal notranslate"><span class="pre">before_aggregation</span></code> and
+<code class="docutils literal notranslate"><span class="pre">after_aggregation</span></code> event hooks. For more information, see
+<a class="reference internal" href="#aggregation-hooks"><span class="std std-ref">Aggregation event hooks</span></a>.</p>
 <div class="section" id="id8">
 <h3>Limitations<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">HATEOAS</span></code> is not available at aggregation endpoints. This should not
-be surprising as documents returned by these endpoints are aggregation results
-and do not reside on the database, so there is no static link available for them.</p>
 <p>Client pagination (<code class="docutils literal notranslate"><span class="pre">?page=2</span></code>) is enabled by default. This is currently
-achieved by injecting two additional stages (<code class="docutils literal notranslate"><span class="pre">$limit</span></code> first, then <code class="docutils literal notranslate"><span class="pre">$skip</span></code>)
-to the very end of the aggregation pipeline. You can turn pagination off by setting
-<code class="docutils literal notranslate"><span class="pre">pagination</span></code> to <code class="docutils literal notranslate"><span class="pre">False</span></code> for the endpoint. Keep in mind that, when pagination
-is disabled, all aggregation results are included with every response.
-Disabling pagination might be appropriate (and actually advisable) only if the
-expected response payload is not huge.</p>
+achieved by injecting a <code class="docutils literal notranslate"><span class="pre">$facet</span></code> stage contianing two sub-pipelines,
+total_count (<code class="docutils literal notranslate"><span class="pre">$count</span></code>) and paginated_results (<code class="docutils literal notranslate"><span class="pre">$limit</span></code> first, then
+<code class="docutils literal notranslate"><span class="pre">$skip</span></code>) to the very end of the aggregation pipeline after the
+<code class="docutils literal notranslate"><span class="pre">before_aggregation</span></code> hook. You can turn pagination off by setting
+<code class="docutils literal notranslate"><span class="pre">pagination</span></code> to <code class="docutils literal notranslate"><span class="pre">False</span></code> for the endpoint. Keep in mind that, when
+pagination is disabled, all aggregation results are included with every
+response. Disabling pagination might be appropriate (and actually advisable)
+only if the expected response payload is not huge.</p>
 <p>Client sorting (<code class="docutils literal notranslate"><span class="pre">?sort=field1</span></code>) is not supported at aggregation endpoints.
 You can of course add one or more <code class="docutils literal notranslate"><span class="pre">$sort</span></code> stages to the pipeline, as we did
 with the example above. If you do add a <code class="docutils literal notranslate"><span class="pre">$sort</span></code> stage to the pipeline,
@@ -2265,10 +2340,13 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 <h3>Stay Informed</h3>
 <p>Receive updates on new releases and upcoming projects.</p>
 
-<p><a href="https://twitter.com/nicolaiarocci" class="twitter-follow-button" data-show-count="false">Follow @nicolaiarocci</a> <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></p>
+<p><a href="https://twitter.com/nicolaiarocci" class="twitter-follow-button" data-show-count="false">Follow
+    @nicolaiarocci</a>
+  <script>!function (d, s, id) { var js, fjs = d.getElementsByTagName(s)[0], p = /^http:/.test(d.location) ? 'http' : 'https'; if (!d.getElementById(id)) { js = d.createElement(s); js.id = id; js.src = p + '://platform.twitter.com/widgets.js'; fjs.parentNode.insertBefore(js, fjs); } }(document, 'script', 'twitter-wjs');</script>
+</p>
 
-<p><iframe src="http://ghbtns.com/github-btn.html?user=nicolaiarocci&type=follow&count=false"
-  allowtransparency="true" frameborder="0" scrolling="0" width="200" height="20"></iframe></p>
+<p><iframe src="http://ghbtns.com/github-btn.html?user=nicolaiarocci&type=follow&count=false" allowtransparency="true"
+    frameborder="0" scrolling="0" width="200" height="20"></iframe></p>
 
 <p><a href="http://tinyletter.com/nicolaiarocci">Join Mailing List</a>.</p>
 
@@ -2276,7 +2354,8 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 <p>This course will teach you how to build RESTful services with Eve and MongoDB.</p>
 <p>The teacher is the project creator and maintainer.</p>
 <ul>
-  <li><a href="https://training.talkpython.fm/courses/explore_eve/eve-building-restful-mongodb-backed-apis-course">Eve Course @ TalkPython</a></li>
+  <li><a href="https://training.talkpython.fm/courses/explore_eve/eve-building-restful-mongodb-backed-apis-course">Eve
+      Course @ TalkPython</a></li>
 </ul>
 
 <h3>Useful Links</h3>
@@ -2294,17 +2373,15 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 
 <p>More <a href="http://nicolaiarocci.com/">Nicola Iarocci</a> projects:</p>
 <ul>
-    <li><a href="http://python-cerberus.org/">Cerberus</a></li>
-    <li><a href="https://github.com/pyeve/events">Events</a></li>
-    <li><a href="https://github.com/pyeve/flask-sentinel">Flask-Sentinel</a></li>
-    <li><a href="https://github.com/nicolaiarocci/flask-mimerender">Flask-MimeRender</a></li>
-    <li><a href="https://github.com/pyeve/eve-demo">Eve-Demo</a></li>
-    <li><a href="https://github.com/pyeve/eve-demo-client">Eve-Demo Client</a></li>
-    <li><a href="https://github.com/pyeve/eve-swagger">Eve-Swagger</a></li>
-    <li><a href="https://github.com/pyeve/eve-oauth2">Eve-OAuth2</a></li>
-</ul>
-
-<p>You are looking at the documentation of the development version.</p><h3>Navigation</h3>
+  <li><a href="http://python-cerberus.org/">Cerberus</a></li>
+  <li><a href="https://github.com/pyeve/events">Events</a></li>
+  <li><a href="https://github.com/pyeve/flask-sentinel">Flask-Sentinel</a></li>
+  <li><a href="https://github.com/nicolaiarocci/flask-mimerender">Flask-MimeRender</a></li>
+  <li><a href="https://github.com/pyeve/eve-demo">Eve-Demo</a></li>
+  <li><a href="https://github.com/pyeve/eve-demo-client">Eve-Demo Client</a></li>
+  <li><a href="https://github.com/pyeve/eve-swagger">Eve-Swagger</a></li>
+  <li><a href="https://github.com/pyeve/eve-oauth2">Eve-OAuth2</a></li>
+</ul><h3>Navigation</h3>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="foreword.html">Foreword</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rest_api_for_humans.html">REST API for Humans</a></li>
@@ -2338,6 +2415,7 @@ for <a class="reference external" href="http://flask.pocoo.org/docs/testing/">un
 <li class="toctree-l2"><a class="reference internal" href="#bulk-inserts">Bulk Inserts</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#data-validation">Data Validation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#extensible-data-validation">Extensible Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#editing-a-document-patch">Editing a Document (PATCH)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#resource-level-cache-control">Resource-level Cache Control</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#api-versioning">API Versioning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#document-versioning">Document Versioning</a></li>

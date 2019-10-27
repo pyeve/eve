@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Configuration &#8212; Eve 0.8.2.dev0 documentation</title>
+    <title>Configuration &#8212; Eve 0.10.dev0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -921,6 +921,15 @@ note that with the default Mongo layer,
 setting this to <code class="docutils literal notranslate"><span class="pre">False</span></code> will result in an
 error. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</td>
 </tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">NORMALIZE_ON_PATCH</span></code></td>
+<td>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the patch document will be
+normalized according to schema. This means
+if a field is not included in the patch
+body, it will be reset to the default value
+in its schema. If <code class="docutils literal notranslate"><span class="pre">False</span></code>, the field which
+is not included in the patch body will be
+kept untouched. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -1141,21 +1150,17 @@ Use with caution. Locally overrides
 <code class="docutils literal notranslate"><span class="pre">ALLOW_UNKNOWN</span></code>. See <a class="reference internal" href="validation.html#unknown"><span class="std std-ref">Allowing the Unknown</span></a> for more
 information. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">transparent_schema_rules</span></code></td>
-<td>When <code class="docutils literal notranslate"><span class="pre">True</span></code>, this option disables
-<a class="reference internal" href="validation.html#schema-validation"><span class="std std-ref">Schema validation</span></a> for the endpoint.</td>
-</tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">projection</span></code></td>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">projection</span></code></td>
 <td>When <code class="docutils literal notranslate"><span class="pre">True</span></code>, this option enables the
 <a class="reference internal" href="features.html#projections"><span class="std std-ref">Projections</span></a> feature. Locally overrides
 <code class="docutils literal notranslate"><span class="pre">PROJECTION</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">embedding</span></code></td>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">embedding</span></code></td>
 <td>When <code class="docutils literal notranslate"><span class="pre">True</span></code> this option enables the
 <a class="reference internal" href="features.html#embedded-docs"><span class="std std-ref">Embedded Resource Serialization</span></a> feature. Defaults to
 <code class="docutils literal notranslate"><span class="pre">True</span></code>.</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">extra_response_fields</span></code></td>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">extra_response_fields</span></code></td>
 <td>Allows to configure a list of additional
 document fields that should be provided with
 every POST response. Normally only
@@ -1164,12 +1169,12 @@ automatically handled fields (<code class="docutils literal notranslate"><span c
 are included in response payloads. Overrides
 <code class="docutils literal notranslate"><span class="pre">EXTRA_RESPONSE_FIELDS</span></code>.</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">hateoas</span></code></td>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">hateoas</span></code></td>
 <td>When <code class="docutils literal notranslate"><span class="pre">False</span></code>, this option disables
 <a class="reference internal" href="features.html#hateoas-feature"><span class="std std-ref">HATEOAS</span></a> for the resource.
 Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">mongo_write_concern</span></code></td>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">mongo_write_concern</span></code></td>
 <td><p class="first">A dictionary defining MongoDB write concern
 settings for the endpoint datasource. All
 standard write concern settings (w, wtimeout, j,
@@ -1184,7 +1189,7 @@ to check that it’s being written to multiple
 servers.)</p>
 </td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">mongo_prefix</span></code></td>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">mongo_prefix</span></code></td>
 <td><p class="first">Allows overriding of the default <code class="docutils literal notranslate"><span class="pre">MONGO</span></code>
 prefix, which is used when retrieving MongoDB
 settings from configuration.</p>
@@ -1197,7 +1202,7 @@ a different database/server at every endpoint.</p>
 <p class="last">See also: <a class="reference internal" href="authentication.html#authdrivendb"><span class="std std-ref">Auth-driven Database Access</span></a>.</p>
 </td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">mongo_indexes</span></code></td>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">mongo_indexes</span></code></td>
 <td><p class="first">Allows to specify a set of indexes to be
 created for this resource before the app is
 launched.</p>
@@ -1221,12 +1226,12 @@ great care. Usually it is also a very resource
 intensive operation. You might therefore want
 to handle this task manually, out of the
 context of API instantiation. Also remember
-that, by default, any already exsistent index
+that, by default, any already existent index
 for which the definition has been changed, will
 be dropped and re-created.</p>
 </td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">authentication</span></code></td>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">authentication</span></code></td>
 <td>A class with the authorization logic for the
 endpoint. If not provided the eventual
 general purpose auth class (passed as
@@ -1234,14 +1239,14 @@ application constructor argument) will be used.
 For details on authentication and authorization
 see <a class="reference internal" href="authentication.html#auth"><span class="std std-ref">Authentication and Authorization</span></a>.  Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>,</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">embedded_fields</span></code></td>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">embedded_fields</span></code></td>
 <td>A list of fields for which <a class="reference internal" href="features.html#embedded-docs"><span class="std std-ref">Embedded Resource Serialization</span></a>
 is enabled by default. For this feature to work
 properly fields in the list must be
 <code class="docutils literal notranslate"><span class="pre">embeddable</span></code>, and <code class="docutils literal notranslate"><span class="pre">embedding</span></code> must be
 active for the resource.</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">query_objectid_as_string</span></code></td>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">query_objectid_as_string</span></code></td>
 <td>When enabled the Mongo parser will avoid
 automatically casting electable strings to
 ObjectIds. This can be useful in those rare
@@ -1251,7 +1256,7 @@ ObjectId values, but shouldn’t. It effects
 queries (<code class="docutils literal notranslate"><span class="pre">?where=</span></code>) and parsing of payloads.
 Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">internal_resource</span></code></td>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">internal_resource</span></code></td>
 <td>When <code class="docutils literal notranslate"><span class="pre">True</span></code>, this option makes the resource
 internal. No HTTP action can be performed on
 the endpoint, which is still accessible from
@@ -1259,7 +1264,7 @@ the Eve data layer. See
 <a class="reference internal" href="features.html#internal-resources"><span class="std std-ref">Internal Resources</span></a> for more
 information. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">etag_ignore_fields</span></code></td>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">etag_ignore_fields</span></code></td>
 <td>List of fields that
 should not be used to compute the ETag value.
 Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code> which means that by
@@ -1267,29 +1272,29 @@ default all fields are included in the computation.
 It looks like <code class="docutils literal notranslate"><span class="pre">['field1',</span> <span class="pre">'field2',</span>
 <span class="pre">'field3.nested_field',</span> <span class="pre">...]</span></code>.</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">schema</span></code></td>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">schema</span></code></td>
 <td>A dict defining the actual data structure being
 handled by the resource. Enables data
 validation. See <a class="reference internal" href="#schema-definition">Schema Definition</a>.</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">bulk_enabled</span></code></td>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">bulk_enabled</span></code></td>
 <td>When <code class="docutils literal notranslate"><span class="pre">True</span></code> this option enables the
 <a class="reference internal" href="features.html#bulk-insert"><span class="std std-ref">Bulk Inserts</span></a> feature for this resource.
 Locally overrides <code class="docutils literal notranslate"><span class="pre">BULK_ENABLED</span></code>.</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">soft_delete</span></code></td>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">soft_delete</span></code></td>
 <td>When <code class="docutils literal notranslate"><span class="pre">True</span></code> this option enables the
 <a class="reference internal" href="features.html#soft-delete"><span class="std std-ref">Soft Delete</span></a> feature for this resource.
 Locally overrides <code class="docutils literal notranslate"><span class="pre">SOFT_DELETE</span></code>.</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">merge_nested_documents</span></code></td>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">merge_nested_documents</span></code></td>
 <td>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, updates to nested fields are
 merged with the current data on <code class="docutils literal notranslate"><span class="pre">PATCH</span></code>.
 If <code class="docutils literal notranslate"><span class="pre">False</span></code>, the updates overwrite the
 current data. Locally overrides
 <code class="docutils literal notranslate"><span class="pre">MERGE_NESTED_DOCUMENTS</span></code>.</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">normalize_dotted_fields</span></code></td>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">normalize_dotted_fields</span></code></td>
 <td>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, dotted fields are parsed and
 processed as subdocument fields. If <code class="docutils literal notranslate"><span class="pre">False</span></code>,
 dotted fields are left unparsed and
@@ -1298,6 +1303,15 @@ underlying data-layer as-is. Please note that
 with the default Mongo layer, setting this to
 <code class="docutils literal notranslate"><span class="pre">False</span></code> will result in an error. Defaults to
 <code class="docutils literal notranslate"><span class="pre">True</span></code>.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">normalize_on_patch</span></code></td>
+<td>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the patch document will be
+normalized according to schema. This means if
+a field is not included in the patch body, it
+will be reset to the default value in its
+schema. If <code class="docutils literal notranslate"><span class="pre">False</span></code>, the field which is not
+included in the patch body will be kept
+untouched. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</td>
 </tr>
 </tbody>
 </table>
@@ -1334,7 +1348,7 @@ API settings:</p>
 Schemas are important because they enable proper validation for incoming
 streams.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># &#39;people&#39; schema definition</span>
-<span class="s1">&#39;schema&#39;</span><span class="o">=</span> <span class="p">{</span>
+<span class="n">schema</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;firstname&#39;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
         <span class="s1">&#39;minlength&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
@@ -1469,7 +1483,19 @@ a single user cannot store duplicate values.</p>
 rule behaves like <code class="docutils literal notranslate"><span class="pre">unique</span></code></p>
 </td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">data_relation</span></code></td>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">unique_within_resource</span></code></td>
+<td><p class="first">The value of the field must be unique within
+the resource.</p>
+<p class="last">This differs from the <code class="docutils literal notranslate"><span class="pre">unique</span></code> rule in that
+it will use the datasource filter when searching
+for documents with the same value for the field.
+Use this when the resource shares the database
+collection with other resources but their documents
+should not be taken into account when evaluating
+the uniqueness of the field.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">data_relation</span></code></td>
 <td><p class="first">Allows to specify a referential integrity rule
 that the value must satisfy in order to
 validate. It is a dict with four keys:</p>
@@ -1485,11 +1511,11 @@ Defaults to <code class="docutils literal notranslate"><span class="pre">False</
 </ul>
 </td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">nullable</span></code></td>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">nullable</span></code></td>
 <td>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the field value can be set to
 <code class="docutils literal notranslate"><span class="pre">None</span></code>.</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">default</span></code></td>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">default</span></code></td>
 <td><p class="first">The default value for the field. When serving
 POST and PUT requests, missing fields will be
 assigned the configured default values.</p>
@@ -1532,56 +1558,56 @@ of elements and each element being a <code class="docutils literal notranslate">
 </div>
 </td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">versioning</span></code></td>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">versioning</span></code></td>
 <td>Enabled documents version control when <code class="docutils literal notranslate"><span class="pre">True</span></code>.
 Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">versioned</span></code></td>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">versioned</span></code></td>
 <td>If <code class="docutils literal notranslate"><span class="pre">True</span></code>, this field will be included in the
 versioned history of each document when
 <code class="docutils literal notranslate"><span class="pre">versioning</span></code> is enabled. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">valueschema</span></code></td>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">valueschema</span></code></td>
 <td>Validation schema for all values of a <code class="docutils literal notranslate"><span class="pre">dict</span></code>.
 The dict can have arbitrary keys, the values
 for all of which must validate with given
 schema. See <a class="reference external" href="http://docs.python-cerberus.org/en/latest/validation-rules.html#valueschema">valueschema</a> in Cerberus docs.</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">keyschema</span></code></td>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">keyschema</span></code></td>
 <td>This is the counterpart to <code class="docutils literal notranslate"><span class="pre">valueschema</span></code> that
 validates the keys of a dict.   Validation
 schema for all values of a <code class="docutils literal notranslate"><span class="pre">dict</span></code>. See
 <a class="reference external" href="http://docs.python-cerberus.org/en/latest/validation-rules.html#keyschema">keyschema</a> in Cerberus docs.</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">regex</span></code></td>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">regex</span></code></td>
 <td>Validation will fail if field value does not
 match the provided regex rule. Only applies to
 string fields. See <a class="reference external" href="http://docs.python-cerberus.org/en/latest/validation-rules.html#regex">regex</a> in Cerberus docs.</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">dependencies</span></code></td>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">dependencies</span></code></td>
 <td>This rule allows a list of fields that must be
 present in order for the target field to be
 allowed. See <a class="reference external" href="http://docs.python-cerberus.org/en/latest/validation-rules.html#dependencies">dependencies</a>  in Cerberus docs.</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">anyof</span></code></td>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">anyof</span></code></td>
 <td>This rule allows you to list multiple sets of
 rules to validate against. The field will be
 considered valid if it validates against one
 set in the list. See <a class="reference external" href="http://docs.python-cerberus.org/en/latest/validation-rules.html#of-rules">*of-rules</a> in Cerberus docs.</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">allof</span></code></td>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">allof</span></code></td>
 <td>Same as <code class="docutils literal notranslate"><span class="pre">anyof</span></code>, except that all rule
 collections in the list must validate.</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">noneof</span></code></td>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">noneof</span></code></td>
 <td>Same as <code class="docutils literal notranslate"><span class="pre">anyof</span></code>, except that it requires no
 rule collections in the list to validate.</td>
 </tr>
-<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">oneof</span></code></td>
+<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">oneof</span></code></td>
 <td>Same as <code class="docutils literal notranslate"><span class="pre">anyof</span></code>, except that only one rule
 collections in the list can validate.</td>
 </tr>
-<tr class="row-odd"><td><code class="docutils literal notranslate"><span class="pre">coerce</span></code></td>
+<tr class="row-even"><td><code class="docutils literal notranslate"><span class="pre">coerce</span></code></td>
 <td>Type coercion allows you to apply a callable to
 a value before any other validators run. The
 return value of the callable replaces the new
@@ -1810,10 +1836,13 @@ read access open to the public.</p>
 <h3>Stay Informed</h3>
 <p>Receive updates on new releases and upcoming projects.</p>
 
-<p><a href="https://twitter.com/nicolaiarocci" class="twitter-follow-button" data-show-count="false">Follow @nicolaiarocci</a> <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></p>
+<p><a href="https://twitter.com/nicolaiarocci" class="twitter-follow-button" data-show-count="false">Follow
+    @nicolaiarocci</a>
+  <script>!function (d, s, id) { var js, fjs = d.getElementsByTagName(s)[0], p = /^http:/.test(d.location) ? 'http' : 'https'; if (!d.getElementById(id)) { js = d.createElement(s); js.id = id; js.src = p + '://platform.twitter.com/widgets.js'; fjs.parentNode.insertBefore(js, fjs); } }(document, 'script', 'twitter-wjs');</script>
+</p>
 
-<p><iframe src="http://ghbtns.com/github-btn.html?user=nicolaiarocci&type=follow&count=false"
-  allowtransparency="true" frameborder="0" scrolling="0" width="200" height="20"></iframe></p>
+<p><iframe src="http://ghbtns.com/github-btn.html?user=nicolaiarocci&type=follow&count=false" allowtransparency="true"
+    frameborder="0" scrolling="0" width="200" height="20"></iframe></p>
 
 <p><a href="http://tinyletter.com/nicolaiarocci">Join Mailing List</a>.</p>
 
@@ -1821,7 +1850,8 @@ read access open to the public.</p>
 <p>This course will teach you how to build RESTful services with Eve and MongoDB.</p>
 <p>The teacher is the project creator and maintainer.</p>
 <ul>
-  <li><a href="https://training.talkpython.fm/courses/explore_eve/eve-building-restful-mongodb-backed-apis-course">Eve Course @ TalkPython</a></li>
+  <li><a href="https://training.talkpython.fm/courses/explore_eve/eve-building-restful-mongodb-backed-apis-course">Eve
+      Course @ TalkPython</a></li>
 </ul>
 
 <h3>Useful Links</h3>
@@ -1839,17 +1869,15 @@ read access open to the public.</p>
 
 <p>More <a href="http://nicolaiarocci.com/">Nicola Iarocci</a> projects:</p>
 <ul>
-    <li><a href="http://python-cerberus.org/">Cerberus</a></li>
-    <li><a href="https://github.com/pyeve/events">Events</a></li>
-    <li><a href="https://github.com/pyeve/flask-sentinel">Flask-Sentinel</a></li>
-    <li><a href="https://github.com/nicolaiarocci/flask-mimerender">Flask-MimeRender</a></li>
-    <li><a href="https://github.com/pyeve/eve-demo">Eve-Demo</a></li>
-    <li><a href="https://github.com/pyeve/eve-demo-client">Eve-Demo Client</a></li>
-    <li><a href="https://github.com/pyeve/eve-swagger">Eve-Swagger</a></li>
-    <li><a href="https://github.com/pyeve/eve-oauth2">Eve-OAuth2</a></li>
-</ul>
-
-<p>You are looking at the documentation of the development version.</p><h3>Navigation</h3>
+  <li><a href="http://python-cerberus.org/">Cerberus</a></li>
+  <li><a href="https://github.com/pyeve/events">Events</a></li>
+  <li><a href="https://github.com/pyeve/flask-sentinel">Flask-Sentinel</a></li>
+  <li><a href="https://github.com/nicolaiarocci/flask-mimerender">Flask-MimeRender</a></li>
+  <li><a href="https://github.com/pyeve/eve-demo">Eve-Demo</a></li>
+  <li><a href="https://github.com/pyeve/eve-demo-client">Eve-Demo Client</a></li>
+  <li><a href="https://github.com/pyeve/eve-swagger">Eve-Swagger</a></li>
+  <li><a href="https://github.com/pyeve/eve-oauth2">Eve-OAuth2</a></li>
+</ul><h3>Navigation</h3>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="foreword.html">Foreword</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rest_api_for_humans.html">REST API for Humans</a></li>

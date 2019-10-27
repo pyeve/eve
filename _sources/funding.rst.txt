@@ -47,3 +47,11 @@ Just `get in touch`_ with me.
 
 .. _`get in touch`: mailto:nicola@nicolaiarocci.com
 .. _`Eve course`: https://training.talkpython.fm/courses/explore_eve/eve-building-restful-mongodb-backed-apis-course
+
+Generous Backers
+----------------
+Generous backers who actively support Eve and Cerberus development:
+
+.. image:: _static/backers/blokt.png
+    :target: http://blokt.com/guides/best-vpn
+    :alt: Blokt Crypto & Privacy

@@ -776,6 +776,13 @@ uppercase.
                                     note that with the default Mongo layer,
                                     setting this to ``False`` will result in an
                                     error. Defaults to ``True``.
+``NORMALIZE_ON_PATCH``              If ``True``, the patch document will be
+                                    normalized according to schema. This means
+                                    if a field is not included in the patch
+                                    body, it will be reset to the default value
+                                    in its schema. If ``False``, the field which
+                                    is not included in the patch body will be
+                                    kept untouched. Defaults to ``True``.
 
 =================================== =========================================
 
@@ -978,9 +985,6 @@ always lowercase.
                                 ``ALLOW_UNKNOWN``. See :ref:`unknown` for more
                                 information. Defaults to ``False``.
 
-``transparent_schema_rules``    When ``True``, this option disables
-                                :ref:`schema_validation` for the endpoint.
-
 ``projection``                  When ``True``, this option enables the
                                 :ref:`projections` feature. Locally overrides
                                 ``PROJECTION``. Defaults to ``True``.
@@ -1055,7 +1059,7 @@ always lowercase.
                                 intensive operation. You might therefore want
                                 to handle this task manually, out of the
                                 context of API instantiation. Also remember
-                                that, by default, any already exsistent index
+                                that, by default, any already existent index
                                 for which the definition has been changed, will
                                 be dropped and re-created.
 
@@ -1120,6 +1124,13 @@ always lowercase.
                                 with the default Mongo layer, setting this to
                                 ``False`` will result in an error. Defaults to
                                 ``True``.
+``normalize_on_patch``          If ``True``, the patch document will be
+                                normalized according to schema. This means if
+                                a field is not included in the patch body, it
+                                will be reset to the default value in its
+                                schema. If ``False``, the field which is not
+                                included in the patch body will be kept
+                                untouched. Defaults to ``True``.
 
 =============================== ===============================================
 
@@ -1161,7 +1172,7 @@ streams.
 ::
 
     # 'people' schema definition
-    'schema'= {
+    schema = {
         'firstname': {
             'type': 'string',
             'minlength': 1,
@@ -1281,6 +1292,17 @@ defining the field validation rules. Allowed validation rules are:
 
                                 If URRA is not active on the endpoint, this
                                 rule behaves like ``unique``
+
+``unique_within_resource``      The value of the field must be unique within
+                                the resource.
+
+                                This differs from the ``unique`` rule in that
+                                it will use the datasource filter when searching
+                                for documents with the same value for the field.
+                                Use this when the resource shares the database
+                                collection with other resources but their documents
+                                should not be taken into account when evaluating
+                                the uniqueness of the field.
 
 ``data_relation``               Allows to specify a referential integrity rule
                                 that the value must satisfy in order to

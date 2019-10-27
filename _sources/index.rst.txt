@@ -6,7 +6,7 @@
 Eve. The Simple Way to REST
 ===========================
 
-Version |version|.
+Version |release|.
 
 .. image:: https://img.shields.io/pypi/v/eve.svg?style=flat-square
     :target: https://pypi.org/project/eve
@@ -29,11 +29,13 @@ Eve is an :doc:`open source <license>` Python REST API framework designed for
 human beings. It allows to effortlessly build and deploy highly customizable,
 fully featured RESTful Web Services.
 
-Eve is powered by Flask_ and Cerberus_ and it offers native support for MongoDB_ data
-stores. Support for SQL, Elasticsearch and Neo4js backends is provided by
-community extensions_.
+Eve is powered by Flask_ and Cerberus_ and it offers native support for
+MongoDB_ data stores. Support for SQL, Elasticsearch and Neo4js backends is
+provided by community extensions_.
 
-The codebase is thoroughly tested under Python 2.7, 3.4+, and PyPy.
+The codebase is thoroughly tested under Python 2.7, 3.5+, and PyPy.
+
+.. note:: The use of **Python 3** is *highly* preferred over Python 2. Consider upgrading your applications and infrastructure if you find yourself *still* using Python 2 in production today.
 
 Eve is Simple
 -------------
@@ -41,7 +43,9 @@ Eve is Simple
 
     from eve import Eve
 
-    app = Eve()
+    settings = {'DOMAIN': {'people': {}}}
+
+    app = Eve(settings=settings)
     app.run()
 
 The API is now live, ready to be consumed:
@@ -52,8 +56,8 @@ The API is now live, ready to be consumed:
     HTTP/1.1 200 OK
 
 All you need to bring your API online is a database, a configuration file
-(defaults to ``settings.py``) and a launch script.  Overall, you will find that
-configuring and fine-tuning your API is a very simple process.
+(defaults to ``settings.py``) or dictionary, and a launch script. Overall, you
+will find that configuring and fine-tuning your API is a very simple process.
 
 Funding Eve
 -----------
@@ -78,12 +82,6 @@ a CLI user (and you should), ``curl`` is your friend. The `source code`_ will
 show you how easy it is to run an API with Eve. You will also find `usage
 examples`_ for all common use cases (GET, POST, PATCH, DELETE and more). There
 is also a simple `client app`_ available.
-
-Development Version
---------------------
-If you are on python-eve.org_ then you are looking at the documentation of the
-development version. Looking for last release docs? Follow `this
-link <http://eve.readthedocs.org/en/stable/>`_.
 
 .. toctree::
     :hidden:

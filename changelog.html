@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Eve Changelog &#8212; Eve 0.8.2.dev0 documentation</title>
+    <title>Eve Changelog &#8212; Eve 0.10.dev0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -37,17 +37,126 @@
   <div class="section" id="eve-changelog">
 <span id="changelog"></span><h1>Eve Changelog<a class="headerlink" href="#eve-changelog" title="Permalink to this headline">¶</a></h1>
 <p>Here you can see the full list of changes between each Eve release.</p>
-<div class="section" id="version-0-8-2">
-<h2>Version 0.8.2<a class="headerlink" href="#version-0-8-2" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="in-development">
+<h2>In Development<a class="headerlink" href="#in-development" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="new">
 <h3>New<a class="headerlink" href="#new" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">on_fetched_diffs</span></code> event hooks (<a class="reference external" href="https://github.com/pyeve/eve/pull/1224">#1224</a>)</li>
+<li>Drop support for Python 3.4 (<a class="reference external" href="https://github.com/pyeve/eve/issues/1297">#1297</a>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">unique_within_resource</span></code> validation rule. Enforces the uniqueness of an
+attribute only at API resource level, contrasting with the <code class="docutils literal notranslate"><span class="pre">unique</span></code> rule
+that enforces uniqueness at database collection level (<a class="reference external" href="https://github.com/pyeve/eve/issues/1291">#1291</a>)</li>
 </ul>
 </div>
 <div class="section" id="fixed">
 <h3>Fixed<a class="headerlink" href="#fixed" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
+<li>Curl request in projection examples do not work (<a class="reference external" href="https://github.com/pyeve/eve/issues/1298">#1298</a>)</li>
+<li>Update installation instructions (<a class="reference external" href="https://github.com/pyeve/eve/pull/1303">#1303</a>)</li>
+<li>(<em>breaking</em>) Delete on empty resource returns 404, should return 204
+(<a class="reference external" href="https://github.com/pyeve/eve/issues/1299">#1299</a>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">MONGO_REPLICA_SET</span></code> ignored (<a class="reference external" href="https://github.com/pyeve/eve/issues/1302">#1302</a>)</li>
+<li>Documentation typo (<a class="reference external" href="https://github.com/pyeve/eve/issues/1293">#1293</a>, <a class="reference external" href="https://github.com/pyeve/eve/pull/1315">#1315</a>, <a class="reference external" href="https://github.com/pyeve/eve/pull/1322">#1322</a>)</li>
+<li>Flask 1.1.1 breaks <code class="docutils literal notranslate"><span class="pre">test_logging_info</span></code> test (<a class="reference external" href="https://github.com/pyeve/eve/issues/1296">#1296</a>)</li>
+<li>Display the full release number on Eve frontpage.</li>
+<li>Update link to EveGenie repository. New maintainer: David Zisky.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="version-0-9-2">
+<h2>Version 0.9.2<a class="headerlink" href="#version-0-9-2" title="Permalink to this headline">¶</a></h2>
+<p>Released on June 14, 2019.</p>
+<div class="section" id="id11">
+<h3>Fixed<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Geo queries lack support for the <code class="docutils literal notranslate"><span class="pre">$minDistance</span></code> mongo operator (<a class="reference external" href="https://github.com/pyeve/eve/issues/1281">#1281</a>)</li>
+<li>Lookup argument does not get passed to <code class="docutils literal notranslate"><span class="pre">pre_&lt;event&gt;</span></code> hook with certain
+resource urls (<a class="reference external" href="https://github.com/pyeve/eve/issues/1283">#1283</a>)</li>
+<li>PUT requests doesn’t set default values for fields that have one defined
+(<a class="reference external" href="https://github.com/pyeve/eve/issues/1280">#1280</a>)</li>
+<li>PATCH crashes when normalizing default fields (<a class="reference external" href="https://github.com/pyeve/eve/issues/1275">#1275</a>, <a class="reference external" href="https://github.com/pyeve/eve/issues/1274">#1274</a>)</li>
+<li>The condition that avoids returning <code class="docutils literal notranslate"><span class="pre">X-Total-Count</span></code> when counting is
+disabled also filters out the case where the resource is empty and count is
+0 (<a class="reference external" href="https://github.com/pyeve/eve/issues/1279">#1279</a>)</li>
+<li>First example of Eve use doesn’t really work (<a class="reference external" href="https://github.com/pyeve/eve/issues/1277">#1277</a>)</li>
+</ul>
+</div>
+</div>
+<div class="section" id="version-0-9-1">
+<h2>Version 0.9.1<a class="headerlink" href="#version-0-9-1" title="Permalink to this headline">¶</a></h2>
+<p>Released on May 22, 2019.</p>
+<div class="section" id="id19">
+<h3>New<a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">NORMALIZE_ON_PATCH</span></code> switches normalization on patch requests (<a class="reference external" href="https://github.com/pyeve/eve/issues/1234">#1234</a>)</li>
+</ul>
+</div>
+<div class="section" id="id20">
+<h3>Fixed<a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Document count broken with concurrent requests (<a class="reference external" href="https://github.com/pyeve/eve/issues/1271">#1271</a>)</li>
+<li>Document count broken when embedded resources are requested (<a class="reference external" href="https://github.com/pyeve/eve/issues/1268">#1268</a>)</li>
+<li>If <code class="docutils literal notranslate"><span class="pre">ignore_fields</span></code> contains a nested field, document is mutated (<a class="reference external" href="https://github.com/pyeve/eve/pull/1266">#1266</a>)</li>
+<li>Crash with Werzeug &gt;= 0.15.3 (<a class="reference external" href="https://github.com/pyeve/eve/issues/1267">#1267</a>)</li>
+<li>Fix crash when trying to ignore a nested field that doesn’t exist (<a class="reference external" href="https://github.com/pyeve/eve/pull/1263">#1263</a>)</li>
+</ul>
+</div>
+<div class="section" id="improved">
+<h3>Improved<a class="headerlink" href="#improved" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Remove unsupported <code class="docutils literal notranslate"><span class="pre">transparent_schema_rules</span></code> option from docs (<a class="reference external" href="https://github.com/pyeve/eve/issues/1264">#1264</a>)</li>
+<li>Bump (and pin) Wekzeug to 0.15.4 (<a class="reference external" href="https://github.com/pyeve/eve/issues/1267">#1267</a>)</li>
+<li>Quickstart: a better <code class="docutils literal notranslate"><span class="pre">MONGO_AUTH_SOURCE</span></code> explanation (<a class="reference external" href="https://github.com/pyeve/eve/issues/1168">#1168</a>)</li>
+</ul>
+</div>
+<div class="section" id="breaking-changes">
+<h3>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permalink to this headline">¶</a></h3>
+<p>No known breaking changes for the standard framework user. However, if you are
+consuming the developer API:</p>
+<ul class="simple">
+<li>Be aware that <code class="docutils literal notranslate"><span class="pre">io.base.DataLayer.find()</span></code> signature has changed and an
+optional <code class="docutils literal notranslate"><span class="pre">perform_count</span></code> argument has been added. The method return value
+is now a tuple <code class="docutils literal notranslate"><span class="pre">(cursor,</span> <span class="pre">count)</span></code>; <code class="docutils literal notranslate"><span class="pre">cursor</span></code> is the query result as
+before while <code class="docutils literal notranslate"><span class="pre">count</span></code> is the document count, which is expected to have a
+consistent value when <code class="docutils literal notranslate"><span class="pre">perform_count</span> <span class="pre">=</span> <span class="pre">True</span></code>.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="version-0-9">
+<h2>Version 0.9<a class="headerlink" href="#version-0-9" title="Permalink to this headline">¶</a></h2>
+<p>Released on April 11, 2019.</p>
+<div class="section" id="id29">
+<h3>Breaking changes<a class="headerlink" href="#id29" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Werkzeug v0.15.1+ is required. You want to upgrade, otherwise your Eve
+environment is likely to break. For the full story, see <a class="reference external" href="https://github.com/pyeve/eve/pull/1245">#1245</a> and
+<a class="reference external" href="https://github.com/pyeve/eve/pull/1251">#1251</a>.</li>
+</ul>
+</div>
+<div class="section" id="id30">
+<h3>New<a class="headerlink" href="#id30" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>HATEOAS support added to aggregation results (<a class="reference external" href="https://github.com/pyeve/eve/issues/1208">#1208</a>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">on_fetched_diffs</span></code> event hooks (<a class="reference external" href="https://github.com/pyeve/eve/pull/1224">#1224</a>)</li>
+<li>Support for Mongo 3.6+ <code class="docutils literal notranslate"><span class="pre">$expr</span></code> query operator.</li>
+<li>Support for Mongo 3.6+ <code class="docutils literal notranslate"><span class="pre">$center</span></code> query operator.</li>
+</ul>
+</div>
+<div class="section" id="id31">
+<h3>Fixed<a class="headerlink" href="#id31" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Insertion failure when replacing unknown field with dbref value (<a class="reference external" href="https://github.com/pyeve/eve/issues/1255">#1255</a>,
+<a class="reference external" href="https://github.com/pyeve/eve/issues/1257">#1257</a>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">max_results=1</span></code> should be honored on aggregation endpoints (<a class="reference external" href="https://github.com/pyeve/eve/issues/1250">#1250</a>)</li>
+<li>PATCH incorrectly normalizes default values in subdocuments (<a class="reference external" href="https://github.com/pyeve/eve/issues/1234">#1234</a>)</li>
+<li>Unauthorized Exception not working with Werkzeug &gt;= 15.0 (<a class="reference external" href="https://github.com/pyeve/eve/pull/1245">#1245</a>, <a class="reference external" href="https://github.com/pyeve/eve/pull/1251">#1251</a>)</li>
+<li>Embedded documents not being sorted correctly (<a class="reference external" href="https://github.com/pyeve/eve/pull/1217">#1217</a>)</li>
+<li>Eve crashes on malformed sort parameters (<a class="reference external" href="https://github.com/pyeve/eve/issues/1248">#1248</a>)</li>
+<li>Insertion failure when replacing a same document containing dbref (<a class="reference external" href="https://github.com/pyeve/eve/issues/1216">#1216</a>)</li>
+<li>Datasource projection is not respected for POST requests (<a class="reference external" href="https://github.com/pyeve/eve/issues/1189">#1189</a>)</li>
+<li>Soft delete removes <code class="docutils literal notranslate"><span class="pre">auth_field</span></code> from document (<a class="reference external" href="https://github.com/pyeve/eve/issues/1188">#1188</a>)</li>
+<li>On Mongo 3.6+, we don’t return 400 ‘immutable field’ on PATCH and PUT
+(<a class="reference external" href="https://github.com/pyeve/eve/issues/1243">#1243</a>)</li>
 <li>Expecting JSON response for rate limit exceeded scenario (<a class="reference external" href="https://github.com/pyeve/eve/issues/1227">#1227</a>)</li>
 <li>Multiple concurrent patches to the same record, from different processes,
 should result in at least one patch failing with a 412 error (Precondition
@@ -56,13 +165,23 @@ Failed) (<a class="reference external" href="https://github.com/pyeve/eve/issues
 <li>HATEOAS <code class="docutils literal notranslate"><span class="pre">_links</span></code> seems to get an extra <code class="docutils literal notranslate"><span class="pre">&amp;version=diffs</span></code> (<a class="reference external" href="https://github.com/pyeve/eve/pull/1228">#1228</a>)</li>
 <li>Do not alter ETag when performing an oplog_push (<a class="reference external" href="https://github.com/pyeve/eve/issues/1206">#1206</a>)</li>
 <li>CORS response headers missing for media endpoint (<a class="reference external" href="https://github.com/pyeve/eve/issues/1197">#1197</a>)</li>
-<li>Documentation typos (<a class="reference external" href="https://github.com/pyeve/eve/pull/1218">#1218</a>)</li>
+<li>Warning: Unexpected keys present on black: <code class="docutils literal notranslate"><span class="pre">python_version</span></code> (<a class="reference external" href="https://github.com/pyeve/eve/issues/1244">#1244</a>)</li>
+<li>UserWarning: JSON setting is deprecated. Use RENDERERS instead (<a class="reference external" href="https://github.com/pyeve/eve/issues/1241">#1241</a>).</li>
+<li>DeprecationWarning: decodestring is deprecated, use decodebytes (<a class="reference external" href="https://github.com/pyeve/eve/issues/1242">#1242</a>)</li>
+<li>DeprecationWarning: count is deprecated. Use Collection.count_documents
+instead (<a class="reference external" href="https://github.com/pyeve/eve/issues/1202">#1202</a>)</li>
+<li>Documentation typos (<a class="reference external" href="https://github.com/pyeve/eve/pull/1218">#1218</a>, <a class="reference external" href="https://github.com/pyeve/eve/issues/1240">#1240</a>)</li>
 </ul>
 </div>
-<div class="section" id="improved">
-<h3>Improved<a class="headerlink" href="#improved" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id32">
+<h3>Improved<a class="headerlink" href="#id32" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>Option to omit the aggregation stage when its parameter is empty/unset (<a class="reference external" href="https://github.com/pyeve/eve/issues/1209">#1209</a>)</li>
+<li>Eve package is now distributed as a Python wheel (<a class="reference external" href="https://github.com/pyeve/eve/issues/1260">#1260</a>)</li>
+<li>Bump Werkzeug version to v0.15.1+ (<a class="reference external" href="https://github.com/pyeve/eve/pull/1245">#1245</a>, <a class="reference external" href="https://github.com/pyeve/eve/pull/1251">#1251</a>)</li>
+<li>Bump PyMongo version to v3.7+ (<a class="reference external" href="https://github.com/pyeve/eve/issues/1202">#1202</a>)</li>
+<li>Python 3.7 added to the CI matrix (<a class="reference external" href="https://github.com/pyeve/eve/issues/1199">#1199</a>)</li>
+<li>Option to omit the aggregation stage when its parameter is empty/unset
+(<a class="reference external" href="https://github.com/pyeve/eve/issues/1209">#1209</a>)</li>
 <li>HATEOAS: now the <code class="docutils literal notranslate"><span class="pre">_links</span></code> dictionary may have a <code class="docutils literal notranslate"><span class="pre">related</span></code> dictionary
 inside, and each key-value pair yields the related links for a data relation
 field (<a class="reference external" href="https://github.com/pyeve/eve/pull/1204">#1204</a>)</li>
@@ -70,14 +189,16 @@ field (<a class="reference external" href="https://github.com/pyeve/eve/pull/120
 <code class="docutils literal notranslate"><span class="pre">title</span></code> (<a class="reference external" href="https://github.com/pyeve/eve/pull/1204">#1204</a>)</li>
 <li>Make the parsing of <code class="docutils literal notranslate"><span class="pre">req.sort</span></code> and <code class="docutils literal notranslate"><span class="pre">req.where</span></code> easily reusable by moving
 their logic to dedicated methods (<a class="reference external" href="https://github.com/pyeve/eve/pull/1194">#1194</a>)</li>
+<li>Add a “Python 3 is highly preferred” note on the homepage (<a class="reference external" href="https://github.com/pyeve/eve/issues/1198">#1198</a>)</li>
+<li>Drop sphinx-contrib-embedly when building docs.</li>
 </ul>
 </div>
 </div>
 <div class="section" id="version-0-8-1">
 <h2>Version 0.8.1<a class="headerlink" href="#version-0-8-1" title="Permalink to this headline">¶</a></h2>
 <p>Released on October 4, 2018.</p>
-<div class="section" id="id12">
-<h3>New<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id66">
+<h3>New<a class="headerlink" href="#id66" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>Add support for Mongo <code class="docutils literal notranslate"><span class="pre">$centerSphere</span></code> query operator (<a class="reference external" href="https://github.com/pyeve/eve/issues/1181">#1181</a>)</li>
 <li><code class="docutils literal notranslate"><span class="pre">NORMALIZE_DOTTED_FIELDS</span></code>. If <code class="docutils literal notranslate"><span class="pre">True</span></code>, dotted fields are parsed and
@@ -89,23 +210,27 @@ to <code class="docutils literal notranslate"><span class="pre">False</span></co
 for <code class="docutils literal notranslate"><span class="pre">NORMALIZE_DOTTED_FIELDS</span></code>. (<a class="reference external" href="https://github.com/pyeve/eve/issues/1173">#1173</a>)</li>
 </ul>
 </div>
-<div class="section" id="id13">
-<h3>Fixed<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id67">
+<h3>Fixed<a class="headerlink" href="#id67" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">mongo_indexes</span></code>: “OperationFailure” when changing the keys of an existing index (<a class="reference external" href="https://github.com/pyeve/eve/issues/1180">#1180</a>)</li>
+<li><code class="docutils literal notranslate"><span class="pre">mongo_indexes</span></code>: “OperationFailure” when changing the keys of an existing
+index (<a class="reference external" href="https://github.com/pyeve/eve/issues/1180">#1180</a>)</li>
 <li>v0.8: “OperationFailure” performing MongoDB full text searches (<a class="reference external" href="https://github.com/pyeve/eve/issues/1176">#1176</a>)</li>
-<li>“AttributeError” on Python 2.7 when obsolete <code class="docutils literal notranslate"><span class="pre">JSON</span></code> or <code class="docutils literal notranslate"><span class="pre">XML</span></code> settings are used (<a class="reference external" href="https://github.com/pyeve/eve/issues/1175">#1175</a>).</li>
-<li>“TypeError argument of type ‘NoneType’ is not iterable” error when using document embedding in conjuction with soft deletes (<a class="reference external" href="https://github.com/pyeve/eve/issues/1120">#1120</a>)</li>
+<li>“AttributeError” on Python 2.7 when obsolete <code class="docutils literal notranslate"><span class="pre">JSON</span></code> or <code class="docutils literal notranslate"><span class="pre">XML</span></code> settings
+are used (<a class="reference external" href="https://github.com/pyeve/eve/issues/1175">#1175</a>).</li>
+<li>“TypeError argument of type ‘NoneType’ is not iterable” error when using
+document embedding in conjuction with soft deletes (<a class="reference external" href="https://github.com/pyeve/eve/issues/1120">#1120</a>)</li>
 <li><code class="docutils literal notranslate"><span class="pre">allow_unknown</span></code> validation rule fails with nested dict fields (<a class="reference external" href="https://github.com/pyeve/eve/issues/1163">#1163</a>)</li>
-<li>Updating a field with a nullable data relation fails when value is null (<a class="reference external" href="https://github.com/pyeve/eve/issues/1159">#1159</a>)</li>
+<li>Updating a field with a nullable data relation fails when value is null
+(<a class="reference external" href="https://github.com/pyeve/eve/issues/1159">#1159</a>)</li>
 <li>“cerberus.schema.SchemaError” when <code class="docutils literal notranslate"><span class="pre">VALIDATE_FILTERS</span> <span class="pre">=</span> <span class="pre">True</span></code>. (<a class="reference external" href="https://github.com/pyeve/eve/issues/1154">#1154</a>)</li>
 <li>Serializers fails when array of types is in schema. (<a class="reference external" href="https://github.com/pyeve/eve/issues/1112">#1112</a>)</li>
 <li>Replace the broken <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">audit</span></code> shortcut with <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">check</span></code>, add the
 command to <code class="docutils literal notranslate"><span class="pre">CONTRIBUTING.rst</span></code> it was missing.  (<a class="reference external" href="https://github.com/pyeve/eve/issues/1144">#1144</a>)</li>
 </ul>
 </div>
-<div class="section" id="id14">
-<h3>Improved<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id68">
+<h3>Improved<a class="headerlink" href="#id68" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li>Perform lint checks and fixes on staged files, as a pre-commit hook.
 (<a class="reference external" href="https://github.com/pyeve/eve/issues/1157">#1157</a>)</li>
@@ -122,7 +247,7 @@ execute the test suite on the whole matrix. (<a class="reference external" href=
 <ul class="simple">
 <li>Typos (<a class="reference external" href="https://github.com/pyeve/eve/pull/1183">#1183</a>, <a class="reference external" href="https://github.com/pyeve/eve/pull/1184">#1184</a>, <a class="reference external" href="https://github.com/pyeve/eve/pull/1185">#1185</a>)</li>
 <li>Add <code class="docutils literal notranslate"><span class="pre">MONGO_AUTH_SOURCE</span></code> to Quickstart. (<a class="reference external" href="https://github.com/pyeve/eve/issues/1168">#1168</a>)</li>
-<li>Fix Sphinx-embedly error when embedding speakerdeck.com slide deck. (<a class="reference external" href="https://github.com/pyeve/eve/issues/1158">#1158</a>)</li>
+<li>Fix Sphinx-embedly error when embedding speakerdeck.com slide deck (<a class="reference external" href="https://github.com/pyeve/eve/issues/1158">#1158</a>)</li>
 <li>Fix broken link to the Postman app. (<a class="reference external" href="https://github.com/pyeve/eve/issues/1150">#1150</a>)</li>
 <li>Update obsolete PyPI link in docs sidebar. (<a class="reference external" href="https://github.com/pyeve/eve/issues/1152">#1152</a>)</li>
 <li>Only display the version number on the docs homepage. (<a class="reference external" href="https://github.com/pyeve/eve/issues/1151">#1151</a>)</li>
@@ -137,7 +262,7 @@ execute the test suite on the whole matrix. (<a class="reference external" href=
 <p>Released on May 10, 2018.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Make sure you read the <a class="reference internal" href="#breaking-changes"><span class="std std-ref">Breaking Changes</span></a> section below.</p>
+<p class="last">Make sure you read the <a class="reference internal" href="#id97"><span class="std std-ref">Breaking Changes</span></a> section below.</p>
 </div>
 <ul class="simple">
 <li>New: support for <a class="reference external" href="http://python-eve.org/features.html#partial-media-downloads">partial media requests</a>. Clients can request partial file
@@ -227,8 +352,8 @@ Python 2.6.</li>
 being tested.</li>
 <li>Dev: fix insidious bug in <code class="docutils literal notranslate"><span class="pre">tests.methods.post.TestPost</span></code> class.</li>
 </ul>
-<div class="section" id="breaking-changes">
-<span id="id43"></span><h3>Breaking Changes<a class="headerlink" href="#breaking-changes" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id97">
+<span id="id98"></span><h3>Breaking Changes<a class="headerlink" href="#id97" title="Permalink to this headline">¶</a></h3>
 <ul>
 <li><p class="first">Python 2.6 and Python 3.3 are no longer supported (<a class="reference external" href="https://github.com/pyeve/eve/issues/1129">#1129</a>).</p>
 </li>
@@ -279,7 +404,8 @@ matching the followig query: <code class="docutils literal notranslate"><span cl
 <h3>Version 0.7.10<a class="headerlink" href="#version-0-7-10" title="Permalink to this headline">¶</a></h3>
 <p>Released on July 15, 2018.</p>
 <ul class="simple">
-<li>Fix: Pin Flask-PyMongo dependency to avoid crash with Flask-PyMongo 2. Closes #1172.</li>
+<li>Fix: Pin Flask-PyMongo dependency to avoid crash with Flask-PyMongo 2.
+Closes #1172.</li>
 </ul>
 </div>
 <div class="section" id="version-0-7-9">
@@ -460,8 +586,9 @@ Kralj).</li>
 (Giorgos Margaritis)</li>
 <li>Fix: improve serialization of boolean values. Closes #947 (NotSpecial).</li>
 <li>Fix: fix intermittently failing test. Closes #934 (Conrad Burchert).</li>
-<li>Fix: Multiple, fast (within a 1 second window) and neutral (no actual changes)
-PATCH requests should not raise <code class="docutils literal notranslate"><span class="pre">412</span> <span class="pre">Precondition</span> <span class="pre">Failed</span></code>. Closes #920.</li>
+<li>Fix: Multiple, fast (within a 1 second window) and neutral (no actual
+changes) PATCH requests should not raise <code class="docutils literal notranslate"><span class="pre">412</span> <span class="pre">Precondition</span> <span class="pre">Failed</span></code>.
+Closes #920.</li>
 <li>Fix: Resource titles are not properly escaped during the XML rendering of the
 root document (Kris Lambrechts).</li>
 <li>Fix: ETag request headers which conform to RFC 7232/2.3 (double quoted value)
@@ -985,8 +1112,9 @@ requests, as already happens with <code class="docutils literal notranslate"><sp
 <li>Change: HATEOAS links are now relative to the API root. Closes #398 #401.</li>
 <li>Change: If-Modified-Since has been disabled on resource (collections)
 endpoints. Same functionality is available with a <code class="docutils literal notranslate"><span class="pre">?where={&quot;_udpated&quot;:</span>
-<span class="pre">{&quot;$gt&quot;:</span> <span class="pre">&quot;&lt;RFC1123</span> <span class="pre">date&gt;&quot;}}</span></code> request. The OpLog also allows retrieving detailed
-changes happened at any endpoint, deleted documents included. Closes #334.</li>
+<span class="pre">{&quot;$gt&quot;:</span> <span class="pre">&quot;&lt;RFC1123</span> <span class="pre">date&gt;&quot;}}</span></code> request. The OpLog also allows retrieving
+detailed changes happened at any endpoint, deleted documents included.
+Closes #334.</li>
 <li>Change: etags are now persisted with the documents. This ensures that etags
 are consistent across queries, even when projection queries are issued.
 Please note that etags will only be stored along with new documents created
@@ -1722,7 +1850,7 @@ tags which also caused XML validation issues when processing responses
 <li>Version number in ‘Server’ response headers.</li>
 <li>Added support for DELETE at resource endpoints. Expected behavior:
 will delete all items in the collection. Disabled by default.</li>
-<li><code class="xref py py-class docutils literal notranslate"><span class="pre">eve.io.mongo.Validator</span></code> now supports <a class="reference external" href="http://docs.python-cerberus.org/en/latest/api.html#cerberus.Validator" title="(in Cerberus v1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Validator</span></code></a>
+<li><code class="xref py py-class docutils literal notranslate"><span class="pre">eve.io.mongo.Validator</span></code> now supports <a class="reference external" href="http://docs.python-cerberus.org/en/latest/api.html#cerberus.Validator" title="(in Cerberus v1.3.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Validator</span></code></a>
 signature, allowing for further subclassing.</li>
 </ul>
 </div>
@@ -1767,10 +1895,13 @@ signature, allowing for further subclassing.</li>
 <h3>Stay Informed</h3>
 <p>Receive updates on new releases and upcoming projects.</p>
 
-<p><a href="https://twitter.com/nicolaiarocci" class="twitter-follow-button" data-show-count="false">Follow @nicolaiarocci</a> <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script></p>
+<p><a href="https://twitter.com/nicolaiarocci" class="twitter-follow-button" data-show-count="false">Follow
+    @nicolaiarocci</a>
+  <script>!function (d, s, id) { var js, fjs = d.getElementsByTagName(s)[0], p = /^http:/.test(d.location) ? 'http' : 'https'; if (!d.getElementById(id)) { js = d.createElement(s); js.id = id; js.src = p + '://platform.twitter.com/widgets.js'; fjs.parentNode.insertBefore(js, fjs); } }(document, 'script', 'twitter-wjs');</script>
+</p>
 
-<p><iframe src="http://ghbtns.com/github-btn.html?user=nicolaiarocci&type=follow&count=false"
-  allowtransparency="true" frameborder="0" scrolling="0" width="200" height="20"></iframe></p>
+<p><iframe src="http://ghbtns.com/github-btn.html?user=nicolaiarocci&type=follow&count=false" allowtransparency="true"
+    frameborder="0" scrolling="0" width="200" height="20"></iframe></p>
 
 <p><a href="http://tinyletter.com/nicolaiarocci">Join Mailing List</a>.</p>
 
@@ -1778,7 +1909,8 @@ signature, allowing for further subclassing.</li>
 <p>This course will teach you how to build RESTful services with Eve and MongoDB.</p>
 <p>The teacher is the project creator and maintainer.</p>
 <ul>
-  <li><a href="https://training.talkpython.fm/courses/explore_eve/eve-building-restful-mongodb-backed-apis-course">Eve Course @ TalkPython</a></li>
+  <li><a href="https://training.talkpython.fm/courses/explore_eve/eve-building-restful-mongodb-backed-apis-course">Eve
+      Course @ TalkPython</a></li>
 </ul>
 
 <h3>Useful Links</h3>
@@ -1796,17 +1928,15 @@ signature, allowing for further subclassing.</li>
 
 <p>More <a href="http://nicolaiarocci.com/">Nicola Iarocci</a> projects:</p>
 <ul>
-    <li><a href="http://python-cerberus.org/">Cerberus</a></li>
-    <li><a href="https://github.com/pyeve/events">Events</a></li>
-    <li><a href="https://github.com/pyeve/flask-sentinel">Flask-Sentinel</a></li>
-    <li><a href="https://github.com/nicolaiarocci/flask-mimerender">Flask-MimeRender</a></li>
-    <li><a href="https://github.com/pyeve/eve-demo">Eve-Demo</a></li>
-    <li><a href="https://github.com/pyeve/eve-demo-client">Eve-Demo Client</a></li>
-    <li><a href="https://github.com/pyeve/eve-swagger">Eve-Swagger</a></li>
-    <li><a href="https://github.com/pyeve/eve-oauth2">Eve-OAuth2</a></li>
-</ul>
-
-<p>You are looking at the documentation of the development version.</p><h3>Navigation</h3>
+  <li><a href="http://python-cerberus.org/">Cerberus</a></li>
+  <li><a href="https://github.com/pyeve/events">Events</a></li>
+  <li><a href="https://github.com/pyeve/flask-sentinel">Flask-Sentinel</a></li>
+  <li><a href="https://github.com/nicolaiarocci/flask-mimerender">Flask-MimeRender</a></li>
+  <li><a href="https://github.com/pyeve/eve-demo">Eve-Demo</a></li>
+  <li><a href="https://github.com/pyeve/eve-demo-client">Eve-Demo Client</a></li>
+  <li><a href="https://github.com/pyeve/eve-swagger">Eve-Swagger</a></li>
+  <li><a href="https://github.com/pyeve/eve-oauth2">Eve-OAuth2</a></li>
+</ul><h3>Navigation</h3>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="foreword.html">Foreword</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rest_api_for_humans.html">REST API for Humans</a></li>
@@ -1826,21 +1956,38 @@ signature, allowing for further subclassing.</li>
 <li class="toctree-l1"><a class="reference internal" href="authors.html">Authors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">Licensing</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Eve Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-8-2">Version 0.8.2</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#in-development">In Development</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#new">New</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fixed">Fixed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-9-2">Version 0.9.2</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id11">Fixed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-9-1">Version 0.9.1</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id19">New</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id20">Fixed</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#improved">Improved</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#breaking-changes">Breaking Changes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-9">Version 0.9</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id29">Breaking changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id30">New</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id31">Fixed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id32">Improved</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#version-0-8-1">Version 0.8.1</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id12">New</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id13">Fixed</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id14">Improved</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id66">New</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id67">Fixed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id68">Improved</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#docs">Docs</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#version-0-8">Version 0.8</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#breaking-changes">Breaking Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id97">Breaking Changes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#version-0-7-10">Version 0.7.10</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#version-0-7-9">Version 0.7.9</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#version-0-7-8">Version 0.7.8</a></li>
