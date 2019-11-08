@@ -99,4 +99,4 @@ distributed under the `BSD license
 <https://github.com/pyeve/eve/blob/master/LICENSE>`_.
 
 .. _`Nicola Iarocci`: http://nicolaiarocci.com
-.. _`funding page`: http://python-eve.org/funding
+.. _`funding page`: http://python-eve.org/funding.html
