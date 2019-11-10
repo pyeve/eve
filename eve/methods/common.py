@@ -888,9 +888,11 @@ def embedded_document(references, data_relation, field_name):
             )
             embedded_docs.append(embedded_doc)
     else:
-        id_value_to_sort, list_of_id_field_name, subresources_query = generate_query_and_sorting_criteria(
-            data_relation, references
-        )
+        (
+            id_value_to_sort,
+            list_of_id_field_name,
+            subresources_query,
+        ) = generate_query_and_sorting_criteria(data_relation, references)
         for subresource in subresources_query:
             result, _ = app.data.find(
                 subresource, None, subresources_query[subresource]
