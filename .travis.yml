@@ -11,6 +11,7 @@ python:
   - 3.5
   - 3.6
   - 3.7
+  - 3.8
   - pypy3.5-6.0
 install: travis_retry pip install tox-travis
 services:
