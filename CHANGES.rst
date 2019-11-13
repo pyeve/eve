@@ -8,16 +8,19 @@ In Development
 
 New
 ~~~
+- Python 3.8 added to CI matrix (`#1326`_)
 - Drop support for Python 3.4 (`#1297`_)
 - ``unique_within_resource`` validation rule. Enforces the uniqueness of an
   attribute only at API resource level, contrasting with the ``unique`` rule
   that enforces uniqueness at database collection level (`#1291`_)
 
+.. _`#1326`: https://github.com/pyeve/eve/issues/1326
 .. _`#1297`: https://github.com/pyeve/eve/issues/1297
 .. _`#1291`: https://github.com/pyeve/eve/issues/1291
 
 Fixed
 ~~~~~
+- Werkzeug 0.15.4 crashes with Python 3.8 (`#1325`_)
 - Curl request in projection examples do not work (`#1298`_)
 - Update installation instructions (`#1303`_)
 - (*breaking*) Delete on empty resource returns 404, should return 204
@@ -28,6 +31,7 @@ Fixed
 - Display the full release number on Eve frontpage.
 - Update link to EveGenie repository. New maintainer: David Zisky.
 
+.. _`#1325`: https://github.com/pyeve/eve/pull/1325
 .. _`#1324`: https://github.com/pyeve/eve/pull/1324
 .. _`#1322`: https://github.com/pyeve/eve/pull/1322
 .. _`#1315`: https://github.com/pyeve/eve/pull/1315

@@ -18,7 +18,7 @@ INSTALL_REQUIRES = [
     "flask>=1.0",
     "pymongo>=3.7",
     "simplejson>=3.3.0,<4.0",
-    "werkzeug==0.15.4",
+    "werkzeug==0.15.5",
 ]
 
 EXTRAS_REQUIRE = {
@@ -60,10 +60,10 @@ setup(
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
         "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
         "Topic :: Software Development :: Libraries :: Application Frameworks",
