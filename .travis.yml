@@ -1,35 +1,28 @@
 dist: xenial
-sudo: false
 language: python
-stages:
-    - linting
-    - test
 cache: pip
-script: tox --recreate
-python:
-  - 2.7
-  - 3.5
-  - 3.6
-  - 3.7
-  - 3.8
-  - pypy3.5-6.0
-install: travis_retry pip install tox-travis
 services:
   - mongodb
   - redis-server
 before_script:
   - sleep 15
   - mongo eve_test --eval 'db.createUser({user:"test_user",pwd:"test_pw",roles:["readWrite"]});'
+install: travis_retry pip install tox-travis
+script: tox --recreate
 
-jobs:
-    include:
-    - stage: linting
-      python: '3.7'
-      env:
-      install:
-      - pip install pre-commit
-      - pre-commit install-hooks
-      before_script:
-      services:
-      script:
-      - pre-commit run --all-files
+matrix:
+  include:
+    - env: TOXENV=linting
+      python: "3.7"
+    - env: TOXENV=py27
+      python: "2.7"
+    - env: TOXENV=py35
+      python: "3.5"
+    - env: TOXENV=py36
+      python: "3.6"
+    - env: TOXENV=py37
+      python: "3.7"
+    - env: TOXENV=py38
+      python: "3.8"
+    - env: TOXENV=pypy3
+      python: "pypy3.5-6.0"
