@@ -137,7 +137,7 @@ installed to run all of the environments. Then run::
     tox
 
 Please note that you need an active MongoDB instance running on localhost in
-order for the tests run. Also, be advived that in order to execute the
+order for the tests run. Also, be advised that in order to execute the
 :ref:`ratelimiting` tests you need a running Redis_ server. The Rate-Limiting
 tests are silently skipped if any of the two conditions are not met.
 
