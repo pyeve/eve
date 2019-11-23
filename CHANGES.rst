@@ -26,11 +26,12 @@ Fixed
 - (*breaking*) Delete on empty resource returns 404, should return 204
   (`#1299`_)
 - ``MONGO_REPLICA_SET`` ignored (`#1302`_)
-- Documentation typo (`#1293`_, `#1315`_, `#1322`_, `#1324`_)
+- Documentation typo (`#1293`_, `#1315`_, `#1322`_, `#1324`_, `#1327`_)
 - Flask 1.1.1 breaks ``test_logging_info`` test (`#1296`_)
 - Display the full release number on Eve frontpage.
 - Update link to EveGenie repository. New maintainer: David Zisky.
 
+.. _`#1327`: https://github.com/pyeve/eve/pull/1327
 .. _`#1325`: https://github.com/pyeve/eve/pull/1325
 .. _`#1324`: https://github.com/pyeve/eve/pull/1324
 .. _`#1322`: https://github.com/pyeve/eve/pull/1322
