@@ -164,12 +164,11 @@ def _perform_aggregation(resource, pipeline, options):
         For example, we have endpoint with a stage like {'$lookup': {'$userId': '$a', '$name': '$b'}}, $a is provided
         but $b is provided as {}. Then the stage will be pruned as {'$lookup': {'$userId': '$a'}}
         """
-        items = [(st_key, st_value) for st_key, st_value in d.items()]
-        for (st_key, st_value) in items:
+        for st_key, st_value in list(d.items()):
             if isinstance(st_value, dict):
                 prune_aggregation_stage(st_value)
-                if len(st_value.keys()) == 0:
-                    # remove the key: value when value is an empty dict
+                if not st_value:
+                    # value is an empty dict, remove the key
                     del d[st_key]
 
     response = {}
@@ -184,7 +183,7 @@ def _perform_aggregation(resource, pipeline, options):
             abort(400, description="Aggregation query could not be parsed.")
 
         for key, value in query.items():
-            if key[0] != "$":
+            if key.startswith("$"):
                 pass
             for stage in req_pipeline:
                 parse_aggregation_stage(stage, key, value)
@@ -193,7 +192,7 @@ def _perform_aggregation(resource, pipeline, options):
     req_pipeline_pruned = []
     for stage in req_pipeline:
         prune_aggregation_stage(stage)
-        if len(stage.keys()) > 0:
+        if stage:
             req_pipeline_pruned.append(stage)
 
     paginated_results = []
@@ -445,7 +444,7 @@ def getitem_internal(resource, **lookup):
     if (cache_validators[True] > 0) and (cache_validators[False] == 0):
         return {}, last_modified, etag, 304
 
-    if version == "all" or version == "diffs":
+    if version in ("all", "diffs"):
         # find all versions
         lookup[versioned_id_field(resource_def)] = lookup[resource_def["id_field"]]
         del lookup[resource_def["id_field"]]
@@ -528,7 +527,7 @@ def getitem_internal(resource, **lookup):
     # the functions modify the document, last_modified and etag
     # won't be updated to reflect the changes (they always reflect the
     # documents state on the database).
-    if resource_def["versioning"] is True and version in ["all", "diffs"]:
+    if resource_def["versioning"] is True and version in ("all", "diffs"):
         versions = response
         if config.DOMAIN[resource]["hateoas"]:
             versions = response[config.ITEMS]

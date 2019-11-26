@@ -109,7 +109,7 @@ def deleteitem_internal(
         return all_done()
 
     # notify callbacks
-    if suppress_callbacks is not True:
+    if not suppress_callbacks:
         getattr(app, "on_delete_item")(resource, original)
         getattr(app, "on_delete_item_%s" % resource)(original)
 
@@ -151,7 +151,7 @@ def deleteitem_internal(
         # document might miss one or more media fields because of datasource
         # and/or client projection.
         missing_media_fields = [f for f in media_fields if f not in original]
-        if len(missing_media_fields):
+        if missing_media_fields:
             # retrieve the whole document so we have all media fields available
             # Should be very a rare occurrence. We can't get rid of the
             # get_document() call since it also deals with etag matching, which
@@ -182,7 +182,7 @@ def deleteitem_internal(
         # update oplog if needed
         oplog_push(resource, original, "DELETE", id)
 
-    if suppress_callbacks is not True:
+    if not suppress_callbacks:
         getattr(app, "on_deleted_item")(resource, original)
         getattr(app, "on_deleted_item_%s" % resource)(original)
 
@@ -233,7 +233,7 @@ def delete(resource, **lookup):
     if resource_def["soft_delete"]:
         # I need to check that I have at least some documents not soft_deleted
         # I skip all the soft_deleted documents
-        originals = [x for x in originals if x.get(config.DELETED) is not True]
+        originals = [x for x in originals if not x.get(config.DELETED)]
         if not originals:
             # Nothing to be deleted
             return all_done()

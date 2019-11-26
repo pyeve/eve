@@ -229,7 +229,7 @@ def post_internal(resource, payl=None, skip_validation=False):
             app.logger.exception(e)
             doc_issues["exception"] = str(e)
 
-        if len(doc_issues):
+        if doc_issues:
             document = {config.STATUS: config.STATUS_ERR, config.ISSUES: doc_issues}
             failures += 1
 
