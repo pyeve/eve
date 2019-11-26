@@ -339,7 +339,7 @@ class TestMinimal(unittest.TestCase):
         self.assertEqual(status, 401)
 
     def assert401or405(self, status):
-        self.assertTrue(status == 401 or 405)
+        self.assertTrue(status in [401, 405])
 
     def assert403(self, status):
         self.assertEqual(status, 403)
