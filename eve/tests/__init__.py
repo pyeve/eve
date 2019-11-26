@@ -364,7 +364,9 @@ class TestMinimal(unittest.TestCase):
         self.connection.drop_database(MONGO_DBNAME)
         if MONGO_USERNAME:
             db = self.connection[MONGO_DBNAME]
-            db.command("dropUser", MONGO_USERNAME)
+            info = db.command("usersInfo", MONGO_USERNAME)
+            if any(user["user"] == MONGO_USERNAME for user in info["users"]):
+                db.command("dropUser", MONGO_USERNAME)
             db.command(
                 "createUser", MONGO_USERNAME, pwd=MONGO_PASSWORD, roles=["dbAdmin"]
             )
