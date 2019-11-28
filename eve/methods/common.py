@@ -29,6 +29,7 @@ from eve.utils import (
     debug_error_message,
     document_etag,
     parse_request,
+    str_type,
 )
 from eve.versioning import get_data_version_relation_document, resolve_document_version
 from collections import Counter
@@ -542,6 +543,9 @@ def serialize_value(field_type, value):
     """Serialize value of a given type. Relies on the app.data.serializers
     dictionary.
     """
+    if not isinstance(value, str_type):
+        return value
+
     try:
         return app.data.serializers[field_type](value)
     except (KeyError, ValueError, TypeError, InvalidId):
@@ -888,11 +892,9 @@ def embedded_document(references, data_relation, field_name):
             )
             embedded_docs.append(embedded_doc)
     else:
-        (
-            id_value_to_sort,
-            list_of_id_field_name,
-            subresources_query,
-        ) = generate_query_and_sorting_criteria(data_relation, references)
+        id_value_to_sort, list_of_id_field_name, subresources_query = generate_query_and_sorting_criteria(
+            data_relation, references
+        )
         for subresource in subresources_query:
             result, _ = app.data.find(
                 subresource, None, subresources_query[subresource]
