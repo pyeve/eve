@@ -20,6 +20,7 @@ New
 
 Fixed
 ~~~~~
+- Minor style improvements and 2 test fixes (`#1330`_)
 - Werkzeug 0.15.4 crashes with Python 3.8 (`#1325`_)
 - Curl request in projection examples do not work (`#1298`_)
 - Update installation instructions (`#1303`_)
@@ -31,6 +32,7 @@ Fixed
 - Display the full release number on Eve frontpage.
 - Update link to EveGenie repository. New maintainer: David Zisky.
 
+.. _`#1330`: https://github.com/pyeve/eve/pull/1330
 .. _`#1327`: https://github.com/pyeve/eve/pull/1327
 .. _`#1325`: https://github.com/pyeve/eve/pull/1325
 .. _`#1324`: https://github.com/pyeve/eve/pull/1324

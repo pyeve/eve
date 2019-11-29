@@ -247,7 +247,7 @@ def put_internal(
         app.logger.exception(e)
         abort(400, description=debug_error_message("An exception occurred: %s" % e))
 
-    if len(issues):
+    if issues:
         response[config.ISSUES] = issues
         response[config.STATUS] = config.STATUS_ERR
         status = config.VALIDATION_ERROR_STATUS

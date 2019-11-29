@@ -383,7 +383,7 @@ class Eve(Flask, Events):
             "POST" in settings["resource_methods"]
             or "PATCH" in settings["item_methods"]
         ):
-            if len(settings["schema"]) == 0:
+            if not settings["schema"]:
                 raise ConfigException(
                     "A resource schema must be provided "
                     "when POST or PATCH methods are allowed "
@@ -494,10 +494,7 @@ class Eve(Flask, Events):
         if resource_settings["soft_delete"] is True:
             fields += [self.config["DELETED"]]
 
-        offenders = []
-        for field in fields:
-            if field in schema:
-                offenders.append(field)
+        offenders = [field for field in fields if field in schema]
         if offenders:
             raise SchemaException(
                 'field(s) "%s" not allowed in "%s" schema '
@@ -511,8 +508,8 @@ class Eve(Flask, Events):
         for field, ruleset in schema.items():
             validate_field_name(field)
             if isinstance(ruleset, dict) and "dict" in ruleset.get("type", ""):
-                for field in ruleset.get("schema", {}).keys():
-                    validate_field_name(field)
+                for field_ in ruleset.get("schema", {}):
+                    validate_field_name(field_)
 
             # check data_relation rules
             if "data_relation" in ruleset:
@@ -728,7 +725,7 @@ class Eve(Flask, Events):
         # If inclusion projections are defined, exclusion projections are
         # just ignored.
         # Enhance the projection with automatic fields.
-        if len(schema) and settings["allow_unknown"] is False:
+        if schema and settings["allow_unknown"] is False:
             inclusion_projection = dict(
                 [(k, v) for k, v in projection.items() if v == 1]
             )
@@ -740,7 +737,7 @@ class Eve(Flask, Events):
                 projection.update(
                     dict(
                         (field, 1)
-                        for (field) in schema
+                        for field in schema
                         if field not in exclusion_projection
                     )
                 )
