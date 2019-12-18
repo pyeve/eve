@@ -533,9 +533,9 @@ class Mongo(DataLayer):
         except (pymongo.errors.WriteError, pymongo.errors.OperationFailure) as e:
             # server error codes and messages changed between 2.4 and 2.6/3.0.
             server_version = self.driver.db.client.server_info()["version"][:3]
-            if (server_version == "2.4" and e.code in (13596, 10148)) or (
-                server_version in ("2.6", "3.0", "3.2", "3.4", "3.6", "4.0")
-                and e.code in (66, 16837)
+            if (server_version == "2.4" and e.code in (13596, 10148)) or e.code in (
+                66,
+                16837,
             ):
                 # attempt to update an immutable field. this usually
                 # happens when a PATCH or PUT includes a mismatching ID_FIELD.
