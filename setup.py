@@ -13,12 +13,11 @@ with io.open("eve/__init__.py", "rt", encoding="utf8") as f:
     VERSION = re.search(r"__version__ = \"(.*?)\"", f.read()).group(1)
 
 INSTALL_REQUIRES = [
-    "cerberus>=1.1",
+    "cerberus>=1.1,<2.0",
     "events>=0.3,<0.4",
     "flask>=1.0",
     "pymongo>=3.7",
     "simplejson>=3.3.0,<4.0",
-    "werkzeug==0.15.5",
 ]
 
 EXTRAS_REQUIRE = {
