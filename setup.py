@@ -21,7 +21,7 @@ INSTALL_REQUIRES = [
 ]
 
 EXTRAS_REQUIRE = {
-    "docs": ["sphinx", "alabaster"],
+    "docs": ["sphinx", "alabaster", "doc8"],
     "tests": ["redis", "testfixtures", "pytest", "tox"],
 }
 EXTRAS_REQUIRE["dev"] = EXTRAS_REQUIRE["tests"] + EXTRAS_REQUIRE["docs"]
