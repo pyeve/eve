@@ -20,7 +20,8 @@ New
 
 Fixed
 ~~~~~
-- 500 error when PATCH or PUT are performed on Mongo 4.2 and `_id` is
+- Pin to Cerberus < 2.0 (`#1342`_)
+- 500 error when PATCH or PUT are performed on Mongo 4.2 and ``_id`` is
   included with payload (`#1341`_)
 - Minor style improvements and 2 test fixes (`#1330`_)
 - Werkzeug 0.15.4 crashes with Python 3.8 (`#1325`_)
@@ -34,6 +35,7 @@ Fixed
 - Display the full release number on Eve frontpage.
 - Update link to EveGenie repository. New maintainer: David Zisky.
 
+.. _`#1342`: https://github.com/pyeve/eve/issues/1342
 .. _`#1341`: https://github.com/pyeve/eve/issues/1341
 .. _`#1330`: https://github.com/pyeve/eve/pull/1330
 .. _`#1327`: https://github.com/pyeve/eve/pull/1327
