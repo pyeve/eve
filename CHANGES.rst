@@ -13,7 +13,9 @@ New
 - ``unique_within_resource`` validation rule. Enforces the uniqueness of an
   attribute only at API resource level, contrasting with the ``unique`` rule
   that enforces uniqueness at database collection level (`#1291`_)
+- Add doc8 to dev-requirements (`#1343`_)
 
+.. _`#1343`: https://github.com/pyeve/eve/issues/1343
 .. _`#1326`: https://github.com/pyeve/eve/issues/1326
 .. _`#1297`: https://github.com/pyeve/eve/issues/1297
 .. _`#1291`: https://github.com/pyeve/eve/issues/1291
