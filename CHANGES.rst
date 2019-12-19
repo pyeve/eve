@@ -6,6 +6,13 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
+- hic sunt leones
+
+Version 1.0
+-----------
+
+Released on December 19, 2019.
+
 New
 ~~~
 - Python 3.8 added to CI matrix (`#1326`_)
