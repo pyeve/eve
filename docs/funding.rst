@@ -26,7 +26,7 @@ donating as a sign of appreciation - like buying me coffee once in a while :)
 
 Support Eve development
 -----------------------
-You can support Eve development by pledging on GitHub, Patreon, or donating on PayPal.
+You can support Eve development by pledging on GitHub, Patreon, or PayPal.
 
 - `Become a Backer on GitHub <https://github.com/sponsors/nicolaiarocci>`_
 - `Become a Backer on Patreon <https://www.patreon.com/nicolaiarocci>`_
