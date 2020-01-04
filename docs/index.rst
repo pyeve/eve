@@ -69,7 +69,7 @@ also welcome to make either a recurring pledge or a one time donation if Eve
 has helped you in your work or personal projects. Every single sign-up makes
 a significant impact towards making Eve possible.
 
-To join the backer ranks, check out `Eve campaign on Patreon`_.
+To join the backer ranks, check out :doc:`the funding page <funding>`.
 
 .. _demo:
 
@@ -124,4 +124,3 @@ is also a simple `client app`_ available.
 .. _Cerberus: http://python-cerberus.org
 .. _events: https://github.com/pyeve/events
 .. _extensions: http://python-eve.org/extensions
-.. _`Eve campaign on Patreon`: https://www.patreon.com/nicolaiarocci
