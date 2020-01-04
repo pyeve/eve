@@ -69,7 +69,11 @@ also welcome to make either a recurring pledge or a one time donation if Eve
 has helped you in your work or personal projects. Every single sign-up makes
 a significant impact towards making Eve possible.
 
-To join the backer ranks, check out :doc:`the funding page <funding>`.
+You can support Eve development by pledging on GitHub, Patreon, or donating on PayPal.
+
+- `Become a Backer on GitHub <https://github.com/sponsors/nicolaiarocci>`_
+- `Become a Backer on Patreon <https://www.patreon.com/nicolaiarocci>`_
+- `Donate via PayPal <https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7U7G7EWU7EPNW>`_ (one time)
 
 .. _demo:
 
