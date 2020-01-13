@@ -36,6 +36,7 @@ from eve.utils import (
     str_to_date,
     str_type,
 )
+from ...versioning import versioned_id_field
 
 
 class MongoJSONEncoder(BaseJSONEncoder):
@@ -783,7 +784,7 @@ class Mongo(DataLayer):
                 ),
             )
 
-    def _mongotize(self, source, resource):
+    def _mongotize(self, source, resource, parse_objectid=True):
         """ Recursively iterates a JSON dictionary, turning RFC-1123 strings
         into datetime values and ObjectId-link strings into ObjectIds.
 
@@ -803,14 +804,18 @@ class Mongo(DataLayer):
 
         .. versionadded:: 0.0.4
         """
-        schema = config.DOMAIN[resource]
-        skip_objectid = schema.get("query_objectid_as_string", False)
+        resource_def = config.DOMAIN[resource]
+        id_field = resource_def["id_field"]
+        id_field_versioned = versioned_id_field(resource_def)
+        skip_objectid = resource_def.get("query_objectid_as_string", False)
 
-        def try_cast(v):
+        def try_cast(k, v, parse_objectid):
             try:
                 return datetime.strptime(v, config.DATE_FORMAT)
             except:
-                if not skip_objectid:
+                if k in (id_field, id_field_versioned) or (
+                    parse_objectid and not skip_objectid
+                ):
                     try:
                         # Convert to unicode because ObjectId() interprets
                         # 12-character strings (but not unicode) as binary
@@ -827,17 +832,50 @@ class Mongo(DataLayer):
                 else:
                     return v
 
+        def get_schema_type(keys, schema):
+            def dict_sub_schema(base):
+                if base.get("type") == "dict":
+                    return base.get("schema")
+                return base
+
+            if not isinstance(schema, dict):
+                return None
+            if not keys:
+                return schema.get("type")
+
+            k = keys[0]
+            keys = keys[1:]
+            schema_type = schema[k].get("type") if k in schema else None
+            if schema_type == "list":
+                # TODO: do we need to check for accounts[0] syntax here? if so we need to
+                if "items" in schema[k]:
+                    items = schema[k].get("items") or []
+                    possible_types = [get_schema_type(keys, item) for item in items]
+                    if "objectid" in possible_types:
+                        return "objectid"
+                    else:
+                        return next((t for t in possible_types if t), None)
+                elif "schema" in schema[k]:
+                    # recursively check the schema
+                    return get_schema_type(
+                        keys, dict_sub_schema(schema[k].get("schema"))
+                    )
+            elif schema_type == "dict":
+                return get_schema_type(keys, dict_sub_schema(schema[k].get("schema")))
+            else:
+                return schema_type
+
         for k, v in source.items():
             if isinstance(v, dict):
-                self._mongotize(v, resource)
+                self._mongotize(v, resource, parse_objectid) # was False
             elif isinstance(v, list):
                 for i, v1 in enumerate(v):
                     if isinstance(v1, dict):
-                        source[k][i] = self._mongotize(v1, resource)
+                        source[k][i] = self._mongotize(v1, resource, parse_objectid) # was False
                     else:
-                        source[k][i] = try_cast(v1)
+                        source[k][i] = try_cast(k, v1, parse_objectid)
             elif isinstance(v, str_type):
-                source[k] = try_cast(v)
+                source[k] = try_cast(k, v, parse_objectid)
 
         return source
 
