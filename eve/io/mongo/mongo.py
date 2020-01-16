@@ -867,13 +867,13 @@ class Mongo(DataLayer):
 
         for k, v in source.items():
             if isinstance(v, dict):
-                self._mongotize(v, resource, parse_objectid) # was False
+                self._mongotize(v, resource, not skip_objectid)
             elif isinstance(v, list):
                 for i, v1 in enumerate(v):
                     if isinstance(v1, dict):
-                        source[k][i] = self._mongotize(v1, resource, parse_objectid) # was False
+                        source[k][i] = self._mongotize(v1, resource, not skip_objectid)
                     else:
-                        source[k][i] = try_cast(k, v1, parse_objectid)
+                        source[k][i] = try_cast(k, v1, not skip_objectid)
             elif isinstance(v, str_type):
                 source[k] = try_cast(k, v, parse_objectid)
 

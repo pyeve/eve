@@ -50,7 +50,7 @@ contacts = {
             "schema": {
                 "type": "dict",
                 "schema": {
-                    "sku": {"type": "string", "maxlength": 10},
+                    "sku": {"type": "string", "maxlength": 24},
                     "price": {"type": "integer"},
                 },
             },

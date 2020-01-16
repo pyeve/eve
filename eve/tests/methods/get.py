@@ -241,17 +241,18 @@ class TestGet(TestBase):
         self.assertEqual(len(resource), 0)
 
     def test_get_where_mongo_objectid_as_string_but_field_is_id(self):
-        where_in = '{"tid": { "$in": ["%s"]} }' % self.item_tid
+        skus = [item["sku"] for item in self.item_rows]
+        where_in = '{"rows.sku": { "$in": %s} }' % self.to_list_string(skus)
         response, status = self.get(self.known_resource, "?where=%s" % where_in)
         self.assert200(status)
         resource = response["_items"]
-        self.assertEqual(len(resource), 1)
+        self.assertEqual(len(resource), 0)
 
         self.app.config["DOMAIN"]["contacts"]["query_objectid_as_string"] = True
         response, status = self.get(self.known_resource, "?where=%s" % where_in)
         self.assert200(status)
         resource = response["_items"]
-        self.assertEqual(len(resource), 0)
+        self.assertEqual(len(resource), 1)
 
     def test_get_where_python_syntax(self):
         where = "ref == %s" % self.item_name
