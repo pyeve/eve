@@ -784,7 +784,7 @@ class Mongo(DataLayer):
                 ),
             )
 
-    def _mongotize(self, source, resource, parse_objectid=True):
+    def _mongotize(self, source, resource):
         """ Recursively iterates a JSON dictionary, turning RFC-1123 strings
         into datetime values and ObjectId-link strings into ObjectIds.
 
@@ -807,15 +807,13 @@ class Mongo(DataLayer):
         resource_def = config.DOMAIN[resource]
         id_field = resource_def["id_field"]
         id_field_versioned = versioned_id_field(resource_def)
-        skip_objectid = resource_def.get("query_objectid_as_string", False)
+        parse_objectid = not resource_def.get("query_objectid_as_string", False)
 
         def try_cast(k, v, parse_objectid):
             try:
                 return datetime.strptime(v, config.DATE_FORMAT)
             except:
-                if k in (id_field, id_field_versioned) or (
-                    parse_objectid and not skip_objectid
-                ):
+                if k in (id_field, id_field_versioned) or parse_objectid:
                     try:
                         # Convert to unicode because ObjectId() interprets
                         # 12-character strings (but not unicode) as binary
@@ -867,13 +865,13 @@ class Mongo(DataLayer):
 
         for k, v in source.items():
             if isinstance(v, dict):
-                self._mongotize(v, resource, not skip_objectid)
+                self._mongotize(v, resource)
             elif isinstance(v, list):
                 for i, v1 in enumerate(v):
                     if isinstance(v1, dict):
-                        source[k][i] = self._mongotize(v1, resource, not skip_objectid)
+                        source[k][i] = self._mongotize(v1, resource)
                     else:
-                        source[k][i] = try_cast(k, v1, not skip_objectid)
+                        source[k][i] = try_cast(k, v1, parse_objectid)
             elif isinstance(v, str_type):
                 source[k] = try_cast(k, v, parse_objectid)
 
