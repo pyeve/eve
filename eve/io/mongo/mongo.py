@@ -805,15 +805,16 @@ class Mongo(DataLayer):
         .. versionadded:: 0.0.4
         """
         resource_def = config.DOMAIN[resource]
+        schema = resource_def.get("schema")
         id_field = resource_def["id_field"]
         id_field_versioned = versioned_id_field(resource_def)
         parse_objectid = not resource_def.get("query_objectid_as_string", False)
 
-        def try_cast(k, v, parse_objectid):
+        def try_cast(k, v, should_parse_objectid):
             try:
                 return datetime.strptime(v, config.DATE_FORMAT)
             except:
-                if k in (id_field, id_field_versioned) or parse_objectid:
+                if k in (id_field, id_field_versioned) or should_parse_objectid:
                     try:
                         # Convert to unicode because ObjectId() interprets
                         # 12-character strings (but not unicode) as binary
@@ -845,7 +846,6 @@ class Mongo(DataLayer):
             keys = keys[1:]
             schema_type = schema[k].get("type") if k in schema else None
             if schema_type == "list":
-                # TODO: do we need to check for accounts[0] syntax here? if so we need to
                 if "items" in schema[k]:
                     items = schema[k].get("items") or []
                     possible_types = [get_schema_type(keys, item) for item in items]
@@ -864,6 +864,9 @@ class Mongo(DataLayer):
                 return schema_type
 
         for k, v in source.items():
+            keys = k.split(".")
+            schema_type = get_schema_type(keys, schema)
+            is_objectid = (schema_type == "objectid") or parse_objectid
             if isinstance(v, dict):
                 self._mongotize(v, resource)
             elif isinstance(v, list):
@@ -871,9 +874,9 @@ class Mongo(DataLayer):
                     if isinstance(v1, dict):
                         source[k][i] = self._mongotize(v1, resource)
                     else:
-                        source[k][i] = try_cast(k, v1, parse_objectid)
+                        source[k][i] = try_cast(k, v1, is_objectid)
             elif isinstance(v, str_type):
-                source[k] = try_cast(k, v, parse_objectid)
+                source[k] = try_cast(k, v, is_objectid)
 
         return source
 
