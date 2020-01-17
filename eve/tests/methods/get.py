@@ -254,7 +254,6 @@ class TestGet(TestBase):
         resource = response["_items"]
         self.assertEqual(len(resource), 1)
 
-
     def test_get_where_python_syntax(self):
         where = "ref == %s" % self.item_name
         response, status = self.get(self.known_resource, "?where=%s" % where)
