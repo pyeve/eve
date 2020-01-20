@@ -499,7 +499,7 @@ class TestBase(TestMinimal):
                 "prog": i,
                 "role": random.choice(schema["role"]["allowed"]),
                 "title": schema["title"]["default"],
-                "rows": self.random_rows(random.randint(0, 5)),
+                "rows": self.random_rows(random.randint(1, 5)),
                 "alist": self.random_list(random.randint(0, 5)),
                 "location": {
                     "address": "address " + self.random_string(5),
