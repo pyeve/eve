@@ -240,6 +240,19 @@ class TestGet(TestBase):
         resource = response["_items"]
         self.assertEqual(len(resource), 1)
 
+    def test_get_where_mongo_objectid_as_string_with_nested_documents(self):
+        where = '{"tid": { "$in": ["%s"]}}' % self.item_tid
+        response, status = self.get(self.known_resource, "?where=%s" % where)
+        self.assert200(status)
+        resource = response["_items"]
+        self.assertEqual(len(resource), 1)
+
+        self.app.config["DOMAIN"]["contacts"]["query_objectid_as_string"] = True
+        response, status = self.get(self.known_resource, "?where=%s" % where)
+        self.assert200(status)
+        resource = response["_items"]
+        self.assertEqual(len(resource), 1)
+
     def test_get_where_mongo_objectid_as_string_but_field_is_id(self):
         skus = self.to_list_string([item["sku"] for item in self.item_rows])
         where_in = '{"tid": "%s", "rows.sku": { "$in": %s} }' % (self.item_tid, skus)
