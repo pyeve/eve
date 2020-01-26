@@ -134,7 +134,7 @@ class DataLayer(object):
                     to support with your driver. For example ``eve.io.Mongo``
                     supports both Python and Mongo-like query syntaxes.
         :param sub_resource_lookup: sub-resource lookup from the endpoint url.
-        :param perform_count: wether a document count should be performed and
+        :param perform_count: whether a document count should be performed and
                               returned to the client.
 
         .. versionchanged:: 0.3
