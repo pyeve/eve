@@ -6,7 +6,9 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
-- hic sunt leones
+- Fix: Mixing foreign and local object ids breaks querying (`#1345`_)
+
+.. _`#1345`: https://github.com/pyeve/eve/issues/1345
 
 Version 1.0
 -----------

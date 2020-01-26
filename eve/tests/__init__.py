@@ -433,6 +433,7 @@ class TestBase(TestMinimal):
         self.item_tid = contact["tid"]
         self.item_etag = contact[ETAG]
         self.item_ref = contact["ref"]
+        self.item_rows = contact["rows"]
         self.item_id_url = "/%s/%s" % (
             self.domain[self.known_resource]["url"],
             self.item_id,
@@ -498,7 +499,7 @@ class TestBase(TestMinimal):
                 "prog": i,
                 "role": random.choice(schema["role"]["allowed"]),
                 "title": schema["title"]["default"],
-                "rows": self.random_rows(random.randint(0, 5)),
+                "rows": self.random_rows(random.randint(1, 5)),
                 "alist": self.random_list(random.randint(0, 5)),
                 "location": {
                     "address": "address " + self.random_string(5),
@@ -518,6 +519,9 @@ class TestBase(TestMinimal):
 
             contacts.append(contact)
         return contacts
+
+    def to_list_string(self, list_of_strings):
+        return '["%s"]' % '","'.join(list_of_strings)
 
     def random_users(self, num):
         users = self.random_contacts(num)
@@ -569,6 +573,9 @@ class TestBase(TestMinimal):
     def random_string(self, num):
         return "".join(random.choice(string.ascii_uppercase) for x in range(num))
 
+    def random_hexstring(self, num):
+        return "".join(random.choice(string.hexdigits).lower() for x in range(num))
+
     def random_list(self, num):
         alist = []
         for i in range(num):
@@ -581,7 +588,7 @@ class TestBase(TestMinimal):
         for _ in range(num):
             rows.append(
                 {
-                    "sku": self.random_string(schema["sku"]["maxlength"]),
+                    "sku": self.random_hexstring(schema["sku"]["maxlength"]),
                     "price": random.randint(100, 1000),
                 }
             )

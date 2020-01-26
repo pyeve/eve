@@ -238,7 +238,34 @@ class TestGet(TestBase):
         response, status = self.get(self.known_resource, "?where=%s" % where)
         self.assert200(status)
         resource = response["_items"]
+        self.assertEqual(len(resource), 1)
+
+    def test_get_where_mongo_objectid_as_string_with_nested_documents(self):
+        where = '{"tid": { "$in": ["%s"]}}' % self.item_tid
+        response, status = self.get(self.known_resource, "?where=%s" % where)
+        self.assert200(status)
+        resource = response["_items"]
+        self.assertEqual(len(resource), 1)
+
+        self.app.config["DOMAIN"]["contacts"]["query_objectid_as_string"] = True
+        response, status = self.get(self.known_resource, "?where=%s" % where)
+        self.assert200(status)
+        resource = response["_items"]
+        self.assertEqual(len(resource), 1)
+
+    def test_get_where_mongo_objectid_as_string_but_field_is_id(self):
+        skus = self.to_list_string([item["sku"] for item in self.item_rows])
+        where_in = '{"tid": "%s", "rows.sku": { "$in": %s} }' % (self.item_tid, skus)
+        response, status = self.get(self.known_resource, "?where=%s" % where_in)
+        self.assert200(status)
+        resource = response["_items"]
         self.assertEqual(len(resource), 0)
+
+        self.app.config["DOMAIN"]["contacts"]["query_objectid_as_string"] = True
+        response, status = self.get(self.known_resource, "?where=%s" % where_in)
+        self.assert200(status)
+        resource = response["_items"]
+        self.assertEqual(len(resource), 1)
 
     def test_get_where_python_syntax(self):
         where = "ref == %s" % self.item_name
@@ -1279,11 +1306,12 @@ class TestGet(TestBase):
         # of string type and which value is castable to a ObjectId is still
         # treated as a string when 'query_objectid_as_string' is set to True.
         # See PR #552.
-        data = {"id": "507c7f79bcf86cd7994f6c0e", "name": "john"}
+        self.app.config["DOMAIN"]["contacts"]["query_objectid_as_string"] = True
+        data = {"id": "507c7f79bcf86cd7994f6c0e", "name": "507c7f79bcf86cd7994f6c0e"}
         response, status = self.post("ids", data=data)
         self.assert201(status)
 
-        where = '?where={"id": "507c7f79bcf86cd7994f6c0e"}'
+        where = '?where={"name": "507c7f79bcf86cd7994f6c0e"}'
         response, status = self.get("ids", where)
         self.assert200(status)
         items = response["_items"]
