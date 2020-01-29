@@ -127,4 +127,4 @@ is also a simple `client app`_ available.
 .. _Redis: http://redis.io
 .. _Cerberus: http://python-cerberus.org
 .. _events: https://github.com/pyeve/events
-.. _extensions: http://python-eve.org/extensions
+.. _extensions: http://python-eve.org/extensions.html
