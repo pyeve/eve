@@ -117,7 +117,7 @@ class Mongo(DataLayer):
     json_encoder_class = MongoJSONEncoder
 
     operators = set(
-        ["$gt", "$gte", "$in", "$lt", "$lte", "$ne", "$nin"]
+        ["$gt", "$gte", "$in", "$lt", "$lte", "$ne", "$nin", "$eq"]
         + ["$or", "$and", "$not", "$nor"]
         + ["$mod", "$regex", "$text", "$where"]
         + ["$options", "$search", "$language", "$caseSensitive"]
@@ -220,7 +220,7 @@ class Mongo(DataLayer):
         # return an error)
 
         client_sort = self._convert_sort_request_to_dict(req)
-        spec = self._convert_where_request_to_dict(req)
+        spec = self._convert_where_request_to_dict(resource, req)
 
         bad_filter = validate_filters(spec, resource)
         if bad_filter:
@@ -881,9 +881,13 @@ class Mongo(DataLayer):
 
         return source
 
-    def _sanitize(self, spec):
+    def _sanitize(self, resource, spec):
         """ Makes sure that only allowed operators are included in the query,
         aborts with a 400 otherwise.
+
+        .. versionchanged:: 1.1.0
+           Add mongo_query_whitelist config option to extend the list of
+           supported operators
 
         .. versionchanged:: 0.5
            Abort with 400 if unsupported query operators are used. #387.
@@ -898,7 +902,8 @@ class Mongo(DataLayer):
 
         def sanitize_keys(spec):
             ops = set([op for op in spec.keys() if op[0] == "$"])
-            unknown = ops - Mongo.operators
+            known = Mongo.operators | set(config.DOMAIN[resource]["mongo_query_whitelist"])
+            unknown = ops - known
             if unknown:
                 abort(
                     400,
@@ -919,10 +924,10 @@ class Mongo(DataLayer):
         if isinstance(spec, dict):
             sanitize_keys(spec)
             for value in spec.values():
-                self._sanitize(value)
+                self._sanitize(resource, value)
         if isinstance(spec, list):
             for value in spec:
-                self._sanitize(value)
+                self._sanitize(resource, value)
 
         return spec
 
@@ -951,14 +956,14 @@ class Mongo(DataLayer):
                 abort(400, description=debug_error_message(str(e)))
         return client_sort
 
-    def _convert_where_request_to_dict(self, req):
+    def _convert_where_request_to_dict(self, resource, req):
         """ Converts the contents of a `ParsedRequest`'s `where` property to
         a dict
         """
         query = {}
         if req and req.where:
             try:
-                query = self._sanitize(json.loads(req.where))
+                query = self._sanitize(resource, json.loads(req.where))
             except HTTPException:
                 # _sanitize() is raising an HTTP exception; let it fire.
                 raise

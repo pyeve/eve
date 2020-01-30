@@ -11,6 +11,9 @@
     :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
+    .. versionchanged:: 1.1.0
+       'MONGO_QUERY_WHITELIST' added and set to emtpy list.
+
     .. versionchanged:: 0.8
         'RENDERERS' added with XML and JSON renderers.
         'JSON' removed.
@@ -261,6 +264,7 @@ RATE_LIMIT_DELETE = None
 # attacks ('ReDoS' especially), are probably too complex for the average API
 # end-user and finally can  seriously impact overall performance.
 MONGO_QUERY_BLACKLIST = ["$where", "$regex"]
+MONGO_QUERY_WHITELIST = []
 # Explicitly set default write_concern to 'safe' (do regular
 # aknowledged writes). This is also the current PyMongo/Mongo default setting.
 MONGO_WRITE_CONCERN = {"w": 1}
