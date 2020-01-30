@@ -580,6 +580,15 @@ uppercase.
                                     easily replaced with the (very rich) Mongo
                                     query dialect.
 
+``MONGO_QUERY_WHITELIST``           A list of extra Mongo query operators to allow
+                                    besides the official list of allowed operators.
+                                    Defaults to ``[]``.
+
+                                    Can be overridden at endpoint (Mongo
+                                    collection) level. See
+                                    ``mongo_query_whitelist`` below.
+
+
 ``MONGO_WRITE_CONCERN``             A dictionary defining MongoDB write concern
                                     settings. All standard write concern
                                     settings (w, wtimeout, j, fsync) are
@@ -1004,6 +1013,10 @@ always lowercase.
 ``hateoas``                     When ``False``, this option disables
                                 :ref:`hateoas_feature` for the resource.
                                 Defaults to ``True``.
+
+``mongo_query_whitelist``       A list of extra Mongo query operators to allow
+                                for this endpoint besides the official list of
+                                allowed operators. Defaults to ``[]``.
 
 ``mongo_write_concern``         A dictionary defining MongoDB write concern
                                 settings for the endpoint datasource. All
