@@ -902,7 +902,10 @@ class Mongo(DataLayer):
 
         def sanitize_keys(spec):
             ops = set([op for op in spec.keys() if op[0] == "$"])
-            known = Mongo.operators | set(config.DOMAIN[resource]["mongo_query_whitelist"])
+            known = Mongo.operators | set(
+                config.DOMAIN[resource]["mongo_query_whitelist"]
+            )
+
             unknown = ops - known
             if unknown:
                 abort(

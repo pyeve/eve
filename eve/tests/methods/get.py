@@ -238,9 +238,7 @@ class TestGet(TestBase):
         self.assert200(status)
 
     def test_get_mongo_query_whitelist_nested(self):
-        where = (
-            '{"$or": [{"$expr": {"$eq": [{"$year": "$_created"}, 2020]}}]}'
-        )
+        where = '{"$or": [{"$expr": {"$eq": [{"$year": "$_created"}, 2020]}}]}'
         _, status = self.get(self.known_resource, "?where=%s" % where)
         self.assert400(status)
 
