@@ -26,3 +26,8 @@ matrix:
       python: "3.8"
     - env: TOXENV=pypy3
       python: "pypy3.5-6.0"
+    - env: TOXENV=coverage
+      python: "3.7"
+      script:
+        - tox --recreate
+        - bash <(curl -s https://codecov.io/bash)
