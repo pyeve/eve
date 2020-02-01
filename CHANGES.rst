@@ -6,8 +6,18 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
+New
+~~~
+- ``MONGO_QUERY_WHITELIST`` and ``mongo_query_whitelist``. A list of extra Mongo
+  query operators to allow besides the official list of allowed operators.
+  Defaults to ``[]``. (`#1351`_)
+
+Fixed
+~~~~~
+- ``$eq`` is missing from supported query opeators (`#1351`_)
 - Documentation typos (`#1348`_, `#1350`_)
 
+.. _`#1351`: https://github.com/pyeve/eve/issues/1351
 .. _`#1350`: https://github.com/pyeve/eve/pull/1350
 .. _`#1348`: https://github.com/pyeve/eve/issues/1348
 
