@@ -6,7 +6,9 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
-- hic sunt leones.
+- Documentation typos (`#1348`_)
+
+.. _`#1348`: https://github.com/pyeve/eve/pull/1348
 
 Version 1.0.1
 -------------
