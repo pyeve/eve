@@ -227,6 +227,26 @@ class TestGet(TestBase):
         _, status = self.get(self.known_resource, "?where=%s" % where)
         self.assert400(status)
 
+    def test_get_mongo_query_whitelist(self):
+        where = '{"$expr": {"$eq": [{"$year": "$_created"}, 2020]}}'
+        _, status = self.get(self.known_resource, "?where=%s" % where)
+        self.assert400(status)
+
+        settings = self.app.config["DOMAIN"][self.known_resource]
+        settings["mongo_query_whitelist"] = ["$year"]
+        _, status = self.get(self.known_resource, "?where=%s" % where)
+        self.assert200(status)
+
+    def test_get_mongo_query_whitelist_nested(self):
+        where = '{"$or": [{"$expr": {"$eq": [{"$year": "$_created"}, 2020]}}]}'
+        _, status = self.get(self.known_resource, "?where=%s" % where)
+        self.assert400(status)
+
+        settings = self.app.config["DOMAIN"][self.known_resource]
+        settings["mongo_query_whitelist"] = ["$year"]
+        _, status = self.get(self.known_resource, "?where=%s" % where)
+        self.assert200(status)
+
     def test_get_where_mongo_objectid_as_string(self):
         where = '{"tid": "%s"}' % self.item_tid
         response, status = self.get(self.known_resource, "?where=%s" % where)

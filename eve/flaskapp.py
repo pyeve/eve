@@ -598,6 +598,9 @@ class Eve(Flask, Events):
     def _set_resource_defaults(self, resource, settings):
         """ Low-level method which sets default values for one resource.
 
+        .. versionchanged:: 1.1.0
+           Added 'mongo_query_whitelist'.
+
         .. versionchanged:: 0.6.2
            Fix: startup crash when both SOFT_DELETE and ALLOW_UNKNOWN are True.
 
@@ -667,6 +670,9 @@ class Eve(Flask, Events):
         settings.setdefault("allow_unknown", self.config["ALLOW_UNKNOWN"])
         settings.setdefault(
             "extra_response_fields", self.config["EXTRA_RESPONSE_FIELDS"]
+        )
+        settings.setdefault(
+            "mongo_query_whitelist", self.config["MONGO_QUERY_WHITELIST"]
         )
         settings.setdefault("mongo_write_concern", self.config["MONGO_WRITE_CONCERN"])
         settings.setdefault("mongo_indexes", {})
