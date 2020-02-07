@@ -22,7 +22,7 @@ from flask import current_app as app
 from datetime import datetime, timedelta
 from bson.json_util import dumps
 from eve import RFC1123_DATE_FORMAT
-from werkzeug import MultiDict
+from werkzeug.datastructures import MultiDict
 
 
 class Config(object):
