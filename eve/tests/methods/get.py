@@ -6,12 +6,11 @@ from datetime import datetime, timedelta
 from bson import ObjectId
 from bson.dbref import DBRef
 from bson.son import SON
-from werkzeug.datastructures import ImmutableMultiDict
+from werkzeug.datastructures import ImmutableMultiDict, MultiDict
 from eve.tests import TestBase
 from eve.tests.utils import DummyEvent
 from eve.tests.test_settings import MONGO_DBNAME
 from eve.utils import str_to_date, date_to_rfc1123
-from werkzeug import MultiDict
 from eve.methods.get import get_internal, getitem_internal
 
 

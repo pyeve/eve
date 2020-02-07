@@ -15,7 +15,7 @@ import math
 import copy
 import simplejson as json
 from flask import current_app as app, abort, request
-from werkzeug import MultiDict
+from werkzeug.datastructures import MultiDict
 
 from .common import (
     ratelimit,

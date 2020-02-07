@@ -14,9 +14,11 @@ New
 
 Fixed
 ~~~~~
+- Starup crash with Werkzeug 1.0 (`#1359`_)
 - ``$eq`` is missing from supported query opeators (`#1351`_)
 - Documentation typos (`#1348`_, `#1350`_)
 
+.. _`#1359`: https://github.com/pyeve/eve/issues/1359
 .. _`#1351`: https://github.com/pyeve/eve/issues/1351
 .. _`#1350`: https://github.com/pyeve/eve/pull/1350
 .. _`#1348`: https://github.com/pyeve/eve/issues/1348
