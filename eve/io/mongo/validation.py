@@ -92,7 +92,18 @@ class Validator(Validator):
         .. versionadded:: 0.6
         """
         if unique:
-            query[field] = value
+            schema = self.schema
+            attribute_path = self.document_path + (field,)
+            temp_path = [attribute_path[0]]
+
+            for i, path in enumerate(attribute_path[:-1]):
+                schema = schema[path]
+                if schema["type"] != "list":
+                    temp_path.append(attribute_path[i + 1])
+
+            final_path = ".".join(temp_path)
+
+            query[final_path] = value
 
             resource_config = config.DOMAIN[self.resource]
 
