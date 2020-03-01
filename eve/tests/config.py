@@ -85,7 +85,7 @@ class TestConfig(TestBase):
         self.assertEqual(self.app.config["SHOW_DELETED_PARAM"], "show_deleted")
         self.assertEqual(
             self.app.config["STANDARD_ERRORS"],
-            [400, 401, 404, 405, 406, 409, 410, 412, 422, 428, 429],
+            [400, 401, 403, 404, 405, 406, 409, 410, 412, 422, 428, 429],
         )
         self.assertEqual(self.app.config["UPSERT_ON_PUT"], True)
         self.assertEqual(
