@@ -6,7 +6,12 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
-- hic sunt leones.
+Fixed
+~~~~~
+
+- ``unique`` constraint doesn't work when inside of a dict or a list (`#1360`_)
+
+.. _`#1360`: https://github.com/pyeve/eve/issues/1360
 
 Version 1.1
 -----------
