@@ -92,7 +92,11 @@ class Validator(Validator):
         .. versionadded:: 0.6
         """
         if unique:
-            query[field] = value
+            attribute_path = list(self.document_path + (field,))
+            temp_path = [x for x in attribute_path if not isinstance(x, int)]
+            final_path = ".".join(temp_path)
+
+            query[final_path] = value
 
             resource_config = config.DOMAIN[self.resource]
 
