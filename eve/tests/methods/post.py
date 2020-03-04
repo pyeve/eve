@@ -868,6 +868,17 @@ class TestPost(TestBase):
         self.assertEqual(values["city"], "a nested city")
         self.assertEqual(values["address"], "a nested address")
 
+    def test_post_nested_unique(self):
+        del self.domain["contacts"]["schema"]["ref"]["required"]
+        field = "unique_elements_list"
+        data = {
+            field: self.alt_item[field],
+        }
+        r, status = self.post(self.known_resource_url, data=data)
+        self.assert422(status)
+        expected = {"0": "value '%s' is not unique" % self.alt_item[field][0]}
+        self.assertValidationError(r, {field: expected})
+
     def test_post_error_as_list(self):
         del self.domain["contacts"]["schema"]["ref"]["required"]
         self.app.config["VALIDATION_ERROR_AS_LIST"] = True

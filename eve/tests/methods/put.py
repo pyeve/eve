@@ -79,6 +79,19 @@ class TestPut(TestBase):
             r, {"ref": "value '%s' is not unique" % self.alt_ref}
         )
 
+    def test_nested_unique_value(self):
+        field = "unique_elements_list"
+        data = {
+            "ref": self.item["ref"],
+            field: self.alt_item[field],
+        }
+        r, status = self.put(
+            self.item_id_url, data=data, headers=[("If-Match", self.item_etag)],
+        )
+        self.assert422(status)
+        expected = {"0": "value '%s' is not unique" % self.alt_item[field][0]}
+        self.assertValidationError(r, {field: expected})
+
     def test_allow_unknown(self):
         changes = {"unknown": "unknown"}
         r, status = self.put(

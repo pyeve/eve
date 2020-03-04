@@ -448,7 +448,8 @@ class TestBase(TestMinimal):
             self.domain[self.known_resource]["url"],
             self.item_name,
         )
-        self.alt_ref = self.response_item(response, 1)["ref"]
+        self.alt_item = self.response_item(response, 1)
+        self.alt_ref = self.alt_item["ref"]
 
         response, _ = self.get("payments", "?max_results=1")
         self.readonly_id = self.response_item(response)["_id"]
@@ -515,6 +516,12 @@ class TestBase(TestMinimal):
                 "tid": ObjectId(),
                 "read_only_field": schema["read_only_field"]["default"],
                 "dependency_field1": schema["dependency_field1"]["default"],
+                "unique_elements_list": [
+                    {
+                        "first_nested_field": self.random_string(10),
+                        "second_nested_field": self.random_string(10),
+                    }
+                ],
                 # The schema for contacts has a field named 'unsetted_default_value_field'
                 # That is not initialized here on purpose. See put test on
                 # tests.put.put_default_value_when_field_missing

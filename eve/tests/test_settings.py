@@ -126,6 +126,17 @@ contacts = {
             },
         },
         "unsetted_default_value_field": {"type": "string", "default": "value"},
+        "unique_elements_list": {
+            "type": "list",
+            "schema": {
+                "type": "dict",
+                "unique": True,
+                "schema": {
+                    "first_nested_field": {"type": "string"},
+                    "second_nested_field": {"type": "string"},
+                },
+            },
+        },
     },
 }
 

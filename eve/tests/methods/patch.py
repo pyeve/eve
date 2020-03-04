@@ -136,6 +136,18 @@ class TestPatch(TestBase):
             r, {"ref": "value '%s' is not unique" % self.alt_ref}
         )
 
+    def test_nested_unique_value(self):
+        field = "unique_elements_list"
+        data = {
+            field: self.alt_item[field],
+        }
+        r, status = self.put(
+            self.item_id_url, data=data, headers=[("If-Match", self.item_etag)],
+        )
+        self.assert422(status)
+        expected = {"0": "value '%s' is not unique" % self.alt_item[field][0]}
+        self.assertValidationError(r, {field: expected})
+
     def test_patch_string(self):
         field = "ref"
         test_value = "1234567890123456789012345"
