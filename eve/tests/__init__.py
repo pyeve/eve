@@ -177,6 +177,9 @@ class TestMinimal(unittest.TestCase):
                 self.assertTrue(k in issues)
                 if isinstance(v, dict):
                     assert_errors(issues[k], matches[k])
+                elif isinstance(v, list):
+                    for i in v:
+                        self.assertTrue(i in issues[k])
                 else:
                     self.assertTrue(v in issues[k])
 
