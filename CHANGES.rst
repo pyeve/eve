@@ -9,7 +9,7 @@ In Development
 Fixed
 ~~~~~
 
-- dics without ``schema`` rule are broken since v1.1 (`#1366`_)
+- dics without ``schema`` rule are broken since ``b8d8fcd`` (`#1366`_)
 - 403 Forrbidden added to ``STANDARD_ERRORS`` (`#1362`_)
 - ``unique`` constraint doesn't work when inside of a dict or a list (`#1360`_)
 
