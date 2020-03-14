@@ -856,11 +856,10 @@ class Mongo(DataLayer):
                         return next((t for t in possible_types if t), None)
                 elif "schema" in schema[k]:
                     # recursively check the schema
-                    return get_schema_type(
-                        keys, dict_sub_schema(schema[k].get("schema"))
-                    )
+                    return get_schema_type(keys, dict_sub_schema(schema[k]["schema"]))
             elif schema_type == "dict":
-                return get_schema_type(keys, dict_sub_schema(schema[k].get("schema")))
+                if "schema" in schema[k]:
+                    return get_schema_type(keys, dict_sub_schema(schema[k]["schema"]))
             else:
                 return schema_type
 
