@@ -975,10 +975,24 @@ class TestPost(TestBase):
         self.assertTrue("ref" in r)
         self.assertTrue("aninteger" not in r)
 
-    def test_unique_value_different_resources(self):
+    def test_unique_within_resource_value_different_resources(self):
         r, status = self.post("tenant_a", data={"name": "John"})
         self.assert201(status)
         r, status = self.post("tenant_b", data={"name": "John"})
+        self.assert201(status)
+
+    def test_unique_within_resource_in_resource_without_filter(self):
+        r, status = self.post(
+            "test_unique", data={"unique_within_resource_attribute": "unique_value"}
+        )
+        self.assert201(status)
+        r, status = self.post(
+            "test_unique", data={"unique_within_resource_attribute": "unique_value"}
+        )
+        self.assert422(status)
+        r, status = self.post(
+            "test_unique", data={"unique_within_resource_attribute": "unique_value 2"}
+        )
         self.assert201(status)
 
     def perform_post(self, data, valid_items=[0]):

@@ -298,6 +298,17 @@ tenant_b = {
     },
 }
 
+test_unique = {
+    "datasource": {"source": "test_unique"},
+    "schema": {
+        "unique_attribute": {"type": "string", "unique": True},
+        "unique_within_resource_attribute": {
+            "type": "string",
+            "unique_within_resource": True,
+        },
+    },
+}
+
 child_products = copy.deepcopy(products)
 child_products["url"] = 'products/<regex("[A-Z]+"):parent_product>/children'
 child_products["datasource"] = {"source": "products"}
@@ -334,4 +345,5 @@ DOMAIN = {
     "test_patch": test_patch,
     "tenant_a": tenant_a,
     "tenant_b": tenant_b,
+    "test_unique": test_unique,
 }
