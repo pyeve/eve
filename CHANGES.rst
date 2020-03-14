@@ -9,8 +9,10 @@ In Development
 Fixed
 ~~~~~
 
+- 403 Forrbidden added to ``STANDARD_ERRORS`` (`#1362`_)
 - ``unique`` constraint doesn't work when inside of a dict or a list (`#1360`_)
 
+.. _`#1362`: https://github.com/pyeve/eve/pull/1362
 .. _`#1360`: https://github.com/pyeve/eve/issues/1360
 
 Version 1.1
