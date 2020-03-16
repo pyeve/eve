@@ -1317,7 +1317,7 @@ defining the field validation rules. Allowed validation rules are:
                                 should not be taken into account when evaluating
                                 the uniqueness of the field. When used in a resource
                                 without datasource filter, this rule behaves like
-                                ``unique``. 
+                                ``unique``.
 
 ``data_relation``               Allows to specify a referential integrity rule
                                 that the value must satisfy in order to
