@@ -137,7 +137,11 @@ installed to run all of the environments. Then run::
     tox
 
 Please note that you need an active MongoDB instance running on localhost in
-order for the tests run. Also, be advised that in order to execute the
+order for the tests run. Save yourself some time and headache by creating a
+MongoDB user with the password defined in the `test_settings.py` file in the
+admin database (the pre-commit process is unforgiving if you don't want to
+commit your admin credentials but still have the file modified, which would be
+necessary for tox). Also, be advised that in order to execute the
 :ref:`ratelimiting` tests you need a running Redis_ server. The Rate-Limiting
 tests are silently skipped if any of the two conditions are not met.
 
