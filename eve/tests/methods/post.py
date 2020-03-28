@@ -657,6 +657,46 @@ class TestPost(TestBase):
         )
         self.assertEqual(etag, r[self.app.config["ETAG"]])
 
+    # def test_post_bandwidth_saver_credit_rule_broken(self):
+    #     data = [
+    #         {
+    #             "amount": 300.0,
+    #             "duration": "months",
+    #             "name": "Bandwidth Saver:True, Projection:True",
+    #             "start": "2020-03-28T06:00:00 UTC"
+    #         }
+    #     ]
+    #
+    #     # bandwidth_saver is on by default
+    #     self.assertTrue(self.app.config["BANDWIDTH_SAVER"])
+    #     self.assertTrue(self.app.config["PROJECTION"])
+    #     r, status = self.post("credit_rules", data=data)
+    #     self.assert201(status)
+    #     self.assertPostResponse(r)
+    #     self.assertFalse("amount" in r)
+    #     etag = r[self.app.config["ETAG"]]
+    #     r, status = self.get(
+    #         "credit_rules", "",
+    #         r[self.domain["credit_rules"]["id_field"]]
+    #     )
+    #     self.assertEqual(etag, r[self.app.config["ETAG"]])
+    #
+    #     # test return all fields (bandwidth_saver off)
+    #     self.app.config["BANDWIDTH_SAVER"] = False
+    #     r, status = self.post("credit_rules", data=data)
+    #     self.assert201(status)
+    #     self.assertPostResponse(r)
+    #     self.assertTrue(
+    #         all(["amount" in r, "duration" in r, "name" in r, "start" in r]),
+    #         'One or more of "amount", "duration", "name", "start" is missing.'
+    #     )
+    #     etag = r[self.app.config["ETAG"]]
+    #     r, status = self.get(
+    #         "credit_rules", "",
+    #         r[self.domain["credit_rules"]["id_field"]]
+    #     )
+    #     self.assertEqual(etag, r[self.app.config["ETAG"]])
+
     def test_post_alternative_payload(self):
         payl = {"ref": "5432112345678901234567890", "role": ["agent"]}
         with self.app.test_request_context(self.known_resource_url):
