@@ -6,6 +6,10 @@ from eve.flaskapp import RegexConverter
 from eve.flaskapp import Eve
 from eve.io.base import DataLayer
 from eve.tests import TestBase
+from eve.tests.test_settings import (
+    MONGO_HOST,
+    MONGO_PORT,
+)
 from eve.exceptions import ConfigException, SchemaException
 from eve.io.mongo import Mongo, Validator
 
@@ -54,8 +58,8 @@ class TestConfig(TestBase):
         self.assertEqual(self.app.config["RATE_LIMIT_PATCH"], None)
         self.assertEqual(self.app.config["RATE_LIMIT_DELETE"], None)
 
-        self.assertEqual(self.app.config["MONGO_HOST"], "localhost")
-        self.assertEqual(self.app.config["MONGO_PORT"], 27017)
+        self.assertEqual(self.app.config["MONGO_HOST"], MONGO_HOST)
+        self.assertEqual(self.app.config["MONGO_PORT"], MONGO_PORT)
         self.assertEqual(self.app.config["MONGO_QUERY_BLACKLIST"], ["$where", "$regex"])
         self.assertEqual(self.app.config["MONGO_QUERY_WHITELIST"], [])
         self.assertEqual(self.app.config["MONGO_WRITE_CONCERN"], {"w": 1})
@@ -494,7 +498,7 @@ class TestConfig(TestBase):
 
         db_name = self.app.config["MONGO_DBNAME"]
 
-        db = MongoClient()[db_name]
+        db = MongoClient(host=MONGO_HOST, port=MONGO_PORT)[db_name]
         for coll in [db["mongodb_features"], db["mongodb_features_versions"]]:
             indexes = coll.index_information()
 

@@ -141,7 +141,11 @@ order for the tests run. Save yourself some time and headache by creating a
 MongoDB user with the password defined in the `test_settings.py` file in the
 admin database (the pre-commit process is unforgiving if you don't want to
 commit your admin credentials but still have the file modified, which would be
-necessary for tox). Also, be advised that in order to execute the
+necessary for tox). If you want to run a local MongoDB instance along with an
+SSH tunnel to a remote instance, if you can, have the local use the default
+port and the remote use some other port. If you can't, fixing the tests that
+won't play nicely is probably more trouble than connecting to the remote and
+local instances one at a time. Also, be advised that in order to execute the
 :ref:`ratelimiting` tests you need a running Redis_ server. The Rate-Limiting
 tests are silently skipped if any of the two conditions are not met.
 
