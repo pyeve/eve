@@ -679,6 +679,11 @@ def resolve_resource_projection(document, resource):
 
     resource_def = config.DOMAIN[resource]
     projection = resource_def["datasource"]["projection"]
+    # Fix for #1338
+    if not projection or not config.PROJECTION:
+        # BANDWIDTH_SAVER is disabled, and no projection is defined or
+        # projection feature is disabled, so return entire document.
+        return
     fields = {
         field for field, value in projection.items() if value and field in document
     }
