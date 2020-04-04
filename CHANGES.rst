@@ -9,10 +9,12 @@ In Development
 Fixed
 ~~~~~
 
+- Fix ``unique_within_resource`` rule used in resources without datasource filter (`#1368`_)
 - dics without ``schema`` rule are broken since ``b8d8fcd`` (`#1366`_)
 - 403 Forrbidden added to ``STANDARD_ERRORS`` (`#1362`_)
 - ``unique`` constraint doesn't work when inside of a dict or a list (`#1360`_)
 
+.. _`#1368`: https://github.com/pyeve/eve/pull/1368
 .. _`#1366`: https://github.com/pyeve/eve/pull/1366
 .. _`#1362`: https://github.com/pyeve/eve/pull/1362
 .. _`#1360`: https://github.com/pyeve/eve/issues/1360
