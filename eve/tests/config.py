@@ -6,10 +6,7 @@ from eve.flaskapp import RegexConverter
 from eve.flaskapp import Eve
 from eve.io.base import DataLayer
 from eve.tests import TestBase
-from eve.tests.test_settings import (
-    MONGO_HOST,
-    MONGO_PORT,
-)
+from eve.tests.test_settings import MONGO_HOST, MONGO_PORT
 from eve.exceptions import ConfigException, SchemaException
 from eve.io.mongo import Mongo, Validator
 

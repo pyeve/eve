@@ -325,8 +325,8 @@ credit_rules = {
             "type": "string",
             "allowed": ["days", "weeks", "months", "years"],
             "required": False,
-        }
-    }
+        },
+    },
 }
 
 child_products = copy.deepcopy(products)
