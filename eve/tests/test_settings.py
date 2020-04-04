@@ -309,6 +309,26 @@ test_unique = {
     },
 }
 
+credit_rules = {
+    "allow_unknown": True,
+    "schema": {
+        "name": {"type": "string"},
+        "amount": {"type": "float", "default": 0.00, "min": 0.00, "required": True},
+        "start": {"type": "string", "required": True},
+        "duration": {
+            "type": "string",
+            "allowed": ["days", "weeks", "months", "years", "one-time"],
+            "required": True,
+        },
+        "prepaid": {"type": "boolean", "default": False},
+        "expiration_duration": {
+            "type": "string",
+            "allowed": ["days", "weeks", "months", "years"],
+            "required": False,
+        }
+    }
+}
+
 child_products = copy.deepcopy(products)
 child_products["url"] = 'products/<regex("[A-Z]+"):parent_product>/children'
 child_products["datasource"] = {"source": "products"}
@@ -346,4 +366,5 @@ DOMAIN = {
     "tenant_a": tenant_a,
     "tenant_b": tenant_b,
     "test_unique": test_unique,
+    "credit_rules": credit_rules,
 }

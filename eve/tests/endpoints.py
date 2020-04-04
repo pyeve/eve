@@ -7,7 +7,11 @@ from eve import Eve
 from datetime import datetime
 from eve.utils import config
 from eve.io.base import BaseJSONEncoder
-from eve.tests.test_settings import MONGO_DBNAME
+from eve.tests.test_settings import (
+    MONGO_DBNAME,
+    MONGO_USERNAME,
+    MONGO_PASSWORD,
+)
 from uuid import UUID
 from eve.io.mongo import Validator
 import os
@@ -68,9 +72,9 @@ class TestCustomConverters(TestMinimal):
             "schema": {"_id": {"type": "uuid"}, "name": {"type": "string"}},
         }
         settings = {
-            "MONGO_USERNAME": "test_user",
-            "MONGO_PASSWORD": "test_pw",
-            "MONGO_DBNAME": "eve_test",
+            "MONGO_USERNAME": MONGO_USERNAME,
+            "MONGO_PASSWORD": MONGO_PASSWORD,
+            "MONGO_DBNAME": MONGO_DBNAME,
             "DOMAIN": {"uuids": uuids},
         }
         url_converters = {"uuid": UUIDConverter}
