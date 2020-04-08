@@ -183,7 +183,7 @@ def _perform_aggregation(resource, pipeline, options):
             abort(400, description="Aggregation query could not be parsed.")
 
         for key, value in query.items():
-            if key.startswith("$"):
+            if not key.startswith("$"):
                 pass
             for stage in req_pipeline:
                 parse_aggregation_stage(stage, key, value)
