@@ -447,10 +447,8 @@ class XMLRenderer(Renderer):
 
             elif isinstance(link, list):
                 xml += "".join(
-                    [
-                        chunk % (rel, utils.escape(d["href"]), utils.escape(d["title"]))
+                    chunk % (rel, utils.escape(d["href"]), utils.escape(d["title"]))
                         for d in link
-                    ]
                 )
             else:
                 xml += "".join(chunk % (rel, utils.escape(link["href"]), link["title"]))
@@ -467,7 +465,7 @@ class XMLRenderer(Renderer):
         .. versionadded:: 0.0.3
         """
         try:
-            xml = "".join([cls.xml_item(item) for item in data[config.ITEMS]])
+            xml = "".join(cls.xml_item(item) for item in data[config.ITEMS])
         except:
             xml = cls.xml_dict(data)
         return xml

@@ -193,14 +193,14 @@ def payload():
     elif content_type == "application/x-www-form-urlencoded":
         return (
             multidict_to_dict(request.form)
-            if len(request.form)
+            if request.form
             else abort(400, description="No form-urlencoded data supplied")
         )
     elif content_type == "multipart/form-data":
         # as multipart is also used for file uploads, we let an empty
         # request.form go through as long as there are also files in the
         # request.
-        if len(request.form) or len(request.files):
+        if request.form or request.files:
             # merge form fields and request files, so we get a single payload
             # to be validated against the resource schema.
 
