@@ -33,8 +33,8 @@ class TestConfig(TestBase):
         self.assertEqual(self.app.import_name, "unittest")
 
     def test_custom_kwargs(self):
-        self.app = Eve("unittest", static_folder="/", settings=self.settings_file)
-        self.assertEqual(self.app.static_folder, "/")
+        self.app = Eve("unittest", static_folder="static/", settings=self.settings_file)
+        self.assertTrue(self.app.static_folder.endswith("static"))
 
     def test_regexconverter(self):
         regex_converter = self.app.url_map.converters.get("regex")
