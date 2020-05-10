@@ -11,7 +11,7 @@ Fixed
 
 - Disabling ``merge_nested_documents`` breaks versioning on PATCH (`#1389`_)
 - Tests failing with Flask 1.1.2 (`#1378`_)
-- ``BANDWIDTH_SAVER`` no longer works with resolve_resource_projection (`#1338`_)
+- ``BANDWIDTH_SAVER`` no longer works with ``resolve_resource_projection`` (`#1338`_)
 - ``unique_within_resource`` rule used in resources without datasource filter (`#1368`_)
 - dics without ``schema`` rule are broken since ``b8d8fcd`` (`#1366`_)
 - 403 Forrbidden added to ``STANDARD_ERRORS`` (`#1362`_)
