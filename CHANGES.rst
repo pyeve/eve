@@ -9,6 +9,7 @@ In Development
 Fixed
 ~~~~~
 
+- Disabling ``merge_nested_documents`` breaks versioning on PATCH (`#1389`_)
 - Tests failing with Flask 1.1.2 (`#1378`_)
 - ``BANDWIDTH_SAVER`` no longer works with resolve_resource_projection (`#1338`_)
 - ``unique_within_resource`` rule used in resources without datasource filter (`#1368`_)
@@ -17,6 +18,7 @@ Fixed
 - ``unique`` constraint doesn't work when inside of a dict or a list (`#1360`_)
 - Documentation typos (`#1375`_)
 
+.. _`#1389`: https://github.com/pyeve/eve/issues/1389
 .. _`#1378`: https://github.com/pyeve/eve/pull/1378
 .. _`#1375`: https://github.com/pyeve/eve/pull/1375
 .. _`#1338`: https://github.com/pyeve/eve/issues/1338
