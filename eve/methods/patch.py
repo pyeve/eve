@@ -212,7 +212,8 @@ def patch_internal(
 
             if resource_def["merge_nested_documents"]:
                 updates = resolve_nested_documents(updates, updated)
-                updated.update(updates)
+
+            updated.update(updates)
 
             if config.IF_MATCH:
                 resolve_document_etag(updated, resource)
