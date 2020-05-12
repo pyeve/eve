@@ -20,7 +20,7 @@ Fixed
 - Tests failing with Flask 1.1.2 (`#1378`_)
 - ``BANDWIDTH_SAVER`` no longer works with ``resolve_resource_projection`` (`#1338`_)
 - ``unique_within_resource`` rule used in resources without datasource filter (`#1368`_)
-- dics without ``schema`` rule are broken since ``b8d8fcd`` (`#1366`_)
+- dicts without ``schema`` rule are broken since ``b8d8fcd`` (`#1366`_)
 - 403 Forrbidden added to ``STANDARD_ERRORS`` (`#1362`_)
 - ``unique`` constraint doesn't work when inside of a dict or a list (`#1360`_)
 - Documentation typos (`#1375`_)
