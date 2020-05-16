@@ -6,7 +6,12 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
-- hic sunt leones.
+Fixed
+~~~~~
+
+- Removed unnecessary comprehension (`#1391`_)
+
+.. _`#1391`: https://github.com/pyeve/eve/pull/1391
 
 Version 1.1.1
 -------------
