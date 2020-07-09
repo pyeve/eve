@@ -9,8 +9,10 @@ In Development
 Fixed
 ~~~~~
 
+- Add missed condition when projection is disabled per domain (`#1398`_)
 - Removed unnecessary comprehension (`#1391`_)
 
+.. _`#1398`: https://github.com/pyeve/eve/pull/1398
 .. _`#1391`: https://github.com/pyeve/eve/pull/1391
 
 Version 1.1.1
