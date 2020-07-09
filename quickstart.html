@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Quickstart &#8212; Eve 0.10.dev0 documentation</title>
+    <meta charset="utf-8" />
+    <title>Quickstart &#8212; Eve 1.1.2 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -41,16 +39,16 @@
 <div class="section" id="prerequisites">
 <h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>You already have Eve installed. If you do not, head over to the
-<a class="reference internal" href="install.html#install"><span class="std std-ref">Installation</span></a> section.</li>
-<li>MongoDB is <a class="reference external" href="http://docs.mongodb.org/manual/installation/">installed</a>.</li>
-<li>An instance of MongoDB is <a class="reference external" href="http://docs.mongodb.org/manual/tutorial/manage-mongodb-processes/">running</a>.</li>
+<li><p>You already have Eve installed. If you do not, head over to the
+<a class="reference internal" href="install.html#install"><span class="std std-ref">Installation</span></a> section.</p></li>
+<li><p>MongoDB is <a class="reference external" href="http://docs.mongodb.org/manual/installation/">installed</a>.</p></li>
+<li><p>An instance of MongoDB is <a class="reference external" href="http://docs.mongodb.org/manual/tutorial/manage-mongodb-processes/">running</a>.</p></li>
 </ul>
 </div>
 <div class="section" id="a-minimal-application">
 <h2>A Minimal Application<a class="headerlink" href="#a-minimal-application" title="Permalink to this headline">¶</a></h2>
 <p>A minimal Eve application looks something like this:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">eve</span> <span class="k">import</span> <span class="n">Eve</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">eve</span> <span class="kn">import</span> <span class="n">Eve</span>
 <span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">()</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
@@ -222,10 +220,10 @@ Let’s define a schema for our <code class="docutils literal notranslate"><span
 <p>Now let’s say that we want to further customize the <code class="docutils literal notranslate"><span class="pre">people</span></code> endpoint. We want
 to:</p>
 <ul class="simple">
-<li>set the item title to <code class="docutils literal notranslate"><span class="pre">person</span></code></li>
-<li>add an extra <a class="reference internal" href="features.html#custom-item-endpoints"><span class="std std-ref">custom item endpoint</span></a> at <code class="docutils literal notranslate"><span class="pre">/people/&lt;lastname&gt;</span></code></li>
-<li>override the default <a class="reference internal" href="features.html#cache-control"><span class="std std-ref">cache control directives</span></a></li>
-<li>disable DELETE for the <code class="docutils literal notranslate"><span class="pre">/people</span></code> endpoint (we enabled it globally)</li>
+<li><p>set the item title to <code class="docutils literal notranslate"><span class="pre">person</span></code></p></li>
+<li><p>add an extra <a class="reference internal" href="features.html#custom-item-endpoints"><span class="std std-ref">custom item endpoint</span></a> at <code class="docutils literal notranslate"><span class="pre">/people/&lt;lastname&gt;</span></code></p></li>
+<li><p>override the default <a class="reference internal" href="features.html#cache-control"><span class="std std-ref">cache control directives</span></a></p></li>
+<li><p>disable DELETE for the <code class="docutils literal notranslate"><span class="pre">/people</span></code> endpoint (we enabled it globally)</p></li>
 </ul>
 <p>Here is how the complete <code class="docutils literal notranslate"><span class="pre">people</span></code> definition looks in our updated settings.py
 file:</p>
@@ -295,8 +293,8 @@ endpoint:</p>
 <p>Cache directives and item title match our new settings. See <a class="reference internal" href="features.html"><span class="doc">Features</span></a> for
 a complete list of features available and more usage examples.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">All examples and code snippets are from the <a class="reference internal" href="index.html#demo"><span class="std std-ref">Live demo</span></a>, which is a fully
+<p class="admonition-title">Note</p>
+<p>All examples and code snippets are from the <a class="reference internal" href="index.html#demo"><span class="std std-ref">Live demo</span></a>, which is a fully
 functional API that you can use to experiment on your own, either on the
 live instance or locally (you can use the sample client app to populate
 and/or reset the database).</p>
@@ -401,18 +399,16 @@ and/or reset the database).</p>
 <li class="toctree-l1"><a class="reference internal" href="updates.html">Updates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="authors.html">Authors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">Licensing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="changelog.html">Eve Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 </ul>
 
 
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -425,7 +421,7 @@ Artwork by <a href="http://kalamun.org">Kalamun</a> © 2013
     </div>
 
     <div class="footer">
-      &copy;2019. Python-Eve is a <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project.
+      &copy;2020. Python-Eve is a <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project.
       
     </div>
 

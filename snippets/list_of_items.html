@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Supporting both list-level and item-level CRUD operations &#8212; Eve 0.10.dev0 documentation</title>
+    <meta charset="utf-8" />
+    <title>Supporting both list-level and item-level CRUD operations &#8212; Eve 1.1.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -72,7 +70,7 @@
 <h2>settings.py<a class="headerlink" href="#settings-py" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 
-<span class="n">DEBUG</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="n">DEBUG</span> <span class="o">=</span> <span class="kc">True</span>
 
 <span class="n">MONGO_HOST</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;MONGO_HOST&#39;</span><span class="p">,</span> <span class="s1">&#39;localhost&#39;</span><span class="p">)</span>
 <span class="n">MONGO_PORT</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;MONGO_PORT&#39;</span><span class="p">,</span> <span class="mi">27017</span><span class="p">)</span>
@@ -92,7 +90,7 @@
         <span class="p">}</span>
     <span class="p">},</span>
     <span class="s1">&#39;items&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="s1">&#39;lists/&lt;regex(&quot;[a-f0-9]{24}&quot;):list_id&gt;/items&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="s1">&#39;lists/&lt;regex(&quot;[a-f0-9]</span><span class="si">{24}</span><span class="s1">&quot;):list_id&gt;/items&#39;</span><span class="p">,</span>
         <span class="s1">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s1">&#39;list_id&#39;</span><span class="p">:</span> <span class="p">{</span>
                 <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;objectid&#39;</span><span class="p">,</span>
@@ -103,7 +101,7 @@
             <span class="p">},</span>
             <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="p">{</span>
                 <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span>
+                <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="kc">True</span>
             <span class="p">}</span>
         <span class="p">}</span>
     <span class="p">}</span>
@@ -291,18 +289,16 @@ HTTP/1.0 <span class="m">200</span> OK
 <li class="toctree-l1"><a class="reference internal" href="../updates.html">Updates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../license.html">Licensing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Eve Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 </ul>
 
 
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -315,7 +311,7 @@ Artwork by <a href="http://kalamun.org">Kalamun</a> © 2013
     </div>
 
     <div class="footer">
-      &copy;2019. Python-Eve is a <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project.
+      &copy;2020. Python-Eve is a <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project.
       
     </div>
 

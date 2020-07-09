@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>RESTful Account Management &#8212; Eve 0.10.dev0 documentation</title>
+    <meta charset="utf-8" />
+    <title>RESTful Account Management &#8212; Eve 1.1.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -38,8 +36,8 @@
   <div class="section" id="restful-account-management">
 <h1>RESTful Account Management<a class="headerlink" href="#restful-account-management" title="Permalink to this headline">¶</a></h1>
 <div class="admonition-please-note admonition">
-<p class="first admonition-title">Please note</p>
-<p class="last">This tutorial assumes that you’ve read the <a class="reference internal" href="../quickstart.html#quickstart"><span class="std std-ref">Quickstart</span></a> and the
+<p class="admonition-title">Please note</p>
+<p>This tutorial assumes that you’ve read the <a class="reference internal" href="../quickstart.html#quickstart"><span class="std std-ref">Quickstart</span></a> and the
 <a class="reference internal" href="../authentication.html#auth"><span class="std std-ref">Authentication and Authorization</span></a> guides.</p>
 </div>
 <p>Except for the relatively rare occurence of open (and generally read-only) public
@@ -62,14 +60,14 @@ endpoints.</p>
 <span id="accounts-basic"></span><h2>Accounts with Basic Authentication<a class="headerlink" href="#accounts-with-basic-authentication" title="Permalink to this headline">¶</a></h2>
 <p>Our tasks are as follows:</p>
 <ol class="arabic simple">
-<li>Make an endpoint available for all account management activities
-(<code class="docutils literal notranslate"><span class="pre">/accounts</span></code>).</li>
-<li>Secure the endpoint, so that it is only accessible to clients
+<li><p>Make an endpoint available for all account management activities
+(<code class="docutils literal notranslate"><span class="pre">/accounts</span></code>).</p></li>
+<li><p>Secure the endpoint, so that it is only accessible to clients
 that we control: our own website, mobile apps with account
-management capabilities, etc.</li>
-<li>Make sure that all other API endpoints are only accessible to authenticated
-accounts (created by means of the above mentioned endpoint).</li>
-<li>Allow authenticated users to only access resources created by themselves.</li>
+management capabilities, etc.</p></li>
+<li><p>Make sure that all other API endpoints are only accessible to authenticated
+accounts (created by means of the above mentioned endpoint).</p></li>
+<li><p>Allow authenticated users to only access resources created by themselves.</p></li>
 </ol>
 <div class="section" id="the-accounts-endpoint">
 <h3>1. The <code class="docutils literal notranslate"><span class="pre">/accounts</span></code> endpoint<a class="headerlink" href="#the-accounts-endpoint" title="Permalink to this headline">¶</a></h3>
@@ -173,16 +171,16 @@ are going with this: the idea is that only accounts with <cite>superuser</cite> 
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>     <span class="n">schema</span> <span class="o">=</span>  <span class="p">{</span>
          <span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="p">{</span>
              <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
-             <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+             <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
              <span class="p">},</span>
          <span class="s1">&#39;password&#39;</span><span class="p">:</span> <span class="p">{</span>
              <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
-             <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+             <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
          <span class="p">},</span>
 <span class="hll">         <span class="s1">&#39;roles&#39;</span><span class="p">:</span> <span class="p">{</span>
 </span><span class="hll">             <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span>
 </span><span class="hll">             <span class="s1">&#39;allowed&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;superuser&#39;</span><span class="p">,</span> <span class="s1">&#39;admin&#39;</span><span class="p">],</span>
-</span><span class="hll">             <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+</span><span class="hll">             <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
 </span><span class="hll">         <span class="p">}</span>
 </span>     <span class="p">},</span>
 </pre></div>
@@ -266,9 +264,9 @@ serve only account-created documents on all kind of requests: read, edit, delete
 and of course create.</p>
 <p>There are only two things that we need to do in order to activate this feature:</p>
 <ol class="arabic simple">
-<li>Configure the name of the field that will be used to store the owner of the
-document;</li>
-<li>Set the document owner on each incoming POST request.</li>
+<li><p>Configure the name of the field that will be used to store the owner of the
+document;</p></li>
+<li><p>Set the document owner on each incoming POST request.</p></li>
 </ol>
 <p>Since we want to enable this feature for all of our API endpoints we’ll just
 update our <code class="docutils literal notranslate"><span class="pre">settings.py</span></code> file by setting a proper <code class="docutils literal notranslate"><span class="pre">AUTH_FIELD</span></code> value:</p>
@@ -322,15 +320,15 @@ need to be generated and stored along with the account, and eventually returned
 to the client.</p>
 <p>In light of this, let’s review our updated task list:</p>
 <ol class="arabic simple">
-<li>Make an endpoint available for all account management activities
-(<code class="docutils literal notranslate"><span class="pre">/accounts</span></code>).</li>
-<li>Secure the endpoint so that it is only accessible to clients (tokens) that
-we control.</li>
-<li>On account creation, generate and store its token.</li>
-<li>Optionally, return the new token with the response.</li>
-<li>Make sure that all other API endpoints are only accessible to authenticated
-tokens.</li>
-<li>Allow authenticated users to only access resources created by themselves</li>
+<li><p>Make an endpoint available for all account management activities
+(<code class="docutils literal notranslate"><span class="pre">/accounts</span></code>).</p></li>
+<li><p>Secure the endpoint so that it is only accessible to clients (tokens) that
+we control.</p></li>
+<li><p>On account creation, generate and store its token.</p></li>
+<li><p>Optionally, return the new token with the response.</p></li>
+<li><p>Make sure that all other API endpoints are only accessible to authenticated
+tokens.</p></li>
+<li><p>Allow authenticated users to only access resources created by themselves</p></li>
 </ol>
 <div class="section" id="id1">
 <h3>1. The <code class="docutils literal notranslate"><span class="pre">/accounts/</span></code> endpoint<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
@@ -339,21 +337,21 @@ need to add the <cite>token</cite> field to our schema:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>     <span class="n">schema</span> <span class="o">=</span>  <span class="p">{</span>
          <span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="p">{</span>
              <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
-             <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
-             <span class="s1">&#39;unique&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+             <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+             <span class="s1">&#39;unique&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
              <span class="p">},</span>
          <span class="s1">&#39;password&#39;</span><span class="p">:</span> <span class="p">{</span>
              <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
-             <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+             <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
          <span class="p">},</span>
          <span class="s1">&#39;roles&#39;</span><span class="p">:</span> <span class="p">{</span>
              <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;list&#39;</span><span class="p">,</span>
              <span class="s1">&#39;allowed&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;superuser&#39;</span><span class="p">,</span> <span class="s1">&#39;admin&#39;</span><span class="p">],</span>
-             <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+             <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
          <span class="p">},</span>
 <span class="hll">         <span class="s1">&#39;token&#39;</span><span class="p">:</span> <span class="p">{</span>
 </span><span class="hll">             <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span>
-</span><span class="hll">             <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+</span><span class="hll">             <span class="s1">&#39;required&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
 </span><span class="hll">         <span class="p">}</span>
 </span>     <span class="p">}</span>
 </pre></div>
@@ -644,18 +642,16 @@ a lot of additional security.</p>
 <li class="toctree-l1"><a class="reference internal" href="../updates.html">Updates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../license.html">Licensing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Eve Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 </ul>
 
 
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -668,7 +664,7 @@ Artwork by <a href="http://kalamun.org">Kalamun</a> © 2013
     </div>
 
     <div class="footer">
-      &copy;2019. Python-Eve is a <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project.
+      &copy;2020. Python-Eve is a <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project.
       
     </div>
 

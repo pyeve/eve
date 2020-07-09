@@ -580,6 +580,15 @@ uppercase.
                                     easily replaced with the (very rich) Mongo
                                     query dialect.
 
+``MONGO_QUERY_WHITELIST``           A list of extra Mongo query operators to allow
+                                    besides the official list of allowed operators.
+                                    Defaults to ``[]``.
+
+                                    Can be overridden at endpoint (Mongo
+                                    collection) level. See
+                                    ``mongo_query_whitelist`` below.
+
+
 ``MONGO_WRITE_CONCERN``             A dictionary defining MongoDB write concern
                                     settings. All standard write concern
                                     settings (w, wtimeout, j, fsync) are
@@ -1005,6 +1014,10 @@ always lowercase.
                                 :ref:`hateoas_feature` for the resource.
                                 Defaults to ``True``.
 
+``mongo_query_whitelist``       A list of extra Mongo query operators to allow
+                                for this endpoint besides the official list of
+                                allowed operators. Defaults to ``[]``.
+
 ``mongo_write_concern``         A dictionary defining MongoDB write concern
                                 settings for the endpoint datasource. All
                                 standard write concern settings (w, wtimeout, j,
@@ -1302,7 +1315,9 @@ defining the field validation rules. Allowed validation rules are:
                                 Use this when the resource shares the database
                                 collection with other resources but their documents
                                 should not be taken into account when evaluating
-                                the uniqueness of the field.
+                                the uniqueness of the field. When used in a resource
+                                without datasource filter, this rule behaves like
+                                ``unique``.
 
 ``data_relation``               Allows to specify a referential integrity rule
                                 that the value must satisfy in order to

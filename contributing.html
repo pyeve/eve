@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>How to contribute &#8212; Eve 0.10.dev0 documentation</title>
+    <meta charset="utf-8" />
+    <title>How to contribute &#8212; Eve 1.1.2 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -46,73 +44,70 @@ new features and patches.</p>
 <p>Please, don’t use the issue tracker for this. Use one of the following
 resources for questions about your own code:</p>
 <ul class="simple">
-<li>Ask on <a class="reference external" href="https://stackoverflow.com/questions/tagged/eve?sort=linked">Stack Overflow</a>. Search with Google first using: <code class="docutils literal notranslate"><span class="pre">site:stackoverflow.com</span> <span class="pre">eve</span> <span class="pre">{search</span> <span class="pre">term,</span> <span class="pre">exception</span> <span class="pre">message,</span> <span class="pre">etc.}</span></code></li>
-<li>The <a class="reference external" href="https://groups.google.com/forum/#!forum/python-eve">mailing list</a> is intended to be a low traffic resource for both developers/contributors and API maintainers looking for help or requesting feedback.</li>
-<li>The IRC channel <code class="docutils literal notranslate"><span class="pre">#python-eve</span></code> on FreeNode.</li>
+<li><p>Ask on <a class="reference external" href="https://stackoverflow.com/questions/tagged/eve?sort=linked">Stack Overflow</a>. Search with Google first using: <code class="docutils literal notranslate"><span class="pre">site:stackoverflow.com</span> <span class="pre">eve</span> <span class="pre">{search</span> <span class="pre">term,</span> <span class="pre">exception</span> <span class="pre">message,</span> <span class="pre">etc.}</span></code></p></li>
+<li><p>The <a class="reference external" href="https://groups.google.com/forum/#!forum/python-eve">mailing list</a> is intended to be a low traffic resource for both developers/contributors and API maintainers looking for help or requesting feedback.</p></li>
+<li><p>The IRC channel <code class="docutils literal notranslate"><span class="pre">#python-eve</span></code> on FreeNode.</p></li>
 </ul>
 </div>
 <div class="section" id="reporting-issues">
 <h2>Reporting issues<a class="headerlink" href="#reporting-issues" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Describe what you expected to happen.</li>
-<li>If possible, include a <a class="reference external" href="https://stackoverflow.com/help/mcve">minimal, complete, and verifiable example</a> to help
+<li><p>Describe what you expected to happen.</p></li>
+<li><p>If possible, include a <a class="reference external" href="https://stackoverflow.com/help/mcve">minimal, complete, and verifiable example</a> to help
 us identify the issue. This also helps check that the issue is not with your
-own code.</li>
-<li>Describe what actually happened. Include the full traceback if there was an
-exception.</li>
-<li>List your Python and Eve versions. If possible, check if this issue is
-already fixed in the repository.</li>
+own code.</p></li>
+<li><p>Describe what actually happened. Include the full traceback if there was an
+exception.</p></li>
+<li><p>List your Python and Eve versions. If possible, check if this issue is
+already fixed in the repository.</p></li>
 </ul>
 </div>
 <div class="section" id="submitting-patches">
 <h2>Submitting patches<a class="headerlink" href="#submitting-patches" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Include tests if your patch is supposed to solve a bug, and explain
+<li><p>Include tests if your patch is supposed to solve a bug, and explain
 clearly under which circumstances the bug happens. Make sure the test fails
-without your patch.</li>
-<li>Enable and install <a class="reference external" href="https://pre-commit.com/">pre-commit</a> to ensure styleguides and codechecks are
-followed. CI will reject a change that does not conform to the guidelines.</li>
+without your patch.</p></li>
+<li><p>Enable and install <a class="reference external" href="https://pre-commit.com/">pre-commit</a> to ensure styleguides and codechecks are
+followed. CI will reject a change that does not conform to the guidelines.</p></li>
 </ul>
 <div class="section" id="first-time-setup">
 <h3>First time setup<a class="headerlink" href="#first-time-setup" title="Permalink to this headline">¶</a></h3>
 <ul>
-<li><p class="first">Download and install the <a class="reference external" href="https://git-scm.com/downloads">latest version of git</a>.</p>
-</li>
-<li><p class="first">Configure git with your <a class="reference external" href="https://help.github.com/articles/setting-your-username-in-git/">username</a> and <a class="reference external" href="https://help.github.com/articles/setting-your-email-in-git/">email</a>:</p>
+<li><p>Download and install the <a class="reference external" href="https://git-scm.com/downloads">latest version of git</a>.</p></li>
+<li><p>Configure git with your <a class="reference external" href="https://help.github.com/articles/setting-your-username-in-git/">username</a> and <a class="reference external" href="https://help.github.com/articles/setting-your-email-in-git/">email</a>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">user</span><span class="o">.</span><span class="n">name</span> <span class="s1">&#39;your name&#39;</span>
 <span class="n">git</span> <span class="n">config</span> <span class="o">--</span><span class="k">global</span> <span class="n">user</span><span class="o">.</span><span class="n">email</span> <span class="s1">&#39;your email&#39;</span>
 </pre></div>
 </div>
 </li>
-<li><p class="first">Make sure you have a <a class="reference external" href="https://github.com/join">GitHub account</a>.</p>
-</li>
-<li><p class="first">Fork Eve to your GitHub account by clicking the <a class="reference external" href="https://github.com/pallets/flask/fork">Fork</a> button.</p>
-</li>
-<li><p class="first"><a class="reference external" href="https://help.github.com/articles/fork-a-repo/#step-2-create-a-local-clone-of-your-fork">Clone</a> your GitHub fork locally:</p>
+<li><p>Make sure you have a <a class="reference external" href="https://github.com/join">GitHub account</a>.</p></li>
+<li><p>Fork Eve to your GitHub account by clicking the <a class="reference external" href="https://github.com/pallets/flask/fork">Fork</a> button.</p></li>
+<li><p><a class="reference external" href="https://help.github.com/articles/fork-a-repo/#step-2-create-a-local-clone-of-your-fork">Clone</a> your GitHub fork locally:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="p">{</span><span class="n">username</span><span class="p">}</span><span class="o">/</span><span class="n">eve</span>
 <span class="n">cd</span> <span class="n">eve</span>
 </pre></div>
 </div>
 </li>
-<li><p class="first">Add the main repository as a remote to update later:</p>
+<li><p>Add the main repository as a remote to update later:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">remote</span> <span class="n">add</span> <span class="n">pyeve</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">pyeve</span><span class="o">/</span><span class="n">eve</span>
 <span class="n">git</span> <span class="n">fetch</span> <span class="n">pyeve</span>
 </pre></div>
 </div>
 </li>
-<li><p class="first">Create a virtualenv:</p>
+<li><p>Create a virtualenv:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">venv</span> <span class="n">env</span>
 <span class="o">.</span> <span class="n">env</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>
 <span class="c1"># or &quot;env\Scripts\activate&quot; on Windows</span>
 </pre></div>
 </div>
 </li>
-<li><p class="first">Install Eve in editable mode with development dependencies:</p>
+<li><p>Install Eve in editable mode with development dependencies:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="s2">&quot;.[dev]&quot;</span>
 </pre></div>
 </div>
 </li>
-<li><p class="first">Install <a class="reference external" href="https://pre-commit.com/">pre-commit</a> and then activate its hooks. pre-commit is a framework for managing and maintaining multi-language pre-commit hooks. Eve uses pre-commit to ensure code-style and code formatting is the same:</p>
+<li><p>Install <a class="reference external" href="https://pre-commit.com/">pre-commit</a> and then activate its hooks. pre-commit is a framework for managing and maintaining multi-language pre-commit hooks. Eve uses pre-commit to ensure code-style and code formatting is the same:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install --user pre-commit
 $ pre-commit install
 </pre></div>
@@ -124,14 +119,14 @@ $ pre-commit install
 <div class="section" id="start-coding">
 <h3>Start coding<a class="headerlink" href="#start-coding" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
-<li>Create a branch to identify the issue you would like to work on (e.g.
-<code class="docutils literal notranslate"><span class="pre">fix_for_#1280</span></code>)</li>
-<li>Using your favorite editor, make your changes, <a class="reference external" href="http://dont-be-afraid-to-commit.readthedocs.io/en/latest/git/commandlinegit.html#commit-your-changes">committing as you go</a>.</li>
-<li>Follow <a class="reference external" href="https://pep8.org/">PEP8</a>.</li>
-<li>Include tests that cover any code changes you make. Make sure the test fails
-without your patch. <a class="reference internal" href="#contributing-testsuite">Run the tests.</a>.</li>
-<li>Push your commits to GitHub and <a class="reference external" href="https://help.github.com/articles/creating-a-pull-request/">create a pull request</a>.</li>
-<li>Celebrate 🎉</li>
+<li><p>Create a branch to identify the issue you would like to work on (e.g.
+<code class="docutils literal notranslate"><span class="pre">fix_for_#1280</span></code>)</p></li>
+<li><p>Using your favorite editor, make your changes, <a class="reference external" href="http://dont-be-afraid-to-commit.readthedocs.io/en/latest/git/commandlinegit.html#commit-your-changes">committing as you go</a>.</p></li>
+<li><p>Follow <a class="reference external" href="https://pep8.org/">PEP8</a>.</p></li>
+<li><p>Include tests that cover any code changes you make. Make sure the test fails
+without your patch. <a class="reference internal" href="#contributing-testsuite">Run the tests.</a>.</p></li>
+<li><p>Push your commits to GitHub and <a class="reference external" href="https://help.github.com/articles/creating-a-pull-request/">create a pull request</a>.</p></li>
+<li><p>Celebrate 🎉</p></li>
 </ul>
 </div>
 <div class="section" id="running-the-tests">
@@ -161,7 +156,15 @@ installed to run all of the environments. Then run:</p>
 </pre></div>
 </div>
 <p>Please note that you need an active MongoDB instance running on localhost in
-order for the tests run. Also, be advived that in order to execute the
+order for the tests run. Save yourself some time and headache by creating a
+MongoDB user with the password defined in the <cite>test_settings.py</cite> file in the
+admin database (the pre-commit process is unforgiving if you don’t want to
+commit your admin credentials but still have the file modified, which would be
+necessary for tox). If you want to run a local MongoDB instance along with an
+SSH tunnel to a remote instance, if you can, have the local use the default
+port and the remote use some other port. If you can’t, fixing the tests that
+won’t play nicely is probably more trouble than connecting to the remote and
+local instances one at a time. Also, be advised that in order to execute the
 <a class="reference internal" href="features.html#ratelimiting"><span class="std std-ref">Rate Limiting</span></a> tests you need a running <a class="reference external" href="https://redis.io">Redis</a> server. The Rate-Limiting
 tests are silently skipped if any of the two conditions are not met.</p>
 </div>
@@ -180,11 +183,11 @@ tests are silently skipped if any of the two conditions are not met.</p>
 <p>Eve provides a <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> with various shortcuts. They will ensure that
 all dependencies are installed.</p>
 <ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">test</span></code> runs the basic test suite with <code class="docutils literal notranslate"><span class="pre">pytest</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">test-all</span></code> runs the full test suite with <code class="docutils literal notranslate"><span class="pre">tox</span></code></li>
-<li><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">docs</span></code> builds the HTML documentation</li>
-<li><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">check</span></code> performs some checks on the package</li>
-<li><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">install-dev</span></code> install Eve in editable mode with all development dependencies.</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">test</span></code> runs the basic test suite with <code class="docutils literal notranslate"><span class="pre">pytest</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">test-all</span></code> runs the full test suite with <code class="docutils literal notranslate"><span class="pre">tox</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">docs</span></code> builds the HTML documentation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">check</span></code> performs some checks on the package</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">install-dev</span></code> install Eve in editable mode with all development dependencies.</p></li>
 </ul>
 </div>
 </div>
@@ -309,18 +312,16 @@ Guide to Pull Requests</a></p>
 <li class="toctree-l1"><a class="reference internal" href="updates.html">Updates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="authors.html">Authors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">Licensing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="changelog.html">Eve Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 </ul>
 
 
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -333,7 +334,7 @@ Artwork by <a href="http://kalamun.org">Kalamun</a> © 2013
     </div>
 
     <div class="footer">
-      &copy;2019. Python-Eve is a <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project.
+      &copy;2020. Python-Eve is a <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project.
       
     </div>
 

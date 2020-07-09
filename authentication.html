@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Authentication and Authorization &#8212; Eve 0.10.dev0 documentation</title>
+    <meta charset="utf-8" />
+    <title>Authentication and Authorization &#8212; Eve 1.1.2 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -94,7 +92,7 @@ authentication class, maybe with something like this:</p>
     <span class="k">def</span> <span class="nf">check_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">allowed_roles</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">resource</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;zipcodes&#39;</span><span class="p">,</span> <span class="s1">&#39;countries&#39;</span><span class="p">):</span>
             <span class="c1"># &#39;zipcodes&#39; and &#39;countries&#39; are public</span>
-            <span class="k">return</span> <span class="bp">True</span>
+            <span class="k">return</span> <span class="kc">True</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># all the other resources are secured</span>
             <span class="k">return</span> <span class="n">username</span> <span class="o">==</span> <span class="s1">&#39;admin&#39;</span> <span class="ow">and</span> <span class="n">password</span> <span class="o">==</span> <span class="s1">&#39;secret&#39;</span>
@@ -201,8 +199,8 @@ the SHA1/MAC snippet further below.</p>
 collection, and that passwords are stored as bcrypt hashes. All API
 resources/methods will be secured unless they are made explicitly public.</p>
 <div class="admonition-please-note admonition">
-<p class="first admonition-title">Please note</p>
-<p class="last">You will need to install <cite>py-bcrypt</cite> for this to work.</p>
+<p class="admonition-title">Please note</p>
+<p>You will need to install <cite>py-bcrypt</cite> for this to work.</p>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># -*- coding: utf-8 -*-</span>
 
@@ -522,8 +520,8 @@ when authenticating the request.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_mongo_prefix</span><span class="p">(</span><span class="s1">&#39;MONGO2&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># serve all other users from the default db.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_mongo_prefix</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">username</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">password</span> <span class="o">==</span> <span class="s1">&#39;secret&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_mongo_prefix</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">username</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">password</span> <span class="o">==</span> <span class="s1">&#39;secret&#39;</span>
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">auth</span><span class="o">=</span><span class="n">MyBasicAuth</span><span class="p">)</span>
 <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
@@ -546,8 +544,8 @@ in this page, then head over to <a class="reference external" href="https://gith
 leverages <a class="reference external" href="https://github.com/pyeve/flask-sentinel">Flask-Sentinel</a> to demonstrate how you can protect your API with
 OAuth2.</p>
 <div class="admonition-please-note admonition">
-<p class="first admonition-title">Please note</p>
-<p class="last">The snippets in this page can also be found in the <cite>examples/security</cite>
+<p class="admonition-title">Please note</p>
+<p>The snippets in this page can also be found in the <cite>examples/security</cite>
 folder of the Eve <a class="reference external" href="https://github.com/pyeve/eve">repository</a>.</p>
 </div>
 </div>
@@ -666,18 +664,16 @@ folder of the Eve <a class="reference external" href="https://github.com/pyeve/e
 <li class="toctree-l1"><a class="reference internal" href="updates.html">Updates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="authors.html">Authors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">Licensing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="changelog.html">Eve Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 </ul>
 
 
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -690,7 +686,7 @@ Artwork by <a href="http://kalamun.org">Kalamun</a> © 2013
     </div>
 
     <div class="footer">
-      &copy;2019. Python-Eve is a <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project.
+      &copy;2020. Python-Eve is a <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project.
       
     </div>
 

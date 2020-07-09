@@ -69,7 +69,11 @@ also welcome to make either a recurring pledge or a one time donation if Eve
 has helped you in your work or personal projects. Every single sign-up makes
 a significant impact towards making Eve possible.
 
-To join the backer ranks, check out `Eve campaign on Patreon`_.
+You can support Eve development by pledging on GitHub, Patreon, or PayPal.
+
+- `Become a Backer on GitHub <https://github.com/sponsors/nicolaiarocci>`_
+- `Become a Backer on Patreon <https://www.patreon.com/nicolaiarocci>`_
+- `Donate via PayPal <https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7U7G7EWU7EPNW>`_ (one time)
 
 .. _demo:
 
@@ -123,5 +127,4 @@ is also a simple `client app`_ available.
 .. _Redis: http://redis.io
 .. _Cerberus: http://python-cerberus.org
 .. _events: https://github.com/pyeve/events
-.. _extensions: http://python-eve.org/extensions
-.. _`Eve campaign on Patreon`: https://www.patreon.com/nicolaiarocci
+.. _extensions: http://python-eve.org/extensions.html

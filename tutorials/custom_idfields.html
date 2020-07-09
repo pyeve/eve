@@ -1,12 +1,10 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Handling custom ID fields &#8212; Eve 0.10.dev0 documentation</title>
+    <meta charset="utf-8" />
+    <title>Handling custom ID fields &#8212; Eve 1.1.2 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -55,12 +53,12 @@ expose a document endpoint like <code class="docutils literal notranslate"><span
 <p><code class="docutils literal notranslate"><span class="pre">/invoices/48c00ee9-4dbe-413f-9fc3-d5f12a91de1c</span></code>.</p>
 <p>These are the steps we need to follow:</p>
 <ol class="arabic simple">
-<li>Craft a custom JSONEncoder that is capable of serializing UUIDs as strings
-and pass it to our Eve application.</li>
-<li>Add support for a new <code class="docutils literal notranslate"><span class="pre">uuid</span></code> data type so we can properly validate
-incoming uuid values.</li>
-<li>Configure our invoices endpoint so Eve knows how to properly parse UUID
-urls.</li>
+<li><p>Craft a custom JSONEncoder that is capable of serializing UUIDs as strings
+and pass it to our Eve application.</p></li>
+<li><p>Add support for a new <code class="docutils literal notranslate"><span class="pre">uuid</span></code> data type so we can properly validate
+incoming uuid values.</p></li>
+<li><p>Configure our invoices endpoint so Eve knows how to properly parse UUID
+urls.</p></li>
 </ol>
 <div class="section" id="custom-jsonencoder">
 <h3>Custom JSONEncoder<a class="headerlink" href="#custom-jsonencoder" title="Permalink to this headline">¶</a></h3>
@@ -122,7 +120,7 @@ which resources are going to use these features. We also need to set
 <code class="docutils literal notranslate"><span class="pre">settings.py</span></code> module and update the API domain accordingly:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">invoices</span> <span class="o">=</span> <span class="p">{</span>
     <span class="c1"># this resource item endpoint (/invoices/&lt;id&gt;) will match a UUID regex.</span>
-    <span class="s1">&#39;item_url&#39;</span><span class="p">:</span> <span class="s1">&#39;regex(&quot;[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}&quot;)&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;item_url&#39;</span><span class="p">:</span> <span class="s1">&#39;regex(&quot;[a-f0-9]</span><span class="si">{8}</span><span class="s1">-?[a-f0-9]</span><span class="si">{4}</span><span class="s1">-?4[a-f0-9]</span><span class="si">{3}</span><span class="s1">-?[89ab][a-f0-9]</span><span class="si">{3}</span><span class="s1">-?[a-f0-9]</span><span class="si">{12}</span><span class="s1">&quot;)&#39;</span><span class="p">,</span>
     <span class="s1">&#39;schema&#39;</span><span class="p">:</span> <span class="p">{</span>
         <span class="c1"># set our _id field of our custom uuid type.</span>
         <span class="s1">&#39;_id&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;uuid&#39;</span><span class="p">},</span>
@@ -263,18 +261,16 @@ supposed to pass the value, like so:</p>
 <li class="toctree-l1"><a class="reference internal" href="../updates.html">Updates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../license.html">Licensing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Eve Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 </ul>
 
 
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -287,7 +283,7 @@ Artwork by <a href="http://kalamun.org">Kalamun</a> © 2013
     </div>
 
     <div class="footer">
-      &copy;2019. Python-Eve is a <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project.
+      &copy;2020. Python-Eve is a <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project.
       
     </div>
 
