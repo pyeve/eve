@@ -6,6 +6,11 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
+Version 1.1.2
+-------------
+
+Released on July 9, 2020.
+
 Fixed
 ~~~~~
 
