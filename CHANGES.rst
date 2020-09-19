@@ -6,6 +6,16 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
+- hic sunt leones.
+
+Version 1.1.3
+-------------
+
+Released on September 19, 2020.
+
+Fixed
+~~~~~
+
 - Fix: Race condition in PATCH on newly created documents with clustered mongo (`#1411`_)
 
 .. _`#1411`: https://github.com/pyeve/eve/issues/1411
