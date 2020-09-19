@@ -40,6 +40,7 @@ def get_document(
     original=None,
     check_auth_value=True,
     force_auth_field_projection=False,
+    mongo_options=None,
     **lookup
 ):
     """ Retrieves and return a single document. Since this function is used by
@@ -60,6 +61,7 @@ def get_document(
                                         the user-restricted resource access
                                         field (if configured). Defaults to
                                         ``False``.
+    :param mongo_options: Options to pass to PyMongo. e.g. ReadConcern
     :param **lookup: document lookup query
 
     .. versionchanged:: 0.6
@@ -85,9 +87,14 @@ def get_document(
     if original:
         document = original
     else:
-        document = app.data.find_one(
-            resource, req, check_auth_value, force_auth_field_projection, **lookup
-        )
+        if mongo_options:
+            document = app.data.with_options(mongo_options).find_one(
+                resource, req, check_auth_value, force_auth_field_projection, **lookup
+            )
+        else:
+            document = app.data.find_one(
+                resource, req, check_auth_value, force_auth_field_projection, **lookup
+            )
 
     if document:
         e_if_m = config.ENFORCE_IF_MATCH
