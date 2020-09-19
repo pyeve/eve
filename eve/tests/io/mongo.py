@@ -83,13 +83,13 @@ class TestPythonParser(TestCase):
 
 class TestMongoValidator(TestCase):
     def test_unique_fail(self):
-        """ relying on POST and PATCH tests since we don't have an active
-        app_context running here """
+        """relying on POST and PATCH tests since we don't have an active
+        app_context running here"""
         pass
 
     def test_unique_success(self):
-        """ relying on POST and PATCH tests since we don't have an active
-        app_context running here """
+        """relying on POST and PATCH tests since we don't have an active
+        app_context running here"""
         pass
 
     def test_decimal_fail(self):

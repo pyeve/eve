@@ -18,7 +18,7 @@ from bson import ObjectId  # noqa
 
 
 def parse(expression):
-    """ Given a python-like conditional statement, returns the equivalent
+    """Given a python-like conditional statement, returns the equivalent
     mongo-like query expression. Conditional and boolean operators (==, <=, >=,
     !=, >, <) along with a couple function calls (ObjectId(), datetime()) are
     supported.
@@ -38,7 +38,7 @@ class ParseError(ValueError):
 
 
 class MongoVisitor(ast.NodeVisitor):
-    """ Implements the python-to-mongo parser. Only Python conditional
+    """Implements the python-to-mongo parser. Only Python conditional
     statements are supported, however nested, combined with most common compare
     and boolean operators (And and Or).
 
@@ -58,8 +58,7 @@ class MongoVisitor(ast.NodeVisitor):
     }
 
     def visit_Module(self, node):
-        """ Module handler, our entry point.
-        """
+        """Module handler, our entry point."""
         self.mongo_query = {}
         self.ops = []
         self.current_value = None
@@ -77,8 +76,7 @@ class MongoVisitor(ast.NodeVisitor):
             )
 
     def visit_Expr(self, node):
-        """ Make sure that we are parsing compare or boolean operators
-        """
+        """Make sure that we are parsing compare or boolean operators"""
         if not (
             isinstance(node.value, ast.Compare) or isinstance(node.value, ast.BoolOp)
         ):
@@ -86,8 +84,7 @@ class MongoVisitor(ast.NodeVisitor):
         self.generic_visit(node)
 
     def visit_Compare(self, node):
-        """ Compare operator handler.
-        """
+        """Compare operator handler."""
         self.visit(node.left)
         left = self.current_value
 
@@ -108,8 +105,7 @@ class MongoVisitor(ast.NodeVisitor):
             self.mongo_query[left] = value
 
     def visit_BoolOp(self, node):
-        """ Boolean operator handler.
-        """
+        """Boolean operator handler."""
         op = self.op_mapper[node.op.__class__]
         self.ops.append([])
         for value in node.values:
@@ -122,7 +118,7 @@ class MongoVisitor(ast.NodeVisitor):
             self.mongo_query[op] = c
 
     def visit_Call(self, node):
-        """ A couple function calls are supported: bson's ObjectId() and
+        """A couple function calls are supported: bson's ObjectId() and
         datetime().
         """
         if isinstance(node.func, ast.Name):
@@ -141,22 +137,18 @@ class MongoVisitor(ast.NodeVisitor):
                     pass
 
     def visit_Attribute(self, node):
-        """ Attribute handler ('Contact.Id').
-        """
+        """Attribute handler ('Contact.Id')."""
         self.visit(node.value)
         self.current_value += "." + node.attr
 
     def visit_Name(self, node):
-        """ Names handler.
-        """
+        """Names handler."""
         self.current_value = node.id
 
     def visit_Num(self, node):
-        """ Numbers handler.
-        """
+        """Numbers handler."""
         self.current_value = node.n
 
     def visit_Str(self, node):
-        """ Strings handler.
-        """
+        """Strings handler."""
         self.current_value = node.s

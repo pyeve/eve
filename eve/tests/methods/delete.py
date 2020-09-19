@@ -290,8 +290,7 @@ class TestSoftDelete(TestDelete):
         self.assertTrue(self.app.config["ERROR"] in data)
 
     def test_deleteitem_internal(self):
-        """Deleteitem internal should honor soft delete settings.
-        """
+        """Deleteitem internal should honor soft delete settings."""
         # test that deleteitem_internal is available and working properly.
         with self.app.test_request_context(self.item_id_url):
             r, _, _, status = deleteitem_internal(
@@ -500,8 +499,7 @@ class TestSoftDelete(TestDelete):
         self.assertEqual(data["person"], str(fake_contact_id))
 
     def test_softdelete_caching(self):
-        """404 Not Found responses after soft delete should be cacheable
-        """
+        """404 Not Found responses after soft delete should be cacheable"""
         # Soft delete item
         r, status = self.delete(self.item_id_url, headers=self.etag_headers)
         self.assert204(status)
@@ -626,7 +624,7 @@ class TestSoftDelete(TestDelete):
             self.assertTrue(self.deleted_field in db_stored_doc)
 
     def test_exclusive_projection(self):
-        """ Test that when an exclusive projection is used in the 'datasource'
+        """Test that when an exclusive projection is used in the 'datasource'
         setting for the resource, enabling soft_deletes does not cause a 500
         error. See #752.
         """
@@ -635,7 +633,7 @@ class TestSoftDelete(TestDelete):
         self.assert200(status)
 
     def test_exclude_soft_deleted_documents_from_unique_checks(self):
-        """ Test that soft deleted documents are ignored when validating new
+        """Test that soft deleted documents are ignored when validating new
         documents against the 'unique' rule. See #831.
         """
         unique_value = "1234567890123456789054321"
@@ -683,7 +681,7 @@ class TestResourceSpecificSoftDelete(TestBase):
         self.etag_headers = [("If-Match", self.item_etag)]
 
     def test_resource_specific_softdelete(self):
-        """ Resource level soft delete configuration should override
+        """Resource level soft delete configuration should override
         application configuration.
         """
         # Confirm soft delete is enabled for known resource.

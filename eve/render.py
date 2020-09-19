@@ -29,7 +29,7 @@ from collections import OrderedDict  # noqa
 
 
 def raise_event(f):
-    """ Raises both general and resource-level events after the decorated
+    """Raises both general and resource-level events after the decorated
     function has been executed. Returns both the flask.request object and the
     response payload to the callback.
 
@@ -66,7 +66,7 @@ def raise_event(f):
 
 @raise_event
 def send_response(resource, response):
-    """ Prepares the response for the client.
+    """Prepares the response for the client.
 
     :param resource: the resource involved.
     :param response: either a flask.Response object or a tuple. The former will
@@ -95,7 +95,7 @@ def send_response(resource, response):
 def _prepare_response(
     resource, dct, last_modified=None, etag=None, status=200, headers=None
 ):
-    """ Prepares the response object according to the client request and
+    """Prepares the response object according to the client request and
     available renderers, making sure that all accessory directives (caching,
     etag, last-modified) are present.
 
@@ -256,7 +256,7 @@ def _prepare_response(
 
 
 def _best_mime():
-    """ Returns the best match between the requested mime type and the
+    """Returns the best match between the requested mime type and the
     ones supported by Eve. Along with the mime, also the corresponding
     render function is returns.
 
@@ -288,7 +288,7 @@ def _best_mime():
 
 
 class Renderer(object):
-    """ Base class for all the renderers. Renderer should set valid `mime`
+    """Base class for all the renderers. Renderer should set valid `mime`
     attr and have `.render()` method implemented.
 
     """
@@ -300,14 +300,12 @@ class Renderer(object):
 
 
 class JSONRenderer(Renderer):
-    """ JSON renderer class based on `simplejson` package.
-
-    """
+    """JSON renderer class based on `simplejson` package."""
 
     mime = ("application/json",)
 
     def render(self, data):
-        """ JSON render function
+        """JSON render function
 
         :param data: the data stream to be rendered as json.
 
@@ -332,15 +330,13 @@ class JSONRenderer(Renderer):
 
 
 class XMLRenderer(Renderer):
-    """ XML renderer class.
-
-    """
+    """XML renderer class."""
 
     mime = ("application/xml", "text/xml", "application/x-xml")
     tag = "XML"
 
     def render(self, data):
-        """ XML render function.
+        """XML render function.
 
         :param data: the data stream to be rendered as xml.
 
@@ -370,7 +366,7 @@ class XMLRenderer(Renderer):
 
     @classmethod
     def xml_root_open(cls, data):
-        """ Returns the opening tag for the XML root node. If the datastream
+        """Returns the opening tag for the XML root node. If the datastream
         includes information about resource endpoints (href, title), they will
         be added as node attributes. The resource endpoint is then removed to
         allow for further processing of the datastream.
@@ -396,7 +392,7 @@ class XMLRenderer(Renderer):
 
     @classmethod
     def xml_add_meta(cls, data):
-        """ Returns a meta node with page, total, max_results fields.
+        """Returns a meta node with page, total, max_results fields.
 
         :param data: the data stream to be rendered as xml.
 
@@ -417,7 +413,7 @@ class XMLRenderer(Renderer):
 
     @classmethod
     def xml_add_links(cls, data):
-        """ Returns as many <link> nodes as there are in the datastream. The
+        """Returns as many <link> nodes as there are in the datastream. The
         added links are then removed from the datastream to allow for further
         processing.
 
@@ -446,9 +442,9 @@ class XMLRenderer(Renderer):
                 data.update({config.LINKS: {rel: link}})
 
             elif isinstance(link, list):
-                xml += "".join(                    
+                xml += "".join(
                     chunk % (rel, utils.escape(d["href"]), utils.escape(d["title"]))
-                    for d in link                    
+                    for d in link
                 )
             else:
                 xml += "".join(chunk % (rel, utils.escape(link["href"]), link["title"]))
@@ -456,7 +452,7 @@ class XMLRenderer(Renderer):
 
     @classmethod
     def xml_add_items(cls, data):
-        """ When this function is called the datastream can only contain
+        """When this function is called the datastream can only contain
          a `_items` list, or a dictionary. If a list, each item is a resource
         which rendered as XML. If a dictionary, it will be rendered as XML.
 
@@ -472,7 +468,7 @@ class XMLRenderer(Renderer):
 
     @classmethod
     def xml_item(cls, item):
-        """ Represents a single resource (member of a collection) as XML.
+        """Represents a single resource (member of a collection) as XML.
 
         :param data: the data stream to be rendered as xml.
 
@@ -486,7 +482,7 @@ class XMLRenderer(Renderer):
 
     @classmethod
     def xml_root_close(cls):
-        """ Returns the closing tag of the XML root node.
+        """Returns the closing tag of the XML root node.
 
         .. versionadded:: 0.0.3
         """
@@ -494,7 +490,7 @@ class XMLRenderer(Renderer):
 
     @classmethod
     def xml_dict(cls, data):
-        """ Renders a dict as XML.
+        """Renders a dict as XML.
 
         :param data: the data stream to be rendered as xml.
 
@@ -534,7 +530,7 @@ class XMLRenderer(Renderer):
 
     @classmethod
     def xml_field_open(cls, field, idx, related_links):
-        """ Returns opening tag for XML field element node.
+        """Returns opening tag for XML field element node.
 
         :param field: field name for the element node
         :param idx: the index in the data relation links if serializing a list of same field to XML
@@ -560,7 +556,7 @@ class XMLRenderer(Renderer):
 
     @classmethod
     def xml_field_close(cls, field):
-        """ Returns closing tag of XML field element node.
+        """Returns closing tag of XML field element node.
 
         :param field: field name for the element node
 

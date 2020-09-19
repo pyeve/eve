@@ -220,10 +220,10 @@ class TestPatch(TestBase):
         self.assertEqual(db_value, test_value)
 
     def test_patch_missing_default(self):
-        """ PATCH an object which is missing a field with a default value.
+        """PATCH an object which is missing a field with a default value.
 
         This should result in setting the field to its default value, even if
-        the field is not provided in the PATCH's payload. """
+        the field is not provided in the PATCH's payload."""
         field = "ref"
         test_value = "1234567890123456789012345"
         changes = {field: test_value}
@@ -236,10 +236,10 @@ class TestPatch(TestBase):
         )
 
     def test_patch_missing_default_with_post_override(self):
-        """ PATCH an object which is missing a field with a default value.
+        """PATCH an object which is missing a field with a default value.
 
         This should result in setting the field to its default value, even if
-        the field is not provided in the PATCH's payload. """
+        the field is not provided in the PATCH's payload."""
         field = "ref"
         test_value = "1234567890123456789012345"
         r = self.perform_patch_with_post_override(field, test_value)
@@ -255,10 +255,10 @@ class TestPatch(TestBase):
         )
 
     def test_patch_missing_nested_default(self):
-        """ PATCH an object which is missing a field with a default value.
+        """PATCH an object which is missing a field with a default value.
 
         This should result in setting the field to its default value, even if
-        the field is not provided in the PATCH's payload. """
+        the field is not provided in the PATCH's payload."""
         field = "dict_with_nested_default"
         test_value = {}
         changes = {field: test_value}
@@ -601,7 +601,7 @@ class TestPatch(TestBase):
         self.assertTrue("is read-only" in r["_issues"]["read_only_field"])
 
     def test_patch_nested_document_not_overwritten(self):
-        """ Test that nested documents are not overwritten on PATCH and #519
+        """Test that nested documents are not overwritten on PATCH and #519
         is fixed.
         """
 
@@ -660,7 +660,7 @@ class TestPatch(TestBase):
         self.assertEqual(int, 99)
 
     def test_patch_nested_document_no_merge(self):
-        """ Test that nested documents are not merged, but overwritten,
+        """Test that nested documents are not merged, but overwritten,
         if configured."""
         domain = {
             "merge_nested_documents": False,
@@ -718,7 +718,7 @@ class TestPatch(TestBase):
         self.assertEqual(r["other"], {"name": "other_name"})
 
     def test_patch_dependent_field_on_origin_document(self):
-        """ Test that when patching a field which is dependent on another field's
+        """Test that when patching a field which is dependent on another field's
         existance, and this other field is not provided in the patch, but does
         exist on the persisted document, the patch will be accepted.
 
@@ -765,7 +765,7 @@ class TestPatch(TestBase):
         self.assert200(status)
 
     def test_patch_dependent_field_value_on_origin_document(self):
-        """ Test that when patching a field which is dependent on another field's
+        """Test that when patching a field which is dependent on another field's
         value, and this other field is not provided in the patch, but is present
         on the persisted document, the patch will be accepted.
 

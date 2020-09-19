@@ -3,7 +3,7 @@ from testfixtures import log_capture
 
 
 class TestUtils(TestBase):
-    """ collection, document and home_link methods (and resource_uri, which is
+    """collection, document and home_link methods (and resource_uri, which is
     used by all of them) are tested in 'tests.methods' since we need an active
     flaskapp context
     """

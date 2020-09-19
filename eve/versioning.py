@@ -4,7 +4,7 @@ from werkzeug.exceptions import BadRequestKeyError
 
 
 def versioned_id_field(resource_settings):
-    """ Shorthand to add two commonly added versioning parameters.
+    """Shorthand to add two commonly added versioning parameters.
 
     .. versionadded: 0.4
     """
@@ -12,7 +12,7 @@ def versioned_id_field(resource_settings):
 
 
 def resolve_document_version(document, resource, method, latest_doc=None):
-    """ Version number logic for all methods.
+    """Version number logic for all methods.
 
     :param document: the document in question.
     :param resource: the resource of the request/document.
@@ -78,7 +78,7 @@ def resolve_document_version(document, resource, method, latest_doc=None):
 
 
 def late_versioning_catch(document, resource):
-    """ Insert versioning copy of document for the previous version of a
+    """Insert versioning copy of document for the previous version of a
     document if it is missing. Intended for PUT and PATCH.
 
     :param resource: the resource of the request/document.
@@ -104,7 +104,7 @@ def late_versioning_catch(document, resource):
 
 
 def insert_versioning_documents(resource, documents):
-    """ Insert versioning copy of document. Intended for POST, PUT, and PATCH.
+    """Insert versioning copy of document. Intended for POST, PUT, and PATCH.
 
     :param resource: the resource of the request/document.
     :param documents: the documents be written by POST, PUT, or PATCH.
@@ -160,7 +160,7 @@ def insert_versioning_documents(resource, documents):
 
 
 def versioned_fields(resource_def):
-    """ Returns a list of versioned fields for a resource.
+    """Returns a list of versioned fields for a resource.
 
     :param resource_def: a resource definition.
 
@@ -191,7 +191,7 @@ def versioned_fields(resource_def):
 
 
 def diff_document(resource_def, old_doc, new_doc):
-    """ Returns a list of added or modified fields.
+    """Returns a list of added or modified fields.
 
     :param resource_def: a resource definition.
     :param old_doc: the document to compare against.
@@ -228,7 +228,7 @@ def diff_document(resource_def, old_doc, new_doc):
 
 
 def synthesize_versioned_document(document, delta, resource_def):
-    """ Synthesizes a versioned document from the latest document and the
+    """Synthesizes a versioned document from the latest document and the
     values of all versioned fields from the old version. This is accomplished
     by first creating a new document with only the un-versioned fields of
     latest document, before updating with versioned fields from the old
@@ -270,7 +270,7 @@ def synthesize_versioned_document(document, delta, resource_def):
 
 
 def get_old_document(resource, req, lookup, document, version):
-    """ Returns an old document if appropriate, otherwise returns a shallow
+    """Returns an old document if appropriate, otherwise returns a shallow
     copy of the given document.
 
     :param resource: the name of the resource.
@@ -318,7 +318,7 @@ def get_old_document(resource, req, lookup, document, version):
 
 
 def get_data_version_relation_document(data_relation, reference, latest=False):
-    """ Returns document at the version specified in data_relation, or at the
+    """Returns document at the version specified in data_relation, or at the
     latest version if passed `latest=True`. Returns None if data_relation
     cannot be satisfied.
 
@@ -387,7 +387,7 @@ def get_data_version_relation_document(data_relation, reference, latest=False):
 
 
 def missing_version_field(data_relation, reference):
-    """ Returns a document if it matches the value_field but doesn't have a
+    """Returns a document if it matches the value_field but doesn't have a
     _version field. This is the scenario when there is data in the database
     before document versioning is turned on.
 

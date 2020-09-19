@@ -14,7 +14,7 @@ import os
 
 
 class UUIDEncoder(BaseJSONEncoder):
-    """ Propretary JSONEconder subclass used by the json render function.
+    """Propretary JSONEconder subclass used by the json render function.
     This is different from BaseJSONEoncoder since it also addresses encoding of
     UUID
     """
@@ -250,7 +250,7 @@ class TestEndPoints(TestBase):
         self.assert200(r.status_code)
 
     def test_api_prefix_version_hateoas_links(self):
-        """ Test that #419 is closed and URL_PREFIX and API_VERSION are stipped
+        """Test that #419 is closed and URL_PREFIX and API_VERSION are stipped
         out of hateoas links since they are now relative to the API entry point
         (root).
         """

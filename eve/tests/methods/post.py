@@ -809,8 +809,8 @@ class TestPost(TestBase):
         self.assertValidationErrorStatus(status)
 
     def test_post_with_nested_default(self):
-        """ Test that in post of a field that has nested fields with default values
-            those default values are set
+        """Test that in post of a field that has nested fields with default values
+        those default values are set
         """
         del self.domain["contacts"]["schema"]["ref"]["required"]
         test_field = "dict_with_nested_default"

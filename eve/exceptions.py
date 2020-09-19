@@ -12,7 +12,7 @@
 
 
 class ConfigException(Exception):
-    """ Raised when errors are found in the configuration settings (usually
+    """Raised when errors are found in the configuration settings (usually
     `settings.py`).
     """
 

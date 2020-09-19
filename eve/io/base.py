@@ -19,7 +19,7 @@ from eve.utils import config, auto_fields, debug_error_message
 
 
 class BaseJSONEncoder(json.JSONEncoder):
-    """ Proprietary JSONEconder subclass used by the json render function.
+    """Proprietary JSONEconder subclass used by the json render function.
     This is needed to address the encoding of special values.
     """
 
@@ -38,7 +38,7 @@ class BaseJSONEncoder(json.JSONEncoder):
 
 
 class ConnectionException(Exception):
-    """ Raised when DataLayer subclasses cannot find/activate to their
+    """Raised when DataLayer subclasses cannot find/activate to their
     database connection.
 
     :param driver_exception: the original exception raised by the source db
@@ -59,7 +59,7 @@ class ConnectionException(Exception):
 
 
 class DataLayer(object):
-    """ Base data layer class. Defines the interface that actual data-access
+    """Base data layer class. Defines the interface that actual data-access
     classes, being subclasses, must implement. Implemented as a Flask
     extension.
 
@@ -99,7 +99,7 @@ class DataLayer(object):
     json_encoder_class = BaseJSONEncoder
 
     def __init__(self, app):
-        """ Implements the Flask extension pattern.
+        """Implements the Flask extension pattern.
 
         .. versionchanged:: 0.2
            Explicit initialize self.driver to None.
@@ -112,13 +112,13 @@ class DataLayer(object):
             self.app = None
 
     def init_app(self, app):
-        """ This is where you want to initialize the db driver so it will be
+        """This is where you want to initialize the db driver so it will be
         alive through the whole instance lifespan.
         """
         raise NotImplementedError
 
     def find(self, resource, req, sub_resource_lookup, perform_count=True):
-        """ Retrieves a set of documents (rows), matching the current request.
+        """Retrieves a set of documents (rows), matching the current request.
         Consumed when a request hits a collection/document endpoint
         (`/people/`).
 
@@ -143,7 +143,7 @@ class DataLayer(object):
         raise NotImplementedError
 
     def aggregate(self, resource, pipeline, options):
-        """ Perform an aggregation on the resource datasource and returns
+        """Perform an aggregation on the resource datasource and returns
         the result. Only implent this if the underlying db engine supports
         aggregation operations.
 
@@ -165,7 +165,7 @@ class DataLayer(object):
         force_auth_field_projection=False,
         **lookup
     ):
-        """ Retrieves a single document/record. Consumed when a request hits an
+        """Retrieves a single document/record. Consumed when a request hits an
         item endpoint (`/people/id/`).
 
         :param resource: resource being accessed. You should then use the
@@ -197,7 +197,7 @@ class DataLayer(object):
         raise NotImplementedError
 
     def find_one_raw(self, resource, **lookup):
-        """ Retrieves a single, raw document. No projections or datasource
+        """Retrieves a single, raw document. No projections or datasource
         filters are being applied here. Just looking up the document using the
         same lookup.
 
@@ -209,7 +209,7 @@ class DataLayer(object):
         raise NotImplementedError
 
     def find_list_of_ids(self, resource, ids, client_projection=None):
-        """ Retrieves a list of documents based on a list of primary keys
+        """Retrieves a list of documents based on a list of primary keys
         The primary key is the field defined in `ID_FIELD`.
         This is a separate function to allow us to use per-database
         optimizations for this type of query.
@@ -226,7 +226,7 @@ class DataLayer(object):
         raise NotImplementedError
 
     def insert(self, resource, doc_or_docs):
-        """ Inserts a document into a resource collection/table.
+        """Inserts a document into a resource collection/table.
 
         :param resource: resource being accessed. You should then use
                          the ``datasource`` helper function to retrieve both
@@ -241,7 +241,7 @@ class DataLayer(object):
         raise NotImplementedError
 
     def update(self, resource, id_, updates, original):
-        """ Updates a collection/table document/row.
+        """Updates a collection/table document/row.
         :param resource: resource being accessed. You should then use
                          the ``datasource`` helper function to retrieve
                          the actual datasource name.
@@ -256,7 +256,7 @@ class DataLayer(object):
         raise NotImplementedError
 
     def replace(self, resource, id_, document, original):
-        """ Replaces a collection/table document/row.
+        """Replaces a collection/table document/row.
         :param resource: resource being accessed. You should then use
                          the ``datasource`` helper function to retrieve
                          the actual datasource name.
@@ -271,7 +271,7 @@ class DataLayer(object):
         raise NotImplementedError
 
     def remove(self, resource, lookup):
-        """ Removes a document/row or an entire set of documents/rows from a
+        """Removes a document/row or an entire set of documents/rows from a
         database collection/table.
 
         :param resource: resource being accessed. You should then use
@@ -288,7 +288,7 @@ class DataLayer(object):
         raise NotImplementedError
 
     def combine_queries(self, query_a, query_b):
-        """ Takes two db queries and applies db-specific syntax to produce
+        """Takes two db queries and applies db-specific syntax to produce
         the intersection.
 
         .. versionadded: 0.1.0
@@ -297,7 +297,7 @@ class DataLayer(object):
         raise NotImplementedError
 
     def get_value_from_query(self, query, field_name):
-        """ Parses the given potentially-complex query and returns the value
+        """Parses the given potentially-complex query and returns the value
         being assigned to the field given in `field_name`.
 
         This mainly exists to deal with more complicated compound queries
@@ -308,7 +308,7 @@ class DataLayer(object):
         raise NotImplementedError
 
     def query_contains_field(self, query, field_name):
-        """ For the specified field name, does the query contain it?
+        """For the specified field name, does the query contain it?
         Used know whether we need to parse a compound query.
 
         .. versionadded: 0.1.0
@@ -317,7 +317,7 @@ class DataLayer(object):
         raise NotImplementedError
 
     def is_empty(self, resource):
-        """ Returns True if the collection is empty; False otherwise. While
+        """Returns True if the collection is empty; False otherwise. While
         a user could rely on self.find() method to achieve the same result,
         this method can probably take advantage of specific datastore features
         to provide better performance.
@@ -335,7 +335,7 @@ class DataLayer(object):
         raise NotImplementedError
 
     def datasource(self, resource):
-        """ Returns a tuple with the actual name of the database
+        """Returns a tuple with the actual name of the database
         collection/table, base query and projection for the resource being
         accessed.
 
@@ -372,7 +372,7 @@ class DataLayer(object):
         check_auth_value=True,
         force_auth_field_projection=False,
     ):
-        """ Returns both db collection and exact query (base filter included)
+        """Returns both db collection and exact query (base filter included)
         to which an API resource refers to.
 
         .. versionchanged:: 0.5.2
@@ -511,7 +511,7 @@ class DataLayer(object):
         return datasource, query, fields, sort
 
     def _client_projection(self, req):
-        """ Returns a properly parsed client projection if available.
+        """Returns a properly parsed client projection if available.
 
         :param req: a :class:`ParsedRequest` instance.
 

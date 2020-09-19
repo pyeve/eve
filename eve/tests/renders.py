@@ -43,8 +43,7 @@ class TestRenders(TestBase):
         self.assertTrue(b"12345 &amp; 6789" in r.get_data())
 
     def test_xml_ordered_nodes(self):
-        """ Test that xml nodes are ordered and #441 is addressed.
-        """
+        """Test that xml nodes are ordered and #441 is addressed."""
         r = self.test_client.get(
             "%s?max_results=1" % self.known_resource_url,
             headers=[("Accept", "application/xml")],

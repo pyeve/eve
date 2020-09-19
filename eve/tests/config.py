@@ -519,7 +519,7 @@ class TestConfig(TestBase):
                     self.assertEqual(args[arg], indexes[key][arg])
 
     def test_custom_error_handlers(self):
-        """ Test that the standard, custom error handler is registered for
+        """Test that the standard, custom error handler is registered for
         supported error codes.
         """
         codes = self.app.config["STANDARD_ERRORS"]

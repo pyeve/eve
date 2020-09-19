@@ -274,7 +274,7 @@ class TestGridFSMediaStorage(TestBase):
         self.assert404(s)
 
     def test_get_media_can_leverage_projection(self):
-        """ Test that static projection expose fields other than media
+        """Test that static projection expose fields other than media
         and client projection on media will work.
         """
         # post a document with *hiding media*
@@ -319,7 +319,7 @@ class TestGridFSMediaStorage(TestBase):
         self.assertTrue(r[self.app.config["DATE_CREATED"]] != self.epoch)
 
     def test_gridfs_media_storage_delete_projection(self):
-        """ test that #284 is fixed: If you have a media field, and set
+        """test that #284 is fixed: If you have a media field, and set
         datasource projection to 0 for that field, the media will not be
         deleted
         """

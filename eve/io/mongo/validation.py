@@ -34,7 +34,7 @@ from eve.versioning import get_data_version_relation_document
 
 
 class Validator(Validator):
-    """ A cerberus.Validator subclass adding the `unique` contraint to
+    """A cerberus.Validator subclass adding the `unique` contraint to
     Cerberus standard validation.
 
     :param schema: the validation schema, to be composed according to Cerberus
@@ -86,7 +86,7 @@ class Validator(Validator):
         self._is_value_unique(unique, field, value, {})
 
     def _is_value_unique(self, unique, field, value, query):
-        """ Validates that a field value is unique.
+        """Validates that a field value is unique.
 
         .. versionchanged:: 0.6.2
            Exclude soft deleted documents from uniqueness check. Closes #831.
@@ -139,13 +139,13 @@ class Validator(Validator):
                 self._error(field, "value '%s' is not unique" % value)
 
     def _validate_data_relation(self, data_relation, field, value):
-        """ {'type': 'dict',
-             'schema': {
-                'resource': {'type': 'string', 'required': True},
-                'field': {'type': 'string', 'required': True},
-                'embeddable': {'type': 'boolean', 'default': False},
-                'version': {'type': 'boolean', 'default': False}
-             }} """
+        """{'type': 'dict',
+        'schema': {
+           'resource': {'type': 'string', 'required': True},
+           'field': {'type': 'string', 'required': True},
+           'embeddable': {'type': 'boolean', 'default': False},
+           'version': {'type': 'boolean', 'default': False}
+        }}"""
         if not value and self.schema[field].get("nullable"):
             return
 
@@ -275,7 +275,7 @@ class Validator(Validator):
             pass
 
     def _validate_type_feature(self, value):
-        """ Enables validation for `feature`data type
+        """Enables validation for `feature`data type
 
         :param value: field value
         """
@@ -286,7 +286,7 @@ class Validator(Validator):
             pass
 
     def _validate_type_featurecollection(self, value):
-        """ Enables validation for `featurecollection`data type
+        """Enables validation for `featurecollection`data type
 
         :param value: field value
         """

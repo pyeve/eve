@@ -55,9 +55,14 @@ def patch(resource, payload=None, **lookup):
 
 
 def patch_internal(
-    resource, payload=None, concurrency_check=False, skip_validation=False, mongo_options=None, **lookup
+    resource,
+    payload=None,
+    concurrency_check=False,
+    skip_validation=False,
+    mongo_options=None,
+    **lookup
 ):
-    """ Intended for internal patch calls, this method is not rate limited,
+    """Intended for internal patch calls, this method is not rate limited,
     authentication is not checked, pre-request events are not raised, and
     concurrency checking is optional. Performs a document patch/update.
     Updates are first validated against the resource schema. If validation
@@ -273,7 +278,7 @@ def patch_internal(
 
 
 def resolve_nested_documents(updates, original):
-    """ Nested document updates are merged with the original contents
+    """Nested document updates are merged with the original contents
     we don't overwrite the whole thing. See #519 for details.
 
     .. versionadded:: 0.5

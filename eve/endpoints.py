@@ -25,7 +25,7 @@ import eve
 
 
 def collections_endpoint(**lookup):
-    """ Resource endpoint handler
+    """Resource endpoint handler
 
     :param url: the url that led here
 
@@ -66,7 +66,7 @@ def collections_endpoint(**lookup):
 
 
 def item_endpoint(**lookup):
-    """ Item endpoint handler
+    """Item endpoint handler
 
     :param url: the url that led here
     :param lookup: sub resource query
@@ -108,7 +108,7 @@ def item_endpoint(**lookup):
 @ratelimit()
 @requires_auth("home")
 def home_endpoint():
-    """ Home/API entry point. Will provide links to each available resource
+    """Home/API entry point. Will provide links to each available resource
 
     .. versionchanged:: 0.5
        Resource URLs are relative to API root.
@@ -159,7 +159,7 @@ def home_endpoint():
 
 
 def error_endpoint(error):
-    """ Response returned when an error is raised by the API (e.g. my means of
+    """Response returned when an error is raised by the API (e.g. my means of
     an abort(4xx).
     """
     headers = []
@@ -188,7 +188,7 @@ def _resource():
 
 @requires_auth("media")
 def media_endpoint(_id):
-    """ This endpoint is active when RETURN_MEDIA_AS_URL is True. It retrieves
+    """This endpoint is active when RETURN_MEDIA_AS_URL is True. It retrieves
     a media file and streams it to the client.
 
     .. versionadded:: 0.6
@@ -254,7 +254,7 @@ def media_endpoint(_id):
 
 @requires_auth("resource")
 def schema_item_endpoint(resource):
-    """ This endpoint is active when SCHEMA_ENDPOINT != None. It returns the
+    """This endpoint is active when SCHEMA_ENDPOINT != None. It returns the
     requested resource's schema definition in JSON format.
     """
     resource_config = app.config["DOMAIN"].get(resource)
@@ -266,7 +266,7 @@ def schema_item_endpoint(resource):
 
 @requires_auth("home")
 def schema_collection_endpoint():
-    """ This endpoint is active when SCHEMA_ENDPOINT != None. It returns the
+    """This endpoint is active when SCHEMA_ENDPOINT != None. It returns the
     schema definition for all public or request authenticated resources in
     JSON format.
     """

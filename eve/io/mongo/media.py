@@ -17,7 +17,7 @@ from eve.utils import str_type
 
 
 class GridFSMediaStorage(MediaStorage):
-    """ The GridFSMediaStorage class stores files into GridFS.
+    """The GridFSMediaStorage class stores files into GridFS.
 
     ..versionadded:: 0.3
     """
@@ -37,7 +37,7 @@ class GridFSMediaStorage(MediaStorage):
         self._fs = {}
 
     def validate(self):
-        """ Make sure that the application data layer is a eve.io.mongo.Mongo
+        """Make sure that the application data layer is a eve.io.mongo.Mongo
         instance.
         """
         if self.app is None:
@@ -47,7 +47,7 @@ class GridFSMediaStorage(MediaStorage):
             raise TypeError("Application object must be a Eve application")
 
     def fs(self, resource=None):
-        """ Provides the instance-level GridFS instance, instantiating it if
+        """Provides the instance-level GridFS instance, instantiating it if
         needed.
 
         .. versionchanged:: 0.6
@@ -63,7 +63,7 @@ class GridFSMediaStorage(MediaStorage):
         return self._fs[px]
 
     def get(self, _id, resource=None):
-        """ Returns the file given by unique id. Returns None if no file was
+        """Returns the file given by unique id. Returns None if no file was
         found.
 
         .. versionchanged: 0.6
@@ -85,7 +85,7 @@ class GridFSMediaStorage(MediaStorage):
         return _file
 
     def put(self, content, filename=None, content_type=None, resource=None):
-        """ Saves a new file in GridFS. Returns the unique id of the stored
+        """Saves a new file in GridFS. Returns the unique id of the stored
         file. Also stores content type of the file.
         """
         return self.fs(resource).put(
@@ -93,12 +93,11 @@ class GridFSMediaStorage(MediaStorage):
         )
 
     def delete(self, _id, resource=None):
-        """ Deletes the file referenced by unique id.
-        """
+        """Deletes the file referenced by unique id."""
         self.fs(resource).delete(_id)
 
     def exists(self, id_or_document, resource=None):
-        """ Returns True if a file referenced by the unique id or the query
+        """Returns True if a file referenced by the unique id or the query
         document already exists, False otherwise.
 
         Valid query: {'filename': 'file.txt'}

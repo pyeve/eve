@@ -187,7 +187,7 @@ class TestNormalVersioning(TestVersioningBase):
             self.assertEqual(len(shadow_document.keys()), num_meta_fields + 2)
 
     def assertHateoasLinks(self, links, version_param):
-        """ Makes sure links for `self`, `collection`, and `parent` point to
+        """Makes sure links for `self`, `collection`, and `parent` point to
         the right place.
         """
         self_url = links["self"]["href"]
@@ -306,46 +306,42 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.insertTestData()
 
     def test_get(self):
-        """
-        """
+        """"""
         self.do_test_get()
 
     def test_getitem(self):
-        """
-        """
+        """"""
         self.do_test_getitem(partial=False)
 
     def test_post(self):
-        """ Verify that a shadow document is created on post with all of the
+        """Verify that a shadow document is created on post with all of the
         appropriate fields.
         """
         self.do_test_post(partial=False)
 
     def test_multi_post(self):
-        """ Eve literally throws single documents into an array before
+        """Eve literally throws single documents into an array before
         processing them in a POST, so I don't feel the need to specially test
         the versioning features here. Making a stub nontheless.
         """
         self.do_test_multi_post()
 
     def test_put(self):
-        """ Verify that an additional shadow document is created on post with
+        """Verify that an additional shadow document is created on post with
         all of the appropriate fields.
         """
         self.do_test_put(partial=False)
 
     def test_patch(self):
-        """
-        """
+        """"""
         self.do_test_patch(partial=False)
 
     def test_version_control_the_unkown(self):
-        """
-        """
+        """"""
         self.do_test_version_control_the_unkown()
 
     def test_getitem_version_unknown(self):
-        """ Make sure that Eve return a nice error when requesting an unknown
+        """Make sure that Eve return a nice error when requesting an unknown
         version.
         """
         response, status = self.get(
@@ -354,7 +350,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assert404(status)
 
     def test_getitem_version_bad_format(self):
-        """ Make sure that Eve return a nice error when requesting an unknown
+        """Make sure that Eve return a nice error when requesting an unknown
         version.
         """
         response, status = self.get(
@@ -363,7 +359,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assert400(status)
 
     def test_getitem_version_all(self):
-        """ Verify that all documents are returned which each appearing exactly
+        """Verify that all documents are returned which each appearing exactly
         as it would if it were accessed explicitly.
         """
         meta_fields = self.fields + [
@@ -418,7 +414,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         )
 
     def test_getitem_version_pagination(self):
-        """ Verify that `?version=all` and `?version=diffs` display pagination
+        """Verify that `?version=all` and `?version=diffs` display pagination
         links when results exceed `PAGINATION_DEFAULT`.
         """
         # create many versions
@@ -447,7 +443,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assertHateoasLinks(links, "all")
 
     def test_on_fetched_item(self):
-        """ Verify that on_fetched_item events are fired for versioned
+        """Verify that on_fetched_item events are fired for versioned
         requests.
         """
         devent = DummyEvent(lambda: True)
@@ -478,7 +474,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assertEqual(None, devent.called)
 
     def test_on_fetched_item_contacts(self):
-        """ Verify that on_fetched_item_contacts events are fired for versioned
+        """Verify that on_fetched_item_contacts events are fired for versioned
         requests.
         """
         devent = DummyEvent(lambda: True)
@@ -509,7 +505,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         # TODO: also test with HATEOS off
 
     def test_on_fetched_diffs(self):
-        """ Verify that on_fetched_item events are fired for
+        """Verify that on_fetched_item events are fired for
         version=diffs requests.
         """
         devent = DummyEvent(lambda: True)
@@ -537,7 +533,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assertEqual(2, len(devent.called))
 
     def test_on_fetched_diffs_contacts(self):
-        """ Verify that on_fetched_diffs_contacts events are fired for
+        """Verify that on_fetched_diffs_contacts events are fired for
         version=diffs requests.
         """
         devent = DummyEvent(lambda: True)
@@ -568,7 +564,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         # TODO: also test with HATEOS off
 
     def test_getitem_version_diffs(self):
-        """ Verify that the first document is returned in its entirety and that
+        """Verify that the first document is returned in its entirety and that
         subsequent documents are simply diff to the previous version.
         """
         meta_fields = self.fields + [
@@ -629,8 +625,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         # TODO: also test with HATEOS off
 
     def test_getitem_projection(self):
-        """ Verify that projections happen smoothly when versioning is on.
-        """
+        """Verify that projections happen smoothly when versioning is on."""
         # test inclusive projection
         response, status = self.get(
             self.known_resource,
@@ -656,8 +651,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assertTrue(self.latest_version_field in response)
 
     def test_getitem_version_all_projection(self):
-        """ Verify that projections happen smoothly when versioning is on.
-        """
+        """Verify that projections happen smoothly when versioning is on."""
         # put a second version
         response, status = self.put(
             self.item_id_url,
@@ -768,7 +762,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assertEqual(document[self.latest_version_field], 2)
 
     def test_automatic_fields(self):
-        """ Make sure that Eve throws an error if we try to set a versioning
+        """Make sure that Eve throws an error if we try to set a versioning
         field manually.
         """
         # set _version
@@ -790,7 +784,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assertValidationError(r, {self.document_id_field: "unknown field"})
 
     def test_referential_integrity(self):
-        """ Make sure that Eve still correctly handles vanilla data_relations
+        """Make sure that Eve still correctly handles vanilla data_relations
         when versioning is turned on. (Copied from tests/methods/post.py.)
         """
         data = {"person": self.unknown_item_id}
@@ -808,7 +802,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assert201(status)
 
     def test_delete(self):
-        """ Verify that we don't throw an error if we delete a resource that is
+        """Verify that we don't throw an error if we delete a resource that is
         supposed to be versioned but whose shadow collection does not exist.
         """
         # turn off filter setting
@@ -827,7 +821,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assertTrue(self.countShadowDocuments() == 0)
 
     def test_deleteitem(self):
-        """ Verify that we don't throw an error if we delete an item that is
+        """Verify that we don't throw an error if we delete an item that is
         supposed to be versioned but that doesn't have any shadow copies.
         """
         # verify the primary document exists but no shadow documents do
@@ -845,7 +839,7 @@ class TestCompleteVersioning(TestNormalVersioning):
         self.assertTrue(self.countShadowDocuments(self.item_id) == 0)
 
     def test_softdelete(self):
-        """ Deleting a versioned item with soft delete enabled should create a
+        """Deleting a versioned item with soft delete enabled should create a
         new version marked as deleted, which is returned with 404 Not Found in
         response to GET requests. GETs of previous versions should continue to
         respond with `200 OK` responses. Requests for `?version=all/diff`
@@ -916,7 +910,7 @@ class TestCompleteVersioning(TestNormalVersioning):
             self.assertTrue(field in items[1], "%s not in diffs" % field)
 
     def test_softdelete_version_db_fields(self):
-        """ Document versions created with soft delete enabled should include
+        """Document versions created with soft delete enabled should include
         the DELETED field.
         """
         self.enableSoftDelete()
@@ -963,7 +957,7 @@ class TestVersionedDataRelation(TestNormalVersioning):
         self.insertTestData()
 
     def test_referential_integrity(self):
-        """ Make sure that Eve correctly validates a data_relation with a
+        """Make sure that Eve correctly validates a data_relation with a
         version and returns the version with the data_relation in the response.
         """
         data_relation = self.domain["invoices"]["schema"]["person"]["data_relation"]
@@ -1061,7 +1055,7 @@ class TestVersionedDataRelation(TestNormalVersioning):
         self.assertEqual(response["person"].get(version_field), 2)
 
     def test_embedded(self):
-        """ Perform a quick check to make sure that Eve can embedded with a
+        """Perform a quick check to make sure that Eve can embedded with a
         version in the data relation.
         """
         data_relation = self.domain["invoices"]["schema"]["person"]["data_relation"]
@@ -1083,7 +1077,7 @@ class TestVersionedDataRelation(TestNormalVersioning):
         self.assertTrue("ref" in response["person"])
 
     def test_softdelete_embedded(self):
-        """ If a versioned embedded document is soft deleted, a previous
+        """If a versioned embedded document is soft deleted, a previous
         version should still resolve correctly.
         """
         self.enableSoftDelete()
@@ -1168,7 +1162,7 @@ class TestVersionedDataRelationCustomField(TestNormalVersioning):
         self.insertTestData()
 
     def test_referential_integrity(self):
-        """ Make sure that Eve correctly distinguishes between versions when
+        """Make sure that Eve correctly distinguishes between versions when
         referencing fields that aren't '_id'.
         """
         # put a second version
@@ -1220,7 +1214,7 @@ class TestVersionedDataRelationUnversionedField(TestNormalVersioning):
         self.insertTestData()
 
     def test_referential_integrity(self):
-        """ Make sure that Eve correctly distinguishes between versions when
+        """Make sure that Eve correctly distinguishes between versions when
         referencing unversioned fields
         """
         # put a second version
@@ -1259,41 +1253,38 @@ class TestPartialVersioning(TestNormalVersioning):
         self.insertTestData()
 
     def test_get(self):
-        """ Test that get response successfully synthesize the full document
+        """Test that get response successfully synthesize the full document
         even with unversioned fields.
         """
         self.do_test_get()
 
     def test_getitem(self):
-        """ Test that get response can successfully synthesize both old and new
+        """Test that get response can successfully synthesize both old and new
         document versions when partial versioning is in place.
         """
         self.do_test_getitem(partial=True)
 
     def test_post(self):
-        """ Verify that partial version control can happen on POST.
-        """
+        """Verify that partial version control can happen on POST."""
         self.do_test_post(partial=True)
 
     def test_multi_post(self):
-        """ Eve literally throws single documents into an array before
+        """Eve literally throws single documents into an array before
         processing them in a POST, so I don't feel the need to specially test
         the versioning features here. Making a stub nontheless.
         """
         self.do_test_multi_post()
 
     def test_put(self):
-        """ Verify that partial version control can happen on PUT.
-        """
+        """Verify that partial version control can happen on PUT."""
         self.do_test_put(partial=True)
 
     def test_patch(self):
-        """ Verify that partial version control can happen on PATCH.
-        """
+        """Verify that partial version control can happen on PATCH."""
         self.do_test_patch(partial=True)
 
     def test_version_control_the_unkown(self):
-        """ Currently, the versioning scheme assumes true unless a field is
+        """Currently, the versioning scheme assumes true unless a field is
         explicitly marked to not be version controlled. That means, if
         'allow_unknown' is enabled, those fields are always version controlled.
         This is the same behavior as under TestCompleteVersioning.
@@ -1312,7 +1303,7 @@ class TestLateVersioning(TestVersioningBase):
         self.enableVersioning()
 
     def test_get(self):
-        """ Make sure that Eve returns version = 1 even for documents that
+        """Make sure that Eve returns version = 1 even for documents that
         haven't been modified since version control has been turned on.
         """
         response, status = self.get(self.known_resource)
@@ -1323,7 +1314,7 @@ class TestLateVersioning(TestVersioningBase):
             self.assertDocumentVersionFields(item, 1)
 
     def test_getitem(self):
-        """ Make sure that Eve returns version = 1 even for documents that
+        """Make sure that Eve returns version = 1 even for documents that
         haven't been modified since version control has been turned on.
         """
         response, status = self.get(self.known_resource, item=self.item_id)
@@ -1331,7 +1322,7 @@ class TestLateVersioning(TestVersioningBase):
         self.assertDocumentVersionFields(response, 1)
 
     def test_put(self):
-        """ Make sure that Eve jumps to version = 2 and saves two shadow copies
+        """Make sure that Eve jumps to version = 2 and saves two shadow copies
         (version 1 and version 2) for documents that where already in the
         database before version control was turned on.
         """
@@ -1354,7 +1345,7 @@ class TestLateVersioning(TestVersioningBase):
         self.assertEqual(response[ETAG], response2[ETAG])
 
     def test_patch(self):
-        """ Make sure that Eve jumps to version = 2 and saves two shadow copies
+        """Make sure that Eve jumps to version = 2 and saves two shadow copies
         (version 1 and version 2) for documents that where already in the
         database before version control was turned on.
         """
@@ -1377,7 +1368,7 @@ class TestLateVersioning(TestVersioningBase):
         self.assertEqual(response[ETAG], response2[ETAG])
 
     def test_datasource(self):
-        """ Make sure that Eve uses the same mongo collection for storing versions
+        """Make sure that Eve uses the same mongo collection for storing versions
         when datasource is used."""
         # make sure there are no shadow documents
         self.assertTrue(self.countShadowDocuments() == 0)
@@ -1404,7 +1395,7 @@ class TestLateVersioning(TestVersioningBase):
         self.assertEqual(self.countShadowDocuments(), 3)
 
     def test_delete(self):
-        """ Verify that we don't throw an error if we delete a resource that is
+        """Verify that we don't throw an error if we delete a resource that is
         supposed to be versioned but whose shadow collection does not exist.
         """
         # turn off filter setting
@@ -1423,7 +1414,7 @@ class TestLateVersioning(TestVersioningBase):
         self.assertTrue(self.countShadowDocuments() == 0)
 
     def test_deleteitem(self):
-        """ Verify that we don't throw an error if we delete an item that is
+        """Verify that we don't throw an error if we delete an item that is
         supposed to be versioned but that doesn't have any shadow copies.
         """
         # verify the primary document exists but no shadow documents do
@@ -1441,7 +1432,7 @@ class TestLateVersioning(TestVersioningBase):
         self.assertTrue(self.countShadowDocuments(self.item_id) == 0)
 
     def test_softdelete(self):
-        """ Make sure that Eve jumps to version = 2 and saves two shadow copies
+        """Make sure that Eve jumps to version = 2 and saves two shadow copies
         (version 1 and version 2) for documents that where already in the
         database before version control was turned on.
         """
@@ -1463,7 +1454,7 @@ class TestLateVersioning(TestVersioningBase):
         self.assertTrue(self.countShadowDocuments(self.item_id) == 2)
 
     def test_referential_integrity(self):
-        """ Make sure that Eve doesn't mind doing a data relation even when the
+        """Make sure that Eve doesn't mind doing a data relation even when the
         shadow copy doesn't exist.
         """
         data_relation = self.domain["invoices"]["schema"]["person"]["data_relation"]
@@ -1476,7 +1467,7 @@ class TestLateVersioning(TestVersioningBase):
         self.assert201(status)
 
     def test_embedded(self):
-        """ Perform a quick check to make sure that Eve can embedded with a
+        """Perform a quick check to make sure that Eve can embedded with a
         version in the data relation.
         """
         data_relation = self.domain["invoices"]["schema"]["person"]["data_relation"]
@@ -1507,6 +1498,5 @@ class TestVersioningWithCustomIdField(TestNormalVersioning):
         self.insertTestData()
 
     def test_getitem(self):
-        """ Make sure we can insert at least two versioning documents.
-        """
+        """Make sure we can insert at least two versioning documents."""
         self.do_test_getitem(partial=False)
