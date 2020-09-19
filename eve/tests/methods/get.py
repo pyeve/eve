@@ -140,7 +140,7 @@ class TestGet(TestBase):
         self.assertPagination(response, 2, 101, 25)
 
     def test_get_pagination_no_documents(self):
-        """ test that pagination meta is present even when no records are being
+        """test that pagination meta is present even when no records are being
         returned. #415.
         """
         response, status = self.get(self.known_resource, '?where={"ref": "not_really"}')
@@ -305,8 +305,7 @@ class TestGet(TestBase):
         self.assertEqual(len(resource), 1)
 
     def test_get_query_in_links(self):
-        """ Make sure that query strings appear in all HATEOAS links (#464).
-        """
+        """Make sure that query strings appear in all HATEOAS links (#464)."""
         # find a role with enough results
         for role in ("agent", "client", "vendor"):
             where = "role == %s" % role
@@ -330,8 +329,8 @@ class TestGet(TestBase):
         self.assertPrevLink(links, 1)
 
     def test_get_projection_consistent_etag(self):
-        """ Test that #369 is fixed and projection queries return consistent
-            etags (as they are now stored along with the document).
+        """Test that #369 is fixed and projection queries return consistent
+        etags (as they are now stored along with the document).
         """
         etag_field = self.app.config["ETAG"]
         data = {"inv_number": self.random_string(10)}
@@ -404,7 +403,7 @@ class TestGet(TestBase):
             self.assertTrue(r[self.app.config["DATE_CREATED"]] != self.epoch)
 
     def test_get_server_include_projection_can_exclude(self):
-        """ Test that static projection only expose fields included
+        """Test that static projection only expose fields included
         and support client projection on these fields.
         """
         # exclude `ref` by client side
@@ -433,7 +432,7 @@ class TestGet(TestBase):
             self.assertTrue(r[self.app.config["DATE_CREATED"]] != self.epoch)
 
     def test_get_server_include_projection_block_sniff(self):
-        """ Test that static projection only expose fields included
+        """Test that static projection only expose fields included
         and client projection on other fields will fail.
         """
         # shouldn't work when including `prog` (excluded) by client side
@@ -459,7 +458,7 @@ class TestGet(TestBase):
             self.assertTrue(r[self.app.config["DATE_CREATED"]] != self.epoch)
 
     def test_get_server_exclude_projection_can_project_others(self):
-        """ Test that static projection expose fields other than excluded
+        """Test that static projection expose fields other than excluded
         and support client projection on exposed fields.
         """
         projection = '{"prog": 1, "location":1}'
@@ -486,7 +485,7 @@ class TestGet(TestBase):
             self.assertTrue(r[self.app.config["DATE_CREATED"]] != self.epoch)
 
     def test_get_server_exlcude_projection_can_sniff(self):
-        """ Test that static projection expose fields other than excluded
+        """Test that static projection expose fields other than excluded
         and client projection on excluded **will work**.
         """
         projection = '{"born": 1}'
@@ -636,7 +635,7 @@ class TestGet(TestBase):
         self.assertGet(response, status)
 
     def test_get_same_collection_different_resource(self):
-        """ the 'users' resource is actually using the same db collection as
+        """the 'users' resource is actually using the same db collection as
         'contacts'. Let's verify that base filters are being applied, and
         the right amount of items/links and the correct titles etc. are being
         returned. Of course 'contacts' itself has its own base filter, which
@@ -759,8 +758,8 @@ class TestGet(TestBase):
             self.assertTrue("_the_etag" in document)
 
     def test_get_embedded_media_validate_rest_of_fields(self):
-        """ test multipart/form-data resource fields that are JSON
-             encoded are validated correctly. #806
+        """test multipart/form-data resource fields that are JSON
+        encoded are validated correctly. #806
         """
 
         self.app.config["MULTIPART_FORM_FIELDS_AS_JSON"] = True
@@ -819,8 +818,7 @@ class TestGet(TestBase):
         self.app.config["MULTIPART_FORM_FIELDS_AS_JSON"] = False
 
     def test_get_embedded_media(self):
-        """ test that embeedded images are properly rendered and #305 is fixed.
-        """
+        """test that embeedded images are properly rendered and #305 is fixed."""
 
         # add a 'digital_assets' endpoint to the API
         self.app.register_resource(
@@ -1212,8 +1210,8 @@ class TestGet(TestBase):
         self.assert400(status)
 
     def test_get_allowed_filters_operators(self):
-        """ test that supported operators are not considered invalid filters
-            (#388). Also, test that nested filters are validated.
+        """test that supported operators are not considered invalid filters
+        (#388). Also, test that nested filters are validated.
         """
         where = '?where={"$and": [{"field1": "value1"}, {"field2": "value2"}]}'
         settings = self.app.config["DOMAIN"][self.known_resource]
@@ -1229,8 +1227,7 @@ class TestGet(TestBase):
         self.assert400(status)
 
     def test_get_nested_filter_operators_unvalidated(self):
-        """ test that nested filter operators are working correctly.
-        """
+        """test that nested filter operators are working correctly."""
         where = "".join(
             (
                 '?where={"$and":[{"$or":[{"fldA":"valA"},',
@@ -1241,8 +1238,7 @@ class TestGet(TestBase):
         self.assert200(status)
 
     def test_get_nested_filter_operators_validated(self):
-        """ test that nested filter operators are working correctly.
-        """
+        """test that nested filter operators are working correctly."""
         self.app.config["VALIDATE_FILTERS"] = True
 
         where = "".join(
@@ -1264,8 +1260,8 @@ class TestGet(TestBase):
         self.assert200(status)
 
     def test_get_invalid_where_fields(self):
-        """ test that checks all fields of the where clause to be valid
-           resource fields according to the resource schema.
+        """test that checks all fields of the where clause to be valid
+        resource fields according to the resource schema.
         """
         self.app.config["VALIDATE_FILTERS"] = True
 

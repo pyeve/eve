@@ -53,7 +53,7 @@ def deleteitem(resource, **lookup):
 def deleteitem_internal(
     resource, concurrency_check=False, suppress_callbacks=False, original=None, **lookup
 ):
-    """ Intended for internal delete calls, this method is not rate limited,
+    """Intended for internal delete calls, this method is not rate limited,
     authentication is not checked, pre-request events are not raised, and
     concurrency checking is optional. Deletes a resource item.
 
@@ -192,7 +192,7 @@ def deleteitem_internal(
 @requires_auth("resource")
 @pre_event
 def delete(resource, **lookup):
-    """ Deletes all item of a resource (collection in MongoDB terms). Won't
+    """Deletes all item of a resource (collection in MongoDB terms). Won't
     drop indexes. Use with caution!
 
     .. versionchanged:: 0.5

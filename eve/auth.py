@@ -14,7 +14,7 @@ from functools import wraps
 
 
 def requires_auth(endpoint_class):
-    """ Enables Authorization logic for decorated functions.
+    """Enables Authorization logic for decorated functions.
 
     :param endpoint_class: the 'class' to which the decorated endpoint belongs
                            to.  Can be 'resource' (resource endpoint), 'item'
@@ -85,7 +85,7 @@ def requires_auth(endpoint_class):
 
 
 class BasicAuth(object):
-    """ Implements Basic AUTH logic. Should be subclassed to implement custom
+    """Implements Basic AUTH logic. Should be subclassed to implement custom
     authentication checking.
 
     .. versionchanged:: 0.7
@@ -131,7 +131,7 @@ class BasicAuth(object):
         g.user = user
 
     def check_auth(self, username, password, allowed_roles, resource, method):
-        """ This function is called to check if a username / password
+        """This function is called to check if a username / password
         combination is valid. Must be overridden with custom logic.
 
         :param username: username provided with current request.
@@ -143,7 +143,7 @@ class BasicAuth(object):
         raise NotImplementedError
 
     def authenticate(self):
-        """ Returns a standard a 401 response that enables basic auth.
+        """Returns a standard a 401 response that enables basic auth.
         Override if you want to change the response and/or the realm.
         """
         abort(
@@ -153,7 +153,7 @@ class BasicAuth(object):
         )
 
     def authorized(self, allowed_roles, resource, method):
-        """ Validates the the current request is allowed to pass through.
+        """Validates the the current request is allowed to pass through.
 
         :param allowed_roles: allowed roles for the current request, can be a
                               string or a list of roles.
@@ -168,7 +168,7 @@ class BasicAuth(object):
 
 
 class HMACAuth(BasicAuth):
-    """ Hash Message Authentication Code (HMAC) authentication logic. Must be
+    """Hash Message Authentication Code (HMAC) authentication logic. Must be
     subclassed to implement custom authorization checking.
 
     .. versionchanged:: 0.7
@@ -190,7 +190,7 @@ class HMACAuth(BasicAuth):
     def check_auth(
         self, userid, hmac_hash, headers, data, allowed_roles, resource, method
     ):
-        """ This function is called to check if a token is valid. Must be
+        """This function is called to check if a token is valid. Must be
         overridden with custom logic.
 
         :param userid: user id included with the request.
@@ -204,7 +204,7 @@ class HMACAuth(BasicAuth):
         raise NotImplementedError
 
     def authorized(self, allowed_roles, resource, method):
-        """ Validates the the current request is allowed to pass through.
+        """Validates the the current request is allowed to pass through.
 
         :param allowed_roles: allowed roles for the current request, can be a
                               string or a list of roles.
@@ -228,7 +228,7 @@ class HMACAuth(BasicAuth):
 
 
 class TokenAuth(BasicAuth):
-    """ Implements Token AUTH logic. Should be subclassed to implement custom
+    """Implements Token AUTH logic. Should be subclassed to implement custom
     authentication checking.
 
     .. versionchanged:: 0.7
@@ -245,7 +245,7 @@ class TokenAuth(BasicAuth):
     """
 
     def check_auth(self, token, allowed_roles, resource, method):
-        """ This function is called to check if a token is valid. Must be
+        """This function is called to check if a token is valid. Must be
         overridden with custom logic.
 
         :param token: decoded user name.
@@ -256,7 +256,7 @@ class TokenAuth(BasicAuth):
         raise NotImplementedError
 
     def authorized(self, allowed_roles, resource, method):
-        """ Validates the the current request is allowed to pass through.
+        """Validates the the current request is allowed to pass through.
 
         :param allowed_roles: allowed roles for the current request, can be a
                               string or a list of roles.
@@ -282,7 +282,7 @@ class TokenAuth(BasicAuth):
 
 
 def auth_field_and_value(resource):
-    """ If auth is active and the resource requires it, return both the
+    """If auth is active and the resource requires it, return both the
     current request 'request_auth_value' and the 'auth_field' for the resource
 
     .. versionchanged:: 0.4
@@ -313,7 +313,7 @@ def auth_field_and_value(resource):
 
 
 def resource_auth(resource):
-    """ Ensure resource auth is an instance and its state is preserved between
+    """Ensure resource auth is an instance and its state is preserved between
     calls.
 
     .. versionchanged:: 0.6

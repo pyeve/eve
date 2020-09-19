@@ -31,7 +31,7 @@ class Validator(cerberus.Validator):
     def validate_update(
         self, document, document_id, persisted_document=None, normalize_document=True
     ):
-        """ Validate method to be invoked when performing an update, not an
+        """Validate method to be invoked when performing an update, not an
         insert.
 
         :param document: the document to be validated.
@@ -47,7 +47,7 @@ class Validator(cerberus.Validator):
         )
 
     def validate_replace(self, document, document_id, persisted_document=None):
-        """ Validation method to be invoked when performing a document
+        """Validation method to be invoked when performing a document
         replacement. This differs from :func:`validation_update` since in this
         case we want to perform a full :func:`validate` (the new document is to
         be considered a new insertion and required fields needs validation).
@@ -89,10 +89,10 @@ class Validator(cerberus.Validator):
         super(Validator, self)._normalize_default(mapping, schema, field)
 
     def _normalize_default_setter(self, mapping, schema, field):
-        """ {'oneof': [
-                {'type': 'callable'},
-                {'type': 'string'}
-                ]} """
+        """{'oneof': [
+        {'type': 'callable'},
+        {'type': 'string'}
+        ]}"""
         if not self.persisted_document or field not in self.persisted_document:
             super(Validator, self)._normalize_default_setter(mapping, schema, field)
 
@@ -153,7 +153,7 @@ class Validator(cerberus.Validator):
 
 
 class SingleErrorAsStringErrorHandler(cerberus.errors.BasicErrorHandler):
-    """ Default Cerberus error handler for Eve.
+    """Default Cerberus error handler for Eve.
 
     Since Cerberus 1.0, error messages for fields will always be returned as
     lists, even in the case of a single error. To maintain compatibility with

@@ -10,7 +10,7 @@ from flask import request
 
 
 class RequestFilter(logging.Filter):
-    """ Adds Flask's request metadata to the log record so handlers can log
+    """Adds Flask's request metadata to the log record so handlers can log
     this information too.
 
     import logging

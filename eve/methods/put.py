@@ -60,7 +60,7 @@ def put(resource, payload=None, **lookup):
 def put_internal(
     resource, payload=None, concurrency_check=False, skip_validation=False, **lookup
 ):
-    """ Intended for internal put calls, this method is not rate limited,
+    """Intended for internal put calls, this method is not rate limited,
     authentication is not checked, pre-request events are not raised, and
     concurrency checking is optional. Performs a document replacement.
     Updates are first validated against the resource schema. If validation

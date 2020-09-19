@@ -198,9 +198,9 @@ class TestPut(TestBase):
 
     def test_put_sets_default_value_when_field_not_provided_neither_persisted(self):
         """
-            Test that when replacing a document, any field that has default values
-            defined in the schema is set according to the schema default when
-            the current persisted document doesn't have the field value set.
+        Test that when replacing a document, any field that has default values
+        defined in the schema is set according to the schema default when
+        the current persisted document doesn't have the field value set.
         """
         test_field = "unsetted_default_value_field"
         test_value = self.domain["contacts"]["schema"]["unsetted_default_value_field"][
@@ -213,12 +213,12 @@ class TestPut(TestBase):
 
     def test_put_sets_default_value_when_field_not_provided_but_persisted(self):
         """
-            Test that when replacing a document, any field that has default values
-            defined in the schema is set according to the schema default when
-            the current persisted document already had the field value set.
+        Test that when replacing a document, any field that has default values
+        defined in the schema is set according to the schema default when
+        the current persisted document already had the field value set.
 
-            This effectively makes impossible to delete fields with default values
-            in the schema using a PUT request.
+        This effectively makes impossible to delete fields with default values
+        in the schema using a PUT request.
         """
         test_field = "title"
         test_value = "Mr."
@@ -229,9 +229,9 @@ class TestPut(TestBase):
 
     def test_put_removes_non_provided_non_default_field(self):
         """
-            Test that when replacing a document, any field that has doesn't have
-            a default value defined in the schema and has not been provided in
-            the request will be effectively deleted in the replaced version.
+        Test that when replacing a document, any field that has doesn't have
+        a default value defined in the schema and has not been provided in
+        the request will be effectively deleted in the replaced version.
 
         """
         data = {"ref": "9234567890123456789054321"}

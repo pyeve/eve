@@ -52,7 +52,7 @@ def get(resource, **lookup):
 
 
 def get_internal(resource, **lookup):
-    """ Retrieves the resource documents that match the current request.
+    """Retrieves the resource documents that match the current request.
 
     :param resource: the name of the resource.
 
@@ -547,7 +547,7 @@ def getitem_internal(resource, **lookup):
 
 
 def _pagination_links(resource, req, document_count, document_id=None):
-    """ Returns the appropriate set of resource links depending on the
+    """Returns the appropriate set of resource links depending on the
     current page and the total number of documents returned by the query.
 
     :param resource: the resource name.
@@ -670,7 +670,7 @@ def _pagination_links(resource, req, document_count, document_id=None):
 
 
 def _other_params(args):
-    """ Returns a multidict of params that are not used internally by Eve.
+    """Returns a multidict of params that are not used internally by Eve.
 
     :param args: multidict containing the request parameters
     """
@@ -692,7 +692,7 @@ def _other_params(args):
 
 
 def _meta_links(req, count):
-    """ Reterns the meta links for a paginated query.
+    """Reterns the meta links for a paginated query.
 
     :param req: parsed request object.
     :param count: total number of documents in a query.

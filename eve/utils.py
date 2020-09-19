@@ -26,7 +26,7 @@ from werkzeug.datastructures import MultiDict
 
 
 class Config(object):
-    """ Helper class used through the code to access configuration settings.
+    """Helper class used through the code to access configuration settings.
     If the main flaskapp object is not instantiated yet, returns the default
     setting in the eve __init__.py module, otherwise returns the flaskapp
     config value (which value might override the static defaults).
@@ -48,7 +48,7 @@ config = Config()
 
 
 class ParsedRequest(object):
-    """ This class, by means of its attributes, describes a client request.
+    """This class, by means of its attributes, describes a client request.
 
     .. versionchanged:: 9,5
        'args' keyword.
@@ -100,7 +100,7 @@ class ParsedRequest(object):
 
 
 def parse_request(resource):
-    """ Parses a client request, returning instance of :class:`ParsedRequest`
+    """Parses a client request, returning instance of :class:`ParsedRequest`
     containing relevant request data.
 
     :param resource: the resource currently being accessed by the client.
@@ -182,7 +182,7 @@ def parse_request(resource):
 
 
 def weak_date(date):
-    """ Returns a RFC-1123 string corresponding to a datetime value plus
+    """Returns a RFC-1123 string corresponding to a datetime value plus
     a 1 second timedelta. This is needed because when saved, documents
     LAST_UPDATED values have higher resolution than If-Modified-Since's, which
     is limited to seconds.
@@ -197,7 +197,7 @@ def weak_date(date):
 
 
 def str_to_date(string):
-    """ Converts a date string formatted as defined in the configuration
+    """Converts a date string formatted as defined in the configuration
         to the corresponding datetime value.
 
     :param string: the RFC-1123 string to convert to datetime value.
@@ -206,7 +206,7 @@ def str_to_date(string):
 
 
 def date_to_str(date):
-    """ Converts a datetime value to the format defined in the configuration file.
+    """Converts a datetime value to the format defined in the configuration file.
 
     :param date: the datetime value to convert.
     """
@@ -214,7 +214,7 @@ def date_to_str(date):
 
 
 def date_to_rfc1123(date):
-    """ Converts a datetime value to the corresponding RFC-1123 string.
+    """Converts a datetime value to the corresponding RFC-1123 string.
 
     :param date: the datetime value to convert.
     """
@@ -222,7 +222,7 @@ def date_to_rfc1123(date):
 
 
 def home_link():
-    """ Returns a link to the API entry point/home page.
+    """Returns a link to the API entry point/home page.
 
     .. versionchanged:: 0.5
        Link is relative to API root.
@@ -234,7 +234,7 @@ def home_link():
 
 
 def api_prefix(url_prefix=None, api_version=None):
-    """ Returns the prefix to API endpoints, according to the URL_PREFIX and
+    """Returns the prefix to API endpoints, according to the URL_PREFIX and
     API_VERSION  configuration settings.
 
     :param url_prefix: the prefix string. If `None`, defaults to the current
@@ -269,7 +269,7 @@ def querydef(
     page=None,
     other_params=MultiDict(),
 ):
-    """ Returns a valid query string.
+    """Returns a valid query string.
 
     :param max_results: `max_result` part of the query string. Defaults to
                         `PAGINATION_DEFAULT`
@@ -323,7 +323,7 @@ def querydef(
 
 
 def document_etag(value, ignore_fields=None):
-    """ Computes and returns a valid ETag for the input value.
+    """Computes and returns a valid ETag for the input value.
 
     :param value: the value to compute the ETag with.
     :param ignore_fields: `ignore_fields` list of fields to skip to
@@ -366,7 +366,7 @@ def document_etag(value, ignore_fields=None):
 
 
 def extract_key_values(key, d):
-    """ Extracts all values that match a key, even in nested dicts.
+    """Extracts all values that match a key, even in nested dicts.
 
     :param key: the lookup key.
     :param d: the dict to scan.
@@ -382,7 +382,7 @@ def extract_key_values(key, d):
 
 
 def debug_error_message(msg):
-    """ Returns the error message `msg` if config.DEBUG is True
+    """Returns the error message `msg` if config.DEBUG is True
     otherwise returns `None` which will cause Werkzeug to provide
     a generic error message
 
@@ -396,7 +396,7 @@ def debug_error_message(msg):
 
 
 def validate_filters(where, resource):
-    """ Report any filter which is not allowed by  `allowed_filters`
+    """Report any filter which is not allowed by  `allowed_filters`
 
     :param where: the where clause, as a dict.
     :param resource: the resource being inspected.
@@ -499,7 +499,7 @@ def validate_filters(where, resource):
 
 
 def auto_fields(resource):
-    """ Returns a list of automatically handled fields for a resource.
+    """Returns a list of automatically handled fields for a resource.
 
     :param resource: the resource currently being accessed by the client.
 
@@ -537,9 +537,7 @@ str_type = str if sys.version_info[0] == 3 else basestring
 
 
 def import_from_string(module_name):
-    """ Imports module using string
-
-    """
+    """Imports module using string"""
     try:
         modules = module_name.split(".")
         module_path, attr = ".".join(modules[:-1]), modules[-1]

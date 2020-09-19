@@ -38,7 +38,7 @@ from eve.utils import api_prefix, extract_key_values
 
 
 class EveWSGIRequestHandler(WSGIRequestHandler):
-    """ Extend werkzeug request handler to include current Eve version in all
+    """Extend werkzeug request handler to include current Eve version in all
     responses, which is super-handy for debugging.
     """
 
@@ -59,7 +59,7 @@ class RegexConverter(BaseConverter):
 
 
 class Eve(Flask, Events):
-    """ The main Eve object. On initialization it will load Eve settings, then
+    """The main Eve object. On initialization it will load Eve settings, then
     configure and enable the API endpoints. The API is launched by executing
     the code below:::
 
@@ -144,7 +144,7 @@ class Eve(Flask, Events):
         media=GridFSMediaStorage,
         **kwargs
     ):
-        """ Eve main WSGI app is implemented as a Flask subclass. Since we want
+        """Eve main WSGI app is implemented as a Flask subclass. Since we want
         to be able to launch our API by simply invoking Flask's run() method,
         we need to enhance our super-class a little bit.
         """
@@ -216,13 +216,13 @@ class Eve(Flask, Events):
         :param options: the options to be forwarded to the underlying
                         Werkzeug server.  See
                         :func:`werkzeug.serving.run_simple` for more
-                        information.        """
+                        information."""
 
         options.setdefault("request_handler", EveWSGIRequestHandler)
         super(Eve, self).run(host, port, debug, **options)
 
     def load_config(self):
-        """ API settings are loaded from standard python modules. First from
+        """API settings are loaded from standard python modules. First from
         `settings.py`(or alternative name/path passed as an argument) and
         then, when defined, from the file specified in the
         `EVE_SETTINGS` environment variable.
@@ -284,11 +284,10 @@ class Eve(Flask, Events):
         self.check_deprecated_features()
 
     def check_deprecated_features(self):
-        """ Method checks for usage of deprecated features.
-        """
+        """Method checks for usage of deprecated features."""
 
         def deprecated_renderers_settings():
-            """ Checks if JSON or XML setting is still being used instead of
+            """Checks if JSON or XML setting is still being used instead of
             RENDERERS and if so, composes new settings.
             """
             msg = (
@@ -312,7 +311,7 @@ class Eve(Flask, Events):
         deprecated_renderers_settings()
 
     def validate_domain_struct(self):
-        """ Validates that Eve configuration settings conform to the
+        """Validates that Eve configuration settings conform to the
         requirements.
         """
         try:
@@ -323,7 +322,7 @@ class Eve(Flask, Events):
             raise ConfigException("DOMAIN must be a dict.")
 
     def validate_config(self):
-        """ Makes sure that REST methods expressed in the configuration
+        """Makes sure that REST methods expressed in the configuration
         settings are supported.
 
         .. versionchanged:: 0.2.0
@@ -356,7 +355,7 @@ class Eve(Flask, Events):
             self._validate_resource_settings(resource, settings)
 
     def _validate_resource_settings(self, resource, settings):
-        """ Validates one resource in configuration settings.
+        """Validates one resource in configuration settings.
 
         :param resource: name of the resource which settings refer to.
         :param settings: settings of resource to be validated.
@@ -406,7 +405,7 @@ class Eve(Flask, Events):
         self.validate_schema(resource, settings["schema"])
 
     def validate_roles(self, directive, candidate, resource):
-        """ Validates that user role directives are syntactically and formally
+        """Validates that user role directives are syntactically and formally
         adequate.
 
         :param directive: either 'allowed_[read_|write_]roles' or
@@ -422,7 +421,7 @@ class Eve(Flask, Events):
             raise ConfigException("'%s' must be list" "[%s]." % (directive, resource))
 
     def validate_methods(self, allowed, proposed, item):
-        """ Compares allowed and proposed methods, raising a `ConfigException`
+        """Compares allowed and proposed methods, raising a `ConfigException`
         when they don't match.
 
         :param allowed: a list of supported (allowed) methods.
@@ -438,7 +437,7 @@ class Eve(Flask, Events):
             )
 
     def validate_schema(self, resource, schema):
-        """ Validates a resource schema.
+        """Validates a resource schema.
 
         :param resource: resource name.
         :param schema: schema definition for the resource.
@@ -538,7 +537,7 @@ class Eve(Flask, Events):
         # TODO are there other mandatory settings? Validate them here
 
     def set_defaults(self):
-        """ When not provided, fills individual resource settings with default
+        """When not provided, fills individual resource settings with default
         or global configuration settings.
 
         .. versionchanged:: 0.4
@@ -596,7 +595,7 @@ class Eve(Flask, Events):
             self._set_resource_defaults(resource, settings)
 
     def _set_resource_defaults(self, resource, settings):
-        """ Low-level method which sets default values for one resource.
+        """Low-level method which sets default values for one resource.
 
         .. versionchanged:: 1.1.0
            Added 'mongo_query_whitelist'.
@@ -692,7 +691,7 @@ class Eve(Flask, Events):
         self._set_resource_datasource(resource, schema, settings)
 
     def _set_resource_datasource(self, resource, schema, settings):
-        """ Set the default values for the resource 'datasource' setting.
+        """Set the default values for the resource 'datasource' setting.
 
         .. versionadded:: 0.7
         """
@@ -715,7 +714,7 @@ class Eve(Flask, Events):
             settings["item_lookup"] = False
 
     def _set_resource_projection(self, ds, schema, settings):
-        """ Set datasource projection for a resource
+        """Set datasource projection for a resource
 
         .. versionchanged:: 0.6.3
            Fix: If datasource source is specified no fields are included by
@@ -791,7 +790,7 @@ class Eve(Flask, Events):
             )
 
     def set_schema_defaults(self, schema, id_field):
-        """ When not provided, fills individual schema settings with default
+        """When not provided, fills individual schema settings with default
         or global configuration settings.
 
         :param schema: the resource schema to be initialized with default
@@ -822,14 +821,14 @@ class Eve(Flask, Events):
 
     @property
     def api_prefix(self):
-        """ Prefix to API endpoints.
+        """Prefix to API endpoints.
 
         .. versionadded:: 0.2
         """
         return api_prefix(self.config["URL_PREFIX"], self.config["API_VERSION"])
 
     def _add_resource_url_rules(self, resource, settings):
-        """ Builds the API url map for one resource. Methods are enabled for
+        """Builds the API url map for one resource. Methods are enabled for
         each mapped endpoint, as configured in the settings.
 
         .. versionchanged:: 0.5
@@ -903,7 +902,7 @@ class Eve(Flask, Events):
                 )
 
     def _init_url_rules(self):
-        """ Builds the API url map. Methods are enabled for each mapped
+        """Builds the API url map. Methods are enabled for each mapped
         endpoint, as configured in the settings.
 
         .. versionchanged:: 0.4
@@ -950,7 +949,7 @@ class Eve(Flask, Events):
         )
 
     def register_resource(self, resource, settings):
-        """ Registers new resource to the domain.
+        """Registers new resource to the domain.
 
         Under the hood this validates given settings, updates default values
         and adds necessary URL routes (builds api url map).
@@ -1008,7 +1007,7 @@ class Eve(Flask, Events):
             self.config["DOMAIN"]["MONGO_CONNECT"] = connect
 
     def register_error_handlers(self):
-        """ Register custom error handlers so we make sure that all errors
+        """Register custom error handlers so we make sure that all errors
         return a parseable body.
 
         .. versionchanged: 0.6.5
@@ -1022,7 +1021,7 @@ class Eve(Flask, Events):
             self.register_error_handler(code, error_endpoint)
 
     def _init_oplog(self):
-        """ If enabled, configures the OPLOG endpoint.
+        """If enabled, configures the OPLOG endpoint.
 
         .. versionchanged:: 0.7
            Add 'u' field to oplog audit schema. See #846.
@@ -1075,8 +1074,7 @@ class Eve(Flask, Events):
             )
 
     def _init_schema_endpoint(self):
-        """Configures the schema endpoint if set in configuration.
-        """
+        """Configures the schema endpoint if set in configuration."""
         endpoint = self.config["SCHEMA_ENDPOINT"]
 
         if endpoint:
@@ -1097,7 +1095,7 @@ class Eve(Flask, Events):
             )
 
     def __call__(self, environ, start_response):
-        """ If HTTP_X_METHOD_OVERRIDE is included with the request and method
+        """If HTTP_X_METHOD_OVERRIDE is included with the request and method
         override is allowed, make sure the override method is returned to Eve
         as the request method, so normal routing and method validation can be
         performed.

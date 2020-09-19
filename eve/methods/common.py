@@ -43,7 +43,7 @@ def get_document(
     mongo_options=None,
     **lookup
 ):
-    """ Retrieves and return a single document. Since this function is used by
+    """Retrieves and return a single document. Since this function is used by
     the editing methods (PUT, PATCH, DELETE), we make sure that the client
     request references the current representation of the document before
     returning it. However, this concurrency control may be turned off by
@@ -129,7 +129,7 @@ def get_document(
 
 
 def parse(value, resource):
-    """ Safely evaluates a string containing a Python expression. We are
+    """Safely evaluates a string containing a Python expression. We are
     receiving json and returning a dict.
 
     :param value: the string to be evaluated.
@@ -168,7 +168,7 @@ def parse(value, resource):
 
 
 def payload():
-    """ Performs sanity checks or decoding depending on the Content-Type,
+    """Performs sanity checks or decoding depending on the Content-Type,
     then returns the request payload as a dict. If request Content-Type is
     unsupported, aborts with a 400 (Bad Request).
 
@@ -233,7 +233,7 @@ def payload():
 
 
 def multidict_to_dict(multidict):
-    """ Convert a MultiDict containing form data into a regular dict. If the
+    """Convert a MultiDict containing form data into a regular dict. If the
     config setting AUTO_COLLAPSE_MULTI_KEYS is True, multiple values with the
     same key get entered as a list. If it is False, the first entry is picked.
     """
@@ -248,7 +248,7 @@ def multidict_to_dict(multidict):
 
 
 class RateLimit(object):
-    """ Implements the Rate-Limiting logic using Redis as a backend.
+    """Implements the Rate-Limiting logic using Redis as a backend.
 
     :param key_prefix: the key used to uniquely identify a client.
     :param limit: requests limit, per period.
@@ -277,7 +277,7 @@ class RateLimit(object):
 
 
 def get_rate_limit():
-    """ If available, returns a RateLimit instance which is valid for the
+    """If available, returns a RateLimit instance which is valid for the
     current request-response.
 
     .. versionadded:: 0.0.7
@@ -286,7 +286,7 @@ def get_rate_limit():
 
 
 def ratelimit():
-    """ Enables support for Rate-Limits on API methods
+    """Enables support for Rate-Limits on API methods
     The key is constructed by default from the remote address or the
     authorization.username if authentication is being used. On
     a authentication-only API, this will impose a ratelimit even on
@@ -330,7 +330,7 @@ def ratelimit():
 
 
 def last_updated(document):
-    """ Fixes document's LAST_UPDATED field value. Flask-PyMongo returns
+    """Fixes document's LAST_UPDATED field value. Flask-PyMongo returns
     timezone-aware values while stdlib datetime values are timezone-naive.
     Comparisons between the two would fail.
 
@@ -354,7 +354,7 @@ def last_updated(document):
 
 
 def date_created(document):
-    """ If DATE_CREATED is missing we assume that it has been created outside
+    """If DATE_CREATED is missing we assume that it has been created outside
     of the API context and inject a default value. By design all documents
     return a DATE_CREATED (and we dont' want to break existing clients).
 
@@ -370,7 +370,7 @@ def date_created(document):
 
 
 def epoch():
-    """ A datetime.min alternative which won't crash on us.
+    """A datetime.min alternative which won't crash on us.
 
     .. versionchanged:: 0.1.0
        Moved to common.py and renamed as public, so it can also be used by edit
@@ -382,7 +382,7 @@ def epoch():
 
 
 def serialize(document, resource=None, schema=None, fields=None):
-    """ Recursively handles field values that require data-aware serialization.
+    """Recursively handles field values that require data-aware serialization.
     Relies on the app.data.serializers dictionary.
 
     .. versionchanged: 0.8.1
@@ -558,7 +558,7 @@ def serialize_value(field_type, value):
 
 
 def normalize_dotted_fields(document):
-    """ Normalizes eventual dotted fields so validation can be performed
+    """Normalizes eventual dotted fields so validation can be performed
     seamlessly. For example this document:
 
         {"location.city": "a nested city"}
@@ -603,7 +603,7 @@ def normalize_dotted_fields(document):
 
 
 def build_response_document(document, resource, embedded_fields, latest_doc=None):
-    """ Prepares a document for response including generation of ETag and
+    """Prepares a document for response including generation of ETag and
     metadata fields.
 
     :param document: the document to embed other documents into.
@@ -674,7 +674,7 @@ def build_response_document(document, resource, embedded_fields, latest_doc=None
 
 
 def resolve_resource_projection(document, resource):
-    """ Purges a document of fields that are not included in its resource
+    """Purges a document of fields that are not included in its resource
     projecton.
 
     :param document: the original document.
@@ -702,7 +702,7 @@ def resolve_resource_projection(document, resource):
 
 
 def field_definition(resource, chained_fields):
-    """ Resolves query string to resource with dot notation like
+    """Resolves query string to resource with dot notation like
     'people.address.city' and returns corresponding field definition
     of the resource
 
@@ -738,7 +738,7 @@ def field_definition(resource, chained_fields):
 
 
 def resolve_data_relation_links(document, resource):
-    """ Resolves all fields in a document that has data relation to other resources
+    """Resolves all fields in a document that has data relation to other resources
 
     :param document: the document to include data relation links.
     :param resource: the resource name.
@@ -802,7 +802,7 @@ def resolve_data_relation_links(document, resource):
 
 
 def resolve_embedded_fields(resource, req):
-    """ Returns a list of validated embedded fields from the incoming request
+    """Returns a list of validated embedded fields from the incoming request
     or from the resource definition is the request does not specify.
 
     :param resource: the resource name.
@@ -855,14 +855,14 @@ def resolve_embedded_fields(resource, req):
 
 
 def embedded_document(references, data_relation, field_name):
-    """ Returns a document to be embedded by reference using data_relation
-    taking into account document versions
+    """Returns a document to be embedded by reference using data_relation
+        taking into account document versions
 
-    :param reference: reference to the document to be embedded.
-    :param data_relation: the relation schema definition.
-    :param field_name: field name used in abort message only
+        :param reference: reference to the document to be embedded.
+        :param data_relation: the relation schema definition.
+        :param field_name: field name used in abort message only
 
-)    .. versionadded:: 0.5
+    )    .. versionadded:: 0.5
     """
     embedded_docs = []
 
@@ -939,13 +939,13 @@ def embedded_document(references, data_relation, field_name):
 
 
 def sort_db_response(embedded_docs, id_value_to_sort, list_of_id_field_name):
-    """ Sorts the documents fetched from the database
+    """Sorts the documents fetched from the database
 
-        :param embedded_docs: the documents fetch from the database.
-        :param id_value_to_sort: id_value sort criteria.
-        :param list_of_id_field_name: list of name of fields
-        :return embedded_docs: the list of documents sorted as per input
-        """
+    :param embedded_docs: the documents fetch from the database.
+    :param id_value_to_sort: id_value sort criteria.
+    :param list_of_id_field_name: list of name of fields
+    :return embedded_docs: the list of documents sorted as per input
+    """
 
     id_field_name_occurrences = Counter(list_of_id_field_name)
     temp_embedded_docs = []
@@ -968,14 +968,14 @@ def sort_db_response(embedded_docs, id_value_to_sort, list_of_id_field_name):
 
 
 def sort_per_resource(embedded_docs, id_values_to_sort, id_field_name):
-    """ Sorts the documents fetched from the database per single resource
+    """Sorts the documents fetched from the database per single resource
 
-        :param embedded_docs: list of the documents fetched from the database.
-        :param id_values_to_sort: list of the id_values sort criteria.
-        :param list_of_id_field_name: list of name of fields
-        :param id_field_name: key name of the id field; `_id`
-        :return embedded_docs: the list of documents sorted as per input
-        """
+    :param embedded_docs: list of the documents fetched from the database.
+    :param id_values_to_sort: list of the id_values sort criteria.
+    :param list_of_id_field_name: list of name of fields
+    :param id_field_name: key name of the id field; `_id`
+    :return embedded_docs: the list of documents sorted as per input
+    """
     if id_values_to_sort is None:
         id_values_to_sort = []
     embedded_docs = [x for x in embedded_docs if x is not None]
@@ -989,17 +989,17 @@ def sort_per_resource(embedded_docs, id_values_to_sort, id_field_name):
 
 
 def generate_query_and_sorting_criteria(data_relation, references):
-    """ Generate query and sorting critiria
+    """Generate query and sorting critiria
 
-        :param data_relation: data relation for the resource.
-        :param references: DBRef or id to use to embed the document.
-        :returns id_value_to_sort: list of ids to use in the sort
-                 list_of_id_field_name: list of field name (important only for
-                                        DBRef)
-                 subresources_query: the list of query to perform per resource
-                                     (in case is not DBRef, it will be only one
-                                     query)
-        """
+    :param data_relation: data relation for the resource.
+    :param references: DBRef or id to use to embed the document.
+    :returns id_value_to_sort: list of ids to use in the sort
+             list_of_id_field_name: list of field name (important only for
+                                    DBRef)
+             subresources_query: the list of query to perform per resource
+                                 (in case is not DBRef, it will be only one
+                                 query)
+    """
     query = {"$or": []}
     subresources_query = {}
     old_subresource = ""
@@ -1041,7 +1041,7 @@ def add_query_to_list(query, subresource, subresource_query):
 
 
 def subdocuments(fields_chain, resource, document):
-    """ Traverses the given document and yields subdocuments which
+    """Traverses the given document and yields subdocuments which
     correspond to the given fields_chain
 
     :param fields_chain: list of nested field names.
@@ -1070,7 +1070,7 @@ def subdocuments(fields_chain, resource, document):
 
 
 def resolve_embedded_documents(document, resource, embedded_fields):
-    """ Loops through the documents, adding embedded representations
+    """Loops through the documents, adding embedded representations
     of any fields that are (1) defined eligible for embedding in the
     DOMAIN and (2) requested to be embedded in the current `req`.
 
@@ -1114,7 +1114,7 @@ def resolve_embedded_documents(document, resource, embedded_fields):
 
 
 def resolve_media_files(document, resource):
-    """ Embed media files into the response document.
+    """Embed media files into the response document.
 
     :param document: the document eventually containing the media files.
     :param resource: the resource being consumed by the request.
@@ -1175,7 +1175,7 @@ def resolve_one_media(file_id, resource):
 
 
 def marshal_write_response(document, resource):
-    """ Limit response document to minimize bandwidth when client supports it.
+    """Limit response document to minimize bandwidth when client supports it.
 
     :param document: the response document.
     :param resource: the resource being consumed by the request.
@@ -1205,7 +1205,7 @@ def marshal_write_response(document, resource):
 
 
 def store_media_files(document, resource, original=None):
-    """ Store any media file in the underlying media store and update the
+    """Store any media file in the underlying media store and update the
     document with unique ids of stored files.
 
     :param document: the document eventually containing the media files.
@@ -1256,7 +1256,7 @@ def store_media_files(document, resource, original=None):
 
 
 def resource_media_fields(document, resource):
-    """ Returns a list of media fields defined in the resource schema.
+    """Returns a list of media fields defined in the resource schema.
 
     :param document: the document eventually containing the media files.
     :param resource: the resource being consumed by the request.
@@ -1284,7 +1284,7 @@ def resolve_sub_resource_path(document, resource):
 
 
 def resolve_user_restricted_access(document, resource):
-    """ Adds user restricted access metadata to the document if applicable.
+    """Adds user restricted access metadata to the document if applicable.
 
     :param document: the document being posted or replaced
     :param resource: the resource to which the document belongs
@@ -1309,7 +1309,7 @@ def resolve_user_restricted_access(document, resource):
 
 
 def resolve_document_etag(documents, resource):
-    """ Adds etags to documents.
+    """Adds etags to documents.
 
     .. versionadded:: 0.5
     """
@@ -1324,7 +1324,7 @@ def resolve_document_etag(documents, resource):
 
 
 def pre_event(f):
-    """ Enable a Hook pre http request.
+    """Enable a Hook pre http request.
 
     .. versionchanged:: 0.6
        Enable callback hooks for HEAD requests.
@@ -1373,7 +1373,7 @@ def pre_event(f):
 
 
 def document_link(resource, document_id, version=None):
-    """ Returns a link to a document endpoint.
+    """Returns a link to a document endpoint.
 
     :param resource: the resource name.
     :param document_id: the document unique identifier.
@@ -1402,7 +1402,7 @@ def document_link(resource, document_id, version=None):
 
 
 def resource_link(resource=None):
-    """ Returns the current resource path relative to the API entry point.
+    """Returns the current resource path relative to the API entry point.
     Mostly going to be used by hateoas functions when building
     document/resource links. The resource URL stored in the config settings
     might contain regexes and custom variable names, all of which are not
@@ -1441,7 +1441,7 @@ def resource_link(resource=None):
 
 
 def oplog_push(resource, document, op, id=None):
-    """ Pushes an edit operation to the oplog if included in OPLOG_METHODS. To
+    """Pushes an edit operation to the oplog if included in OPLOG_METHODS. To
     save on storage space (at least on MongoDB) field names are shortened:
 
         'r' = resource endpoint,

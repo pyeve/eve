@@ -489,7 +489,7 @@ class TestUserRestrictedAccess(TestBase):
         self.assertEqual(len(data2["_items"]), 1)
 
     def test_get_by_auth_field_criteria(self):
-        """ If we attempt to retrieve an object by the same field
+        """If we attempt to retrieve an object by the same field
         that is in `auth_field`, then the request is /unauthorized/,
         and should fail and return 401.
 
@@ -502,8 +502,7 @@ class TestUserRestrictedAccess(TestBase):
         self.assert401(status)
 
     def test_get_by_auth_field_id(self):
-        """ To test handling of ObjectIds
-        """
+        """To test handling of ObjectIds"""
         # set auth_field to `_id`
         self.domain["users"][self.field_name] = self.domain["users"]["id_field"]
 
@@ -513,7 +512,7 @@ class TestUserRestrictedAccess(TestBase):
         self.assert401(status)
 
     def test_filter_by_auth_field_id(self):
-        """ To test handling of ObjectIds when using a `where` clause
+        """To test handling of ObjectIds when using a `where` clause
         We need to make sure we *match* an object ID when it is the
         same
         """
@@ -554,7 +553,7 @@ class TestUserRestrictedAccess(TestBase):
         self.assertEqual(len(data2["_items"]), 1)
 
     def test_collection_get_public(self):
-        """ Test that if GET is in `public_methods` the `auth_field`
+        """Test that if GET is in `public_methods` the `auth_field`
         criteria is overruled
         """
         self.resource["public_methods"].append("GET")
@@ -565,7 +564,7 @@ class TestUserRestrictedAccess(TestBase):
         self.assertEqual(len(data["_items"]), 25)
 
     def test_item_get_public(self):
-        """ Test that if GET is in `public_item_methods` the `auth_field`
+        """Test that if GET is in `public_item_methods` the `auth_field`
         criteria is overruled
         """
         self.resource["public_item_methods"].append("GET")
@@ -646,7 +645,7 @@ class TestUserRestrictedAccess(TestBase):
         self.assertEqual(data["_items"][0]["ref"], json.loads(self.data)["ref"])
 
     def test_post_bandwidth_saver_off_resource_auth(self):
-        """ Test that when BANDWIDTH_SAVER is turned off the auth_field is
+        """Test that when BANDWIDTH_SAVER is turned off the auth_field is
         not exposed in the response payload
         """
         self.app.config["BANDWIDTH_SAVER"] = False
@@ -786,7 +785,7 @@ class TestUserRestrictedAccess(TestBase):
         self.assertEqual(data["ref"], new_ref)
 
     def test_put_bandwidth_saver_off_resource_auth(self):
-        """ Test that when BANDWIDTH_SAVER is turned off the auth_field is
+        """Test that when BANDWIDTH_SAVER is turned off the auth_field is
         not exposed in the response payload
         """
         self.app.config["BANDWIDTH_SAVER"] = False

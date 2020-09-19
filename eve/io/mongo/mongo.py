@@ -40,7 +40,7 @@ from ...versioning import versioned_id_field
 
 
 class MongoJSONEncoder(BaseJSONEncoder):
-    """ Proprietary JSONEconder subclass used by the json render function.
+    """Proprietary JSONEconder subclass used by the json render function.
     This is needed to address the encoding of special values.
 
     .. versionchanged:: 0.8.2
@@ -75,7 +75,7 @@ class MongoJSONEncoder(BaseJSONEncoder):
 
 
 class Mongo(DataLayer):
-    """ MongoDB data access layer for Eve REST API.
+    """MongoDB data access layer for Eve REST API.
 
     .. versionchanged:: 0.5
        Properly serialize nullable float and integers. #469.
@@ -130,7 +130,7 @@ class Mongo(DataLayer):
     )
 
     def init_app(self, app):
-        """ Initialize PyMongo.
+        """Initialize PyMongo.
 
         .. versionchanged:: 0.6
            Use mongo_prefix for multidb support.
@@ -143,7 +143,7 @@ class Mongo(DataLayer):
         self.mongo_prefix = None
 
     def find(self, resource, req, sub_resource_lookup, perform_count=True):
-        """ Retrieves a set of documents matching a given request. Queries can
+        """Retrieves a set of documents matching a given request. Queries can
         be expressed in two different formats: the mongo query syntax, and the
         python syntax. The first kind of query would look like: ::
 
@@ -299,7 +299,7 @@ class Mongo(DataLayer):
         force_auth_field_projection=False,
         **lookup
     ):
-        """ Retrieves a single document.
+        """Retrieves a single document.
 
         :param resource: resource name.
         :param req: a :class:`ParsedRequest` instance.
@@ -350,7 +350,7 @@ class Mongo(DataLayer):
         )
 
     def find_one_raw(self, resource, **lookup):
-        """ Retrieves a single raw document.
+        """Retrieves a single raw document.
 
         :param resource: resource name.
         :param **lookup: lookup query.
@@ -369,7 +369,7 @@ class Mongo(DataLayer):
         return self.pymongo(resource).db[datasource].find_one(lookup)
 
     def find_list_of_ids(self, resource, ids, client_projection=None):
-        """ Retrieves a list of documents from the collection given
+        """Retrieves a list of documents from the collection given
         by `resource`, matching the given list of ids.
 
         This query is generated to *preserve the order* of the elements
@@ -429,7 +429,7 @@ class Mongo(DataLayer):
         return self.pymongo(resource).db[datasource].aggregate(challenge, **options)
 
     def insert(self, resource, doc_or_docs):
-        """ Inserts a document into a resource collection.
+        """Inserts a document into a resource collection.
 
         .. versionchanged:: 0.6.1
            Support for PyMongo 3.0.
@@ -491,7 +491,7 @@ class Mongo(DataLayer):
             )
 
     def _change_request(self, resource, id_, changes, original, replace=False):
-        """ Performs a change, be it a replace or update.
+        """Performs a change, be it a replace or update.
 
         .. versionchanged:: 0.8.2
            Return 400 if update/replace with malformed DBRef field. See #1257.
@@ -561,7 +561,7 @@ class Mongo(DataLayer):
                 )
 
     def update(self, resource, id_, updates, original):
-        """ Updates a collection document.
+        """Updates a collection document.
         .. versionchanged:: 0.6
            Support for multiple databases.
 
@@ -595,7 +595,7 @@ class Mongo(DataLayer):
         return self._change_request(resource, id_, {"$set": updates}, original)
 
     def replace(self, resource, id_, document, original):
-        """ Replaces an existing document.
+        """Replaces an existing document.
         .. versionchanged:: 0.6
            Support for multiple databases.
 
@@ -616,7 +616,7 @@ class Mongo(DataLayer):
         return self._change_request(resource, id_, document, original, replace=True)
 
     def remove(self, resource, lookup):
-        """ Removes a document or the entire set of documents from a
+        """Removes a document or the entire set of documents from a
         collection.
 
         .. versionchanged:: 0.6.1
@@ -671,7 +671,7 @@ class Mongo(DataLayer):
     # of a separate MonqoQuery class
 
     def combine_queries(self, query_a, query_b):
-        """ Takes two db queries and applies db-specific syntax to produce
+        """Takes two db queries and applies db-specific syntax to produce
         the intersection.
 
         This is used because we can't just dump one set of query operators
@@ -708,7 +708,7 @@ class Mongo(DataLayer):
         }
 
     def get_value_from_query(self, query, field_name):
-        """ For the specified field name, parses the query and returns
+        """For the specified field name, parses the query and returns
         the value being assigned in the query.
 
         For example,
@@ -734,7 +734,7 @@ class Mongo(DataLayer):
         raise KeyError
 
     def query_contains_field(self, query, field_name):
-        """ For the specified field name, does the query contain it?
+        """For the specified field name, does the query contain it?
         Used know whether we need to parse a compound query.
 
         .. versionadded: 0.1.0
@@ -747,7 +747,7 @@ class Mongo(DataLayer):
         return True
 
     def is_empty(self, resource):
-        """ Returns True if resource is empty; False otherwise. If there is
+        """Returns True if resource is empty; False otherwise. If there is
         no predefined filter on the resource we're relying on the
         db.collection.count_documents. However, if we do have a predefined
         filter we have to fallback on the find() method, which can be much
@@ -785,7 +785,7 @@ class Mongo(DataLayer):
             )
 
     def _mongotize(self, source, resource, parse_objectid=False):
-        """ Recursively iterates a JSON dictionary, turning RFC-1123 strings
+        """Recursively iterates a JSON dictionary, turning RFC-1123 strings
         into datetime values and ObjectId-link strings into ObjectIds.
 
         .. versionchanged:: 0.3
@@ -881,7 +881,7 @@ class Mongo(DataLayer):
         return source
 
     def _sanitize(self, resource, spec):
-        """ Makes sure that only allowed operators are included in the query,
+        """Makes sure that only allowed operators are included in the query,
         aborts with a 400 otherwise.
 
         .. versionchanged:: 1.1.0
@@ -934,7 +934,7 @@ class Mongo(DataLayer):
         return spec
 
     def _convert_sort_request_to_dict(self, req):
-        """ Converts the contents of a `ParsedRequest`'s `sort` property to
+        """Converts the contents of a `ParsedRequest`'s `sort` property to
         a dict
         """
         client_sort = {}
@@ -959,7 +959,7 @@ class Mongo(DataLayer):
         return client_sort
 
     def _convert_where_request_to_dict(self, resource, req):
-        """ Converts the contents of a `ParsedRequest`'s `where` property to
+        """Converts the contents of a `ParsedRequest`'s `where` property to
         a dict
         """
         query = {}
@@ -983,14 +983,14 @@ class Mongo(DataLayer):
         return query
 
     def _wc(self, resource):
-        """ Syntactic sugar for the current collection write_concern setting.
+        """Syntactic sugar for the current collection write_concern setting.
 
         .. versionadded:: 0.0.8
         """
         return config.DOMAIN[resource]["mongo_write_concern"]
 
     def current_mongo_prefix(self, resource=None):
-        """ Returns the active mongo_prefix that should be used to retrieve
+        """Returns the active mongo_prefix that should be used to retrieve
         a valid PyMongo instance from the cache. If 'self.mongo_prefix' is set
         it has precedence over both endpoint (resource) and default drivers.
         This allows Auth classes (for instance) to override default settings to
@@ -1039,7 +1039,7 @@ class Mongo(DataLayer):
         return px
 
     def pymongo(self, resource=None, prefix=None):
-        """ Returns an active PyMongo instance. If 'prefix' is defined then
+        """Returns an active PyMongo instance. If 'prefix' is defined then
         it has precedence over the endpoint ('resource') and/or
         'self.mongo_instance'.
 
@@ -1064,7 +1064,7 @@ class Mongo(DataLayer):
             raise ConnectionException(e)
 
     def get_collection_with_write_concern(self, datasource, resource):
-        """ Returns a pymongo Collection with the desired write_concern
+        """Returns a pymongo Collection with the desired write_concern
         setting.
 
         PyMongo 3.0+ collections are immutable, yet we still want to allow the
@@ -1078,7 +1078,7 @@ class Mongo(DataLayer):
 
 
 class PyMongos(dict):
-    """ Cache for PyMongo instances. It is just a normal dict which exposes
+    """Cache for PyMongo instances. It is just a normal dict which exposes
     a 'db' property for backward compatibility.
 
     .. versionadded:: 0.6
@@ -1090,7 +1090,7 @@ class PyMongos(dict):
 
     @property
     def db(self):
-        """ Returns the 'default' PyMongo instance, which is either the
+        """Returns the 'default' PyMongo instance, which is either the
         'Mongo.mongo_prefix' value or 'MONGO'. This property is useful for
         backward compatibility as many custom Auth classes use the now obsolete
         'self.data.driver.db[collection]' pattern.
@@ -1099,7 +1099,7 @@ class PyMongos(dict):
 
 
 def ensure_mongo_indexes(app, resource):
-    """ Make sure 'mongo_indexes' is respected and mongo indexes are created on
+    """Make sure 'mongo_indexes' is respected and mongo indexes are created on
     the current database.
 
     .. versionaddded:: 0.8
@@ -1119,7 +1119,7 @@ def ensure_mongo_indexes(app, resource):
 
 
 def _create_index(app, resource, name, list_of_keys, index_options):
-    """ Create a specific index composed of the `list_of_keys` for the
+    """Create a specific index composed of the `list_of_keys` for the
     mongo collection behind the `resource` using the `app.config`
     to retrieve all data needed to find out the mongodb configuration.
     The index is also configured by the `index_options`.

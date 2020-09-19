@@ -604,8 +604,8 @@ class TestOpLogEndpointEnabled(TestOpLogBase):
         self.assertTrue("extra" not in oplog_entry)
 
     def test_post_oplog_does_not_alter_document(self):
-        """ Make sure we don't alter document ETag when performing an
-        oplog_push. See #590 and #1206. """
+        """Make sure we don't alter document ETag when performing an
+        oplog_push. See #590 and #1206."""
         self.app.config["OPLOG_CHANGE_METHODS"].append("POST")
         r = self.test_client.post(
             self.different_resource_url,
@@ -649,8 +649,8 @@ class TestOpLogEndpointEnabled(TestOpLogBase):
         self.assertOpLogEntry(oplog_entry, "PUT")
 
     def test_put_oplog_does_not_alter_document(self):
-        """ Make sure we don't alter document ETag when performing an
-        oplog_push. See #590. """
+        """Make sure we don't alter document ETag when performing an
+        oplog_push. See #590."""
         self.headers.append(("If-Match", self.item_etag))
         r = self.test_client.put(
             self.item_id_url,
