@@ -80,7 +80,7 @@ def patch_internal(
                     option, a request context must be available.
     :param concurrency_check: concurrency check switch (bool)
     :param skip_validation: skip payload validation before write (bool)
-    :param mongo_options: options to pass to PyMongo. e.g. ReadConcern of the initial get.
+    :param mongo_options: options to pass to PyMongo. e.g. read_preferences of the initial get.
     :param **lookup: document lookup query.
 
     .. versionchanged:: 0.6.2
@@ -151,7 +151,7 @@ def patch_internal(
     if payload is None:
         payload = payload_()
 
-    original = get_document(resource, concurrency_check, mongo_options, **lookup)
+    original = get_document(resource, concurrency_check, mongo_options=mongo_options, **lookup)
     if not original:
         # not found
         abort(404)
@@ -219,10 +219,7 @@ def patch_internal(
             if resource_def["merge_nested_documents"]:
                 updates = resolve_nested_documents(updates, updated)
 
-            if mongo_options:
-                updated.with_options(mongo_options).update(updates)
-            else:
-                updated.update(updates)
+            updated.update(updates)
 
             if config.IF_MATCH:
                 resolve_document_etag(updated, resource)
