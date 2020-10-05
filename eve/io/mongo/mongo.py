@@ -349,7 +349,9 @@ class Mongo(DataLayer):
         # Here, we feed pymongo with `None` if projection is empty.
         target = self.pymongo(resource).db[datasource]
         if mongo_options:
-            return target.with_options(**mongo_options).find_one(filter_, projection or None)
+            return target.with_options(**mongo_options).find_one(
+                filter_, projection or None
+            )
         else:
             return target.find_one(filter_, projection or None)
 

@@ -151,7 +151,9 @@ def patch_internal(
     if payload is None:
         payload = payload_()
 
-    original = get_document(resource, concurrency_check, mongo_options=mongo_options, **lookup)
+    original = get_document(
+        resource, concurrency_check, mongo_options=mongo_options, **lookup
+    )
     if not original:
         # not found
         abort(404)

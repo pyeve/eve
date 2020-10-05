@@ -312,7 +312,7 @@ class TestPatch(TestBase):
         test_field = "ref"
         test_value = "9876543210987654321098765"
         data = {test_field: test_value}
-        mongo_options = {'read_preference': ReadPreference.PRIMARY}
+        mongo_options = {"read_preference": ReadPreference.PRIMARY}
         with self.app.test_request_context(self.item_id_url):
             r, _, _, status = patch_internal(
                 self.known_resource,

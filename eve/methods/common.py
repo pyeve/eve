@@ -88,7 +88,12 @@ def get_document(
         document = original
     else:
         document = app.data.find_one(
-            resource, req, check_auth_value, force_auth_field_projection, mongo_options=mongo_options, **lookup
+            resource,
+            req,
+            check_auth_value,
+            force_auth_field_projection,
+            mongo_options=mongo_options,
+            **lookup
         )
 
     if document:
