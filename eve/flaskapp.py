@@ -180,7 +180,10 @@ class Eve(Flask, Events):
             self.auth = None
 
         self._init_url_rules()
-        self._init_media_endpoint()
+
+        if self.config["RETURN_MEDIA_AS_URL"]:
+            self._init_media_endpoint()
+
         self._init_schema_endpoint()
 
         if self.config["OPLOG"] is True:
