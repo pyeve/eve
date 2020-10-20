@@ -1098,6 +1098,96 @@ class TestGet(TestBase):
             "location" in content["_items"][0]["departments"][0]["members"][0]
         )
 
+    def test_get_reference_embedded_in_subdocuments_with_nested_dicts(self):
+        _db = self.connection[MONGO_DBNAME]
+        cpu_brand_name = self.random_string(10)
+        cpu_brand = {
+            "name": cpu_brand_name,
+            "address": self.random_string(30),
+        }
+        motherboard_brand_name = self.random_string(15)
+        motherboard_brand = {
+            "name": motherboard_brand_name,
+            "address": self.random_string(30),
+        }
+        cpu_brand_id, motherboard_brand_id = _db.brands.insert_many(
+            [cpu_brand, motherboard_brand]
+        ).inserted_ids
+        cpu_component = {
+            "name": self.random_string(12),
+            "price": 499,
+            "brand": cpu_brand_id,
+        }
+        motherboard_component = {
+            "name": self.random_string(18),
+            "price": 199,
+            "brand": motherboard_brand_id,
+        }
+        cpu_component_id, motherboard_component_id = _db.components.insert_many(
+            [cpu_component, motherboard_component]
+        ).inserted_ids
+        computer = {
+            "name": self.random_string(25),
+            "components": {
+                "cpu": cpu_component_id,
+                "motherboard": motherboard_component_id,
+            },
+        }
+        computer_id = _db.computers.insert_one(computer).inserted_id
+        computers = self.domain["computers"]
+        components = self.domain["components"]
+        # Test that doesn't come embedded if asking for a field that
+        # isn't embedded ('embeddable' is False by default)
+        embedded = (
+            '{"components.cpu": 1, "components.motherboard": 1,'
+            + ' "components.cpu.brand": 1, "components.motherboard.brand": 1}'
+        )
+        result = self.test_client.get(
+            "%s/%s/%s" % (computers["url"], computer_id, "?embedded=%s" % embedded)
+        )
+        self.assert200(result.status_code)
+        content = json.loads(result.get_data())
+        self.assertEqual(content["components"]["cpu"], str(cpu_component_id))
+        self.assertEqual(
+            content["components"]["motherboard"], str(motherboard_component_id)
+        )
+        # Set field to be embedded
+        computers["schema"]["components"]["schema"]["cpu"]["data_relation"][
+            "embeddable"
+        ] = True
+        computers["schema"]["components"]["schema"]["motherboard"]["data_relation"][
+            "embeddable"
+        ] = True
+        components["schema"]["brand"]["data_relation"]["embeddable"] = True
+        # Test that global setting applies even if field is set to embedded
+        computers["embedding"] = False
+        components["embedding"] = False
+        result = self.test_client.get(
+            "%s/%s/%s" % (computers["url"], computer_id, "?embedded=%s" % embedded)
+        )
+        self.assert200(result.status_code)
+        content = json.loads(result.get_data())
+        self.assertEqual(content["components"]["cpu"], str(cpu_component_id))
+        self.assertEqual(
+            content["components"]["motherboard"], str(motherboard_component_id)
+        )
+        # Test that it works
+        computers["embedding"] = True
+        components["embedding"] = True
+        result = self.test_client.get(
+            "%s/%s/%s" % (computers["url"], computer_id, "?embedded=%s" % embedded)
+        )
+        self.assert200(result.status_code)
+        content = json.loads(result.get_data())
+        self.assertEqual(
+            content["components"]["cpu"]["brand"]["name"],
+            cpu_brand_name,
+        )
+        self.assertEqual(
+            content["components"]["motherboard"]["brand"]["name"],
+            motherboard_brand_name,
+        )
+
     def test_get_nested_resource(self):
         response, status = self.get("users/overseas")
         self.assertGet(response, status, "users_overseas")
