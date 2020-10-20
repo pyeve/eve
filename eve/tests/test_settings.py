@@ -334,7 +334,7 @@ brands = {
     "schema": {
         "name": {"type": "string"},
         "address": "string",
-    }
+    },
 }
 
 components = {
@@ -343,7 +343,7 @@ components = {
         "name": {"type": "string"},
         "price": "integer",
         "brand": {"type": "objectid", "data_relation": {"resource": "brands"}},
-    }
+    },
 }
 
 computers = {
@@ -353,11 +353,17 @@ computers = {
         "components": {
             "type": "dict",
             "schema": {
-                "cpu": {"type": "objectid", "data_relation": {"resource": "components"}},
-                "motherboard": {"type": "objectid", "data_relation": {"resource": "components"}},
-            }
-        }
-    }
+                "cpu": {
+                    "type": "objectid",
+                    "data_relation": {"resource": "components"},
+                },
+                "motherboard": {
+                    "type": "objectid",
+                    "data_relation": {"resource": "components"},
+                },
+            },
+        },
+    },
 }
 
 child_products = copy.deepcopy(products)
