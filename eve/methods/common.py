@@ -1040,13 +1040,14 @@ def add_query_to_list(query, subresource, subresource_query):
     query["$or"] = []
 
 
-def subdocuments(fields_chain, resource, document):
+def subdocuments(fields_chain, resource, document, prefix=""):
     """Traverses the given document and yields subdocuments which
     correspond to the given fields_chain
 
     :param fields_chain: list of nested field names.
     :param resource: the resource name.
     :param document: document to be traversed
+    :param prefix: prefix to recursively concatenate nested field names.
 
     .. versionadded:: 0.5
     """
@@ -1056,14 +1057,17 @@ def subdocuments(fields_chain, resource, document):
         subdocument = document[fields_chain[0]]
         docs = subdocument if isinstance(subdocument, list) else [subdocument]
         try:
-            resource = field_definition(resource, fields_chain[0])["data_relation"][
-                "resource"
-            ]
+            definition = field_definition(resource, prefix + fields_chain[0])
+            if "data_relation" in definition:
+                resource = definition["data_relation"]["resource"]
+                prefix = ""
+            else:
+                prefix = prefix + fields_chain[0] + "."
         except KeyError:
             resource = resource
 
         for doc in docs:
-            for result in subdocuments(fields_chain[1:], resource, doc):
+            for result in subdocuments(fields_chain[1:], resource, doc, prefix):
                 yield result
     else:
         yield document
