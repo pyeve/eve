@@ -9,9 +9,11 @@ In Development
 Fixed
 ~~~~~
 
+- Error raised when using ``embedded`` with nested dict (`#1416`_)
 - Expose media endpoint only if ``RETURN_MEDIA_AS_URL`` is set to ``True`` (`#1415`_)
 - Use ``**mongo_options`` in ``with_options`` (`#1413`_)
 
+.. _`#1416`: https://github.com/pyeve/eve/issues/1416
 .. _`#1415`: https://github.com/pyeve/eve/pull/1415
 .. _`#1413`: https://github.com/pyeve/eve/issues/1413
 
