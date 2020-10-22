@@ -6,8 +6,13 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
-- Fix: Use ``**mongo_options`` in ``with_options`` (`#1413`_)
+Fixed
+~~~~~
 
+- Expose media endpoint only if ``RETURN_MEDIA_AS_URL`` is set to ``True`` (`#1415`_)
+- Use ``**mongo_options`` in ``with_options`` (`#1413`_)
+
+.. _`#1415`: https://github.com/pyeve/eve/pull/1415
 .. _`#1413`: https://github.com/pyeve/eve/issues/1413
 
 Version 1.1.3
