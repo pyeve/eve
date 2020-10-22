@@ -329,6 +329,43 @@ credit_rules = {
     },
 }
 
+brands = {
+    "item_title": "brand",
+    "schema": {
+        "name": {"type": "string"},
+        "address": "string",
+    },
+}
+
+components = {
+    "item_title": "component",
+    "schema": {
+        "name": {"type": "string"},
+        "price": "integer",
+        "brand": {"type": "objectid", "data_relation": {"resource": "brands"}},
+    },
+}
+
+computers = {
+    "item_title": "computers",
+    "schema": {
+        "name": {"type": "string"},
+        "components": {
+            "type": "dict",
+            "schema": {
+                "cpu": {
+                    "type": "objectid",
+                    "data_relation": {"resource": "components"},
+                },
+                "motherboard": {
+                    "type": "objectid",
+                    "data_relation": {"resource": "components"},
+                },
+            },
+        },
+    },
+}
+
 child_products = copy.deepcopy(products)
 child_products["url"] = 'products/<regex("[A-Z]+"):parent_product>/children'
 child_products["datasource"] = {"source": "products"}
@@ -367,4 +404,7 @@ DOMAIN = {
     "tenant_b": tenant_b,
     "test_unique": test_unique,
     "credit_rules": credit_rules,
+    "brands": brands,
+    "components": components,
+    "computers": computers,
 }
