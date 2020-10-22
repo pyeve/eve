@@ -6,6 +6,13 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
+- hic sunt leones
+
+Version 1.1.4
+-------------
+
+Released on October 22, 2020.
+
 Fixed
 ~~~~~
 
