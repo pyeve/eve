@@ -61,7 +61,7 @@ def get_document(
                                         the user-restricted resource access
                                         field (if configured). Defaults to
                                         ``False``.
-    :param mongo_options: Options to pass to PyMongo. e.g. ReadConcern
+    :param mongo_options: Options to pass to PyMongo. e.g. read_preferences.
     :param **lookup: document lookup query
 
     .. versionchanged:: 0.6
@@ -87,14 +87,14 @@ def get_document(
     if original:
         document = original
     else:
-        if mongo_options:
-            document = app.data.with_options(mongo_options).find_one(
-                resource, req, check_auth_value, force_auth_field_projection, **lookup
-            )
-        else:
-            document = app.data.find_one(
-                resource, req, check_auth_value, force_auth_field_projection, **lookup
-            )
+        document = app.data.find_one(
+            resource,
+            req,
+            check_auth_value,
+            force_auth_field_projection,
+            mongo_options=mongo_options,
+            **lookup
+        )
 
     if document:
         e_if_m = config.ENFORCE_IF_MATCH

@@ -1,6 +1,8 @@
 import simplejson as json
 
 from bson import ObjectId
+from pymongo import ReadPreference
+
 from eve import ETAG
 from eve import ISSUES
 from eve import LAST_UPDATED
@@ -299,6 +301,24 @@ class TestPatch(TestBase):
                 self.known_resource,
                 data,
                 concurrency_check=False,
+                **{"_id": self.item_id}
+            )
+        db_value = self.compare_patch_with_get(test_field, r)
+        self.assertEqual(db_value, test_value)
+        self.assert200(status)
+
+    def test_patch_internal_with_options(self):
+        # test that patch_internal is available and working properly.
+        test_field = "ref"
+        test_value = "9876543210987654321098765"
+        data = {test_field: test_value}
+        mongo_options = {"read_preference": ReadPreference.PRIMARY}
+        with self.app.test_request_context(self.item_id_url):
+            r, _, _, status = patch_internal(
+                self.known_resource,
+                data,
+                concurrency_check=False,
+                mongo_options=mongo_options,
                 **{"_id": self.item_id}
             )
         db_value = self.compare_patch_with_get(test_field, r)

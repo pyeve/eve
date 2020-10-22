@@ -163,6 +163,7 @@ class DataLayer(object):
         req,
         check_auth_value=True,
         force_auth_field_projection=False,
+        mongo_options=None,
         **lookup
     ):
         """Retrieves a single document/record. Consumed when a request hits an
@@ -185,7 +186,8 @@ class DataLayer(object):
                                             include the user-restricted
                                             resource access field (if
                                             configured). Defaults to ``False``.
-
+        :param mongo_options: options to pass to PyMongo. e.g. read_preferences
+                              of the initial get.
         :param **lookup: the lookup fields. This will most likely be a record
                          id or, if alternate lookup is supported by the API,
                          the corresponding query.

@@ -297,12 +297,14 @@ class Mongo(DataLayer):
         req,
         check_auth_value=True,
         force_auth_field_projection=False,
+        mongo_options=None,
         **lookup
     ):
         """Retrieves a single document.
 
         :param resource: resource name.
         :param req: a :class:`ParsedRequest` instance.
+        :param mongo_options: Dict of parameters to pass to PyMongo with_options.
         :param **lookup: lookup query.
 
         .. versionchanged:: 0.6
@@ -345,9 +347,13 @@ class Mongo(DataLayer):
         ):
             filter_ = self.combine_queries(filter_, {config.DELETED: {"$ne": True}})
         # Here, we feed pymongo with `None` if projection is empty.
-        return (
-            self.pymongo(resource).db[datasource].find_one(filter_, projection or None)
-        )
+        target = self.pymongo(resource).db[datasource]
+        if mongo_options:
+            return target.with_options(**mongo_options).find_one(
+                filter_, projection or None
+            )
+        else:
+            return target.find_one(filter_, projection or None)
 
     def find_one_raw(self, resource, **lookup):
         """Retrieves a single raw document.
