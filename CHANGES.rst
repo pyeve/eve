@@ -6,7 +6,9 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
-- hic sunt leones.
+- Fix: Use ``**mongo_options`` in ``with_options`` (`#1413`_)
+
+.. _`#1413`: https://github.com/pyeve/eve/issues/1413
 
 Version 1.1.3
 -------------
