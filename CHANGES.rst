@@ -6,7 +6,9 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
-- hic sunt leones
+- Disable MD5 support in GridFS, as it is deprecated (`#1410`_).
+
+.. _`#1410`: https://github.com/pyeve/eve/issues/1410
 
 Version 1.1.4
 -------------
