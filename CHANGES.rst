@@ -7,6 +7,7 @@ In Development
 ---------------
 
 - Disable MD5 support in GridFS, as it is deprecated (`#1410`_).
+- Demo application has been terminated by Heroky; dropped any reference to it.
 
 .. _`#1410`: https://github.com/pyeve/eve/issues/1410
 

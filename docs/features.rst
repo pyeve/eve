@@ -1,8 +1,6 @@
 Features
 ========
-Below is a list of main features that any EVE-powered APIs can expose. Most of
-these features can be experienced live by consuming the Demo API (see
-:ref:`demo`).
+Below is a list of main features that any EVE-powered APIs can expose.
 
 Emphasis on REST
 ----------------
@@ -49,7 +47,7 @@ can customize the URIs though, so the API endpoint could become, say,
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people
+    $ curl -i http://myapi.com/people
     HTTP/1.1 200 OK
 
 The response payload will look something like this:
@@ -223,7 +221,7 @@ primary endpoint and will match your database primary key structure (i.e., an
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c
+    $ curl -i http://myapi.com/people/521d6840c437dc0002d1203c
     HTTP/1.1 200 OK
     Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc
     Last-Modified: Wed, 21 Nov 2012 16:04:56 GMT
@@ -234,7 +232,7 @@ will retrieve only the first match anyway.
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people/Doe
+    $ curl -i http://myapi.com/people/Doe
     HTTP/1.1 200 OK
     Etag: 28995829ee85d69c4c18d597a0f68ae606a266cc
     Last-Modified: Wed, 21 Nov 2012 16:04:56 GMT
@@ -288,26 +286,26 @@ Here we are asking for all documents where ``lastname`` value is ``Doe``:
 
 ::
 
-    http://eve-demo.herokuapp.com/people?where={"lastname": "Doe"}
+    http://myapi.com/people?where={"lastname": "Doe"}
 
 With ``curl`` you would go like this:
 
 .. code-block:: console
 
-    $ curl -i -g http://eve-demo.herokuapp.com/people?where={%22lastname%22:%20%22Doe%22}
+    $ curl -i -g http://myapi.com/people?where={%22lastname%22:%20%22Doe%22}
     HTTP/1.1 200 OK
 
 Filtering on embedded document fields is possible:
 
 ::
 
-    http://eve-demo.herokuapp.com/people?where={"location.city": "San Francisco"}
+    http://myapi.com/people?where={"location.city": "San Francisco"}
 
 Date fields are also easy to query on:
 
 ::
 
-    http://eve-demo.herokuapp.com/people?where={"born": {"$gte":"Wed, 25 Feb 1987 17:00:00 GMT"}}
+    http://myapi.com/people?where={"born": {"$gte":"Wed, 25 Feb 1987 17:00:00 GMT"}}
 
 Date values should conform to RFC1123. Should you need a different format, you can change the ``DATE_FORMAT`` setting.
 
@@ -318,7 +316,7 @@ Native Python syntax works like this:
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people?where=lastname=="Doe"
+    $ curl -i http://myapi.com/people?where=lastname=="Doe"
     HTTP/1.1 200 OK
 
 Both syntaxes allow for conditional and logical And/Or operators, however
@@ -341,7 +339,7 @@ You can pretty print the response by specifying a query parameter named
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people?pretty
+    $ curl -i http://myapi.com/people?pretty
     HTTP/1.1 200 OK
 
     {
@@ -379,7 +377,7 @@ Sorting is supported as well:
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people?sort=city,-lastname
+    $ curl -i http://myapi.com/people?sort=city,-lastname
     HTTP/1.1 200 OK
 
 Would return documents sorted by city and then by lastname (descending). As you
@@ -390,13 +388,13 @@ The MongoDB data layer also supports native MongoDB syntax:
 
 ::
 
-    http://eve-demo.herokuapp.com/people?sort=[("lastname", -1)]
+    http://myapi.com/people?sort=[("lastname", -1)]
 
 which translates to the following ``curl`` request:
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people?sort=[(%22lastname%22,%20-1)]
+    $ curl -i http://myapi.com/people?sort=[(%22lastname%22,%20-1)]
     HTTP/1.1 200 OK
 
 Would return documents sorted by lastname in descending order.
@@ -423,14 +421,14 @@ consumers can request specific pages via the query string:
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people?max_results=20&page=2
+    $ curl -i http://myapi.com/people?max_results=20&page=2
     HTTP/1.1 200 OK
 
 Of course you can mix all the available query parameters:
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people?where={"lastname": "Doe"}&sort=[("firstname", 1)]&page=5
+    $ curl -i http://myapi.com/people?where={"lastname": "Doe"}&sort=[("firstname", 1)]&page=5
     HTTP/1.1 200 OK
 
 Pagination can be disabled. Please note that, for clarity, the above example is
@@ -498,7 +496,7 @@ edits) are in JSON format.
 
 .. code-block:: console
 
-    $ curl -H "Accept: application/xml" -i http://eve-demo.herokuapp.com
+    $ curl -H "Accept: application/xml" -i http://myapi.com
     HTTP/1.1 200 OK
     Content-Type: application/xml; charset=utf-8
     ...
@@ -534,14 +532,14 @@ conditional requests by using the ``If-Modified-Since`` header:
 
 .. code-block:: console
 
-    $ curl -H "If-Modified-Since: Wed, 05 Dec 2012 09:53:07 GMT" -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c
+    $ curl -H "If-Modified-Since: Wed, 05 Dec 2012 09:53:07 GMT" -i http://myapi.com/people/521d6840c437dc0002d1203c
     HTTP/1.1 200 OK
 
 or the ``If-None-Match`` header:
 
 .. code-block:: console
 
-    $ curl -H "If-None-Match: 1234567890123456789012345678901234567890" -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c
+    $ curl -H "If-None-Match: 1234567890123456789012345678901234567890" -i http://myapi.com/people/521d6840c437dc0002d1203c
     HTTP/1.1 200 OK
 
 
@@ -560,7 +558,7 @@ Consider the following workflow:
 
 .. code-block:: console
 
-    $ curl -H "Content-Type: application/json" -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d '{"firstname": "ronald"}'
+    $ curl -H "Content-Type: application/json" -X PATCH -i http://myapi.com/people/521d6840c437dc0002d1203c -d '{"firstname": "ronald"}'
     HTTP/1.1 428 PRECONDITION REQUIRED
 
 We attempted an edit (``PATCH``), but we did not provide an ``ETag`` for the
@@ -568,7 +566,7 @@ item so we got a ``428 PRECONDITION REQUIRED`` back. Let's try again:
 
 .. code-block:: console
 
-    $ curl -H "If-Match: 1234567890123456789012345678901234567890" -H "Content-Type: application/json" -X PATCH -i http://eve-demo.herokuapp.com/people/521d6840c437dc0002d1203c -d '{"firstname": "ronald"}'
+    $ curl -H "If-Match: 1234567890123456789012345678901234567890" -H "Content-Type: application/json" -X PATCH -i http://myapi.com/people/521d6840c437dc0002d1203c -d '{"firstname": "ronald"}'
     HTTP/1.1 412 PRECONDITION FAILED
 
 What went wrong this time? We provided the mandatory ``If-Match`` header, but
@@ -577,7 +575,7 @@ currently stored on the server, so we got a ``412 PRECONDITION FAILED``. Again!
 
 .. code-block:: console
 
-    $ curl -H "If-Match: 80b81f314712932a4d4ea75ab0b76a4eea613012" -H "Content-Type: application/json" -X PATCH -i http://eve-demo.herokuapp.com/people/50adfa4038345b1049c88a37 -d '{"firstname": "ronald"}'
+    $ curl -H "If-Match: 80b81f314712932a4d4ea75ab0b76a4eea613012" -H "Content-Type: application/json" -X PATCH -i http://myapi.com/people/50adfa4038345b1049c88a37 -d '{"firstname": "ronald"}'
     HTTP/1.1 200 OK
 
 Finally! And the response payload looks something like this:
@@ -620,7 +618,7 @@ A client may submit a single document for insertion:
 
 .. code-block:: console
 
-    $ curl -d '{"firstname": "barack", "lastname": "obama"}' -H 'Content-Type: application/json' http://eve-demo.herokuapp.com/people
+    $ curl -d '{"firstname": "barack", "lastname": "obama"}' -H 'Content-Type: application/json' http://myapi.com/people
     HTTP/1.1 201 OK
 
 In this case the response payload will just contain the relevant document
@@ -646,7 +644,7 @@ documents in a JSON list:
 
 .. code-block:: console
 
-    $ curl -d '[{"firstname": "barack", "lastname": "obama"}, {"firstname": "mitt", "lastname": "romney"}]' -H 'Content-Type: application/json' http://eve-demo.herokuapp.com/people
+    $ curl -d '[{"firstname": "barack", "lastname": "obama"}, {"firstname": "mitt", "lastname": "romney"}]' -H 'Content-Type: application/json' http://myapi.com/people
     HTTP/1.1 201 OK
 
 The response will be a list itself, with the state of each document:
@@ -691,7 +689,7 @@ will only be updated if validation passes.
 
 .. code-block:: console
 
-    $ curl -d '[{"firstname": "bill", "lastname": "clinton"}, {"firstname": "mitt", "lastname": "romney"}]' -H 'Content-Type: application/json' http://eve-demo.herokuapp.com/people
+    $ curl -d '[{"firstname": "bill", "lastname": "clinton"}, {"firstname": "mitt", "lastname": "romney"}]' -H 'Content-Type: application/json' http://myapi.com/people
     HTTP/1.1 201 OK
 
 The response will contain a success/error state for each item provided in the
@@ -825,7 +823,7 @@ You can set global and individual cache-control directives for each resource.
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com
+    $ curl -i http://myapi
     HTTP/1.1 200 OK
     Content-Type: application/json
     Content-Length: 131
@@ -980,7 +978,7 @@ where the client dictates which fields should be returned by the API.
 
 .. code-block:: console
 
-    $ curl -i -G http://eve-demo.herokuapp.com/people --data-urlencode 'projection={"lastname": 1, "born": 1}'
+    $ curl -i -G http://myapi.com/people --data-urlencode 'projection={"lastname": 1, "born": 1}'
     HTTP/1.1 200 OK
 
 The query above will only return *lastname* and *born* out of all the fields
@@ -988,7 +986,7 @@ available in the 'people' resource. You can also exclude fields:
 
 .. code-block:: console
 
-    $ curl -i -G http://eve-demo.herokuapp.com/people --data-urlencode 'projection={"born": 0}'
+    $ curl -i -G http://myapi.com/people --data-urlencode 'projection={"born": 0}'
     HTTP/1.1 200 OK
 
 The above will return all fields but *born*. Please note that key fields such

@@ -9,7 +9,7 @@ will only be updated if validation passes.
 
 .. code-block:: console
 
-    $ curl -d '[{"firstname": "bill", "lastname": "clinton"}, {"firstname": "mitt", "lastname": "romney"}]' -H 'Content-Type: application/json' http://eve-demo.herokuapp.com/people
+    $ curl -d '[{"firstname": "bill", "lastname": "clinton"}, {"firstname": "mitt", "lastname": "romney"}]' -H 'Content-Type: application/json' http://myapi/people
     HTTP/1.1 201 OK
 
 The response will contain a success/error state for each item provided in the
@@ -169,7 +169,7 @@ a payload like this will be accepted:
 
 .. code-block:: console
 
-    $ curl -d '[{"firstname": "bill", "lastname": "clinton"}, {"firstname": "bill", "age":70}]' -H 'Content-Type: application/json' http://eve-demo.herokuapp.com/people
+    $ curl -d '[{"firstname": "bill", "lastname": "clinton"}, {"firstname": "bill", "age":70}]' -H 'Content-Type: application/json' http://myapi/people
     HTTP/1.1 201 OK
 
 .. admonition:: Please note

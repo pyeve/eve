@@ -75,18 +75,6 @@ You can support Eve development by pledging on GitHub, Patreon, or PayPal.
 - `Become a Backer on Patreon <https://www.patreon.com/nicolaiarocci>`_
 - `Donate via PayPal <https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7U7G7EWU7EPNW>`_ (one time)
 
-.. _demo:
-
-Live demo
----------
-Check out the `live demo`_. If using a browser you will get XML back. For JSON
-in the browser, you might want to install Postman_ or similar extension and
-then set the ``Accept`` request header to ``application/json``. If you are
-a CLI user (and you should), ``curl`` is your friend. The `source code`_ will
-show you how easy it is to run an API with Eve. You will also find `usage
-examples`_ for all common use cases (GET, POST, PATCH, DELETE and more). There
-is also a simple `client app`_ available.
-
 .. toctree::
     :hidden:
 
@@ -115,11 +103,6 @@ is also a simple `client app`_ available.
 
 
 .. _python-eve.org: http://python-eve.org
-.. _`Eve Demo instructions`: http://github.com/pyeve/eve-demo#readme
-.. _`live demo`: https://eve-demo.herokuapp.com/people
-.. _`source code`: https://github.com/pyeve/eve-demo
-.. _`usage examples`: https://github.com/pyeve/eve-demo#readme
-.. _`client app`: https://github.com/pyeve/eve-demo-client
 .. _Postman: https://www.getpostman.com
 .. _Flask: http://flask.pocoo.org/
 .. _eve-sqlalchemy: https://github.com/RedTurtle/eve-sqlalchemy

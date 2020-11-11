@@ -66,8 +66,7 @@ There are many alternative ways to handle development/production
 however. Using Python modules for configuration is very convenient, as they
 allow for all kinds of nice tricks, like being able to seamlessly launch the
 same API on both local and production systems, connecting to the appropriate
-database instance as needed.  Consider the following example, taken directly
-from the :ref:`demo`:
+database instance as needed. Consider the following example:
 
 ::
 
@@ -1590,7 +1589,7 @@ exposed even by client-side projection. The following API call will not return
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people?projection={"lastname": 1, "born": 1}
+    $ curl -i http://myapi/people?projection={"lastname": 1, "born": 1}
     HTTP/1.1 200 OK
 
 You can also exclude fields from API responses. But this time, the excluded
@@ -1615,7 +1614,7 @@ fields returned can be defined by short-cut functions from client-side.
 
 .. code-block:: console
 
-    $ curl -i http://eve-demo.herokuapp.com/people?projection={"username": 1}
+    $ curl -i http://myapi/people?projection={"username": 1}
     HTTP/1.1 200 OK
 
 
