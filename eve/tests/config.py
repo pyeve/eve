@@ -47,32 +47,139 @@ class TestConfig(TestBase):
         self.assertEqual(type(self.app.data), Mongo)
 
     def test_default_settings(self):
-        self.assertEqual(self.app.settings, self.settings_file)
+        my_settings = {"DOMAIN": {"contacts": {}}}
+        self.app = Eve(settings=my_settings)
 
-        # TODO add tests for other global default values
-        self.assertEqual(self.app.config["RATE_LIMIT_GET"], None)
-        self.assertEqual(self.app.config["RATE_LIMIT_POST"], None)
-        self.assertEqual(self.app.config["RATE_LIMIT_PATCH"], None)
-        self.assertEqual(self.app.config["RATE_LIMIT_DELETE"], None)
+        self.assertEqual(self.app.config["DATE_FORMAT"], "%a, %d %b %Y %H:%M:%S GMT")
 
-        self.assertEqual(self.app.config["MONGO_HOST"], MONGO_HOST)
-        self.assertEqual(self.app.config["MONGO_PORT"], MONGO_PORT)
-        self.assertEqual(self.app.config["MONGO_QUERY_BLACKLIST"], ["$where", "$regex"])
-        self.assertEqual(self.app.config["MONGO_QUERY_WHITELIST"], [])
-        self.assertEqual(self.app.config["MONGO_WRITE_CONCERN"], {"w": 1})
+        self.assertEqual(self.app.config["STATUS_OK"], "OK")
+        self.assertEqual(self.app.config["STATUS_ERR"], "ERR")
+        self.assertEqual(self.app.config["LAST_UPDATED"], "_updated")
+        self.assertEqual(self.app.config["DATE_CREATED"], "_created")
         self.assertEqual(self.app.config["ISSUES"], "_issues")
+        self.assertEqual(self.app.config["STATUS"], "_status")
+        self.assertEqual(self.app.config["ERROR"], "_error")
+        self.assertEqual(self.app.config["ITEMS"], "_items")
+        self.assertEqual(self.app.config["LINKS"], "_links")
+        self.assertEqual(self.app.config["ETAG"], "_etag")
+        self.assertEqual(self.app.config["VERSION"], "_version")
+        self.assertEqual(self.app.config["DELETED"], "_deleted")
+        self.assertEqual(self.app.config["META"], "_meta")
+        self.assertEqual(self.app.config["INFO"], None)
+        self.assertEqual(self.app.config["VALIDATION_ERROR_STATUS"], 422)
+        self.assertEqual(self.app.config["NORMALIZE_DOTTED_FIELDS"], True)
+
+        self.assertEqual(self.app.config["VALIDATION_ERROR_AS_LIST"], False)
+
+        self.assertEqual(
+            self.app.config["STANDARD_ERRORS"],
+            [400, 401, 403, 404, 405, 406, 409, 410, 412, 422, 428, 429],
+        )
+
+        self.assertEqual(self.app.config["LATEST_VERSION"], "_latest_version")
+
+        self.assertEqual(self.app.config["VERSION_ID_SUFFIX"], "_document")
+        self.assertEqual(self.app.config["VERSION_DIFF_INCLUDE"], [])
+
+        self.assertEqual(self.app.config["API_VERSION"], "")
+        self.assertEqual(self.app.config["URL_PREFIX"], "")
+        self.assertEqual(self.app.config["ID_FIELD"], "_id")
+        self.assertEqual(self.app.config["CACHE_CONTROL"], "")
+        self.assertEqual(self.app.config["CACHE_EXPIRES"], 0)
+        self.assertEqual(self.app.config["ITEM_CACHE_CONTROL"], "")
+        self.assertEqual(self.app.config["X_DOMAINS"], None)
+        self.assertEqual(self.app.config["X_DOMAINS_RE"], None)
+        self.assertEqual(self.app.config["X_HEADERS"], None)
+        self.assertEqual(self.app.config["X_EXPOSE_HEADERS"], None)
+        self.assertEqual(self.app.config["X_ALLOW_CREDENTIALS"], None)
+        self.assertEqual(self.app.config["X_MAX_AGE"], 21600)
+        self.assertEqual(self.app.config["HATEOAS"], True)
+        self.assertEqual(self.app.config["IF_MATCH"], True)
+        self.assertEqual(self.app.config["ENFORCE_IF_MATCH"], True)
+
+        self.assertEqual(self.app.config["ALLOWED_FILTERS"], ["*"])
+        self.assertEqual(self.app.config["VALIDATE_FILTERS"], False)
+        self.assertEqual(self.app.config["SORTING"], True)
+        self.assertEqual(self.app.config["JSON_SORT_KEYS"], False)
+        self.assertEqual(
+            self.app.config["RENDERERS"],
+            ["eve.render.JSONRenderer", "eve.render.XMLRenderer"],
+        )
+        self.assertEqual(self.app.config["EMBEDDING"], True)
+        self.assertEqual(self.app.config["PROJECTION"], True)
+        self.assertEqual(self.app.config["PAGINATION"], True)
+        self.assertEqual(self.app.config["PAGINATION_LIMIT"], 50)
+        self.assertEqual(self.app.config["PAGINATION_DEFAULT"], 25)
+        self.assertEqual(self.app.config["VERSIONING"], False)
+        self.assertEqual(self.app.config["VERSIONS"], "_versions")
+        self.assertEqual(self.app.config["VERSION_PARAM"], "version")
+        self.assertEqual(self.app.config["INTERNAL_RESOURCE"], False)
+        self.assertEqual(self.app.config["JSONP_ARGUMENT"], None)
+        self.assertEqual(self.app.config["SOFT_DELETE"], False)
+        self.assertEqual(self.app.config["SHOW_DELETED_PARAM"], "show_deleted")
+        self.assertEqual(self.app.config["BULK_ENABLED"], True)
 
         self.assertEqual(self.app.config["OPLOG"], False)
         self.assertEqual(self.app.config["OPLOG_NAME"], "oplog")
         self.assertEqual(self.app.config["OPLOG_ENDPOINT"], None)
         self.assertEqual(self.app.config["OPLOG_AUDIT"], True)
         self.assertEqual(
-            self.app.config["OPLOG_METHODS"], ["DELETE", "POST", "PATCH", "PUT"]
+            self.app.config["OPLOG_METHODS"],
+            [
+                "DELETE",
+                "POST",
+                "PATCH",
+                "PUT",
+            ],
         )
         self.assertEqual(
-            self.app.config["OPLOG_CHANGE_METHODS"], ["DELETE", "PATCH", "PUT"]
+            self.app.config["OPLOG_CHANGE_METHODS"],
+            [
+                "DELETE",
+                "PATCH",
+                "PUT",
+            ],
         )
-        self.assertEqual(self.app.config["QUERY_WHERE"], "where")
+        self.assertEqual(self.app.config["OPLOG_RETURN_EXTRA_FIELD"], False)
+
+        self.assertEqual(self.app.config["RESOURCE_METHODS"], ["GET"])
+        self.assertEqual(self.app.config["ITEM_METHODS"], ["GET"])
+        self.assertEqual(self.app.config["PUBLIC_METHODS"], [])
+        self.assertEqual(self.app.config["ALLOWED_ROLES"], [])
+        self.assertEqual(self.app.config["ALLOWED_READ_ROLES"], [])
+        self.assertEqual(self.app.config["ALLOWED_WRITE_ROLES"], [])
+        self.assertEqual(self.app.config["PUBLIC_ITEM_METHODS"], [])
+        self.assertEqual(self.app.config["ALLOWED_ITEM_ROLES"], [])
+        self.assertEqual(self.app.config["ALLOWED_ITEM_READ_ROLES"], [])
+        self.assertEqual(self.app.config["ALLOWED_ITEM_WRITE_ROLES"], [])
+        self.assertEqual(self.app.config["ALLOW_OVERRIDE_HTTP_METHOD"], True)
+        self.assertEqual(self.app.config["ITEM_LOOKUP"], True)
+        self.assertEqual(
+            self.app.config["ITEM_LOOKUP_FIELD"], self.app.config["ID_FIELD"]
+        )
+        self.assertEqual(self.app.config["ITEM_URL"], 'regex("[a-f0-9]{24}")')
+        self.assertEqual(self.app.config["UPSERT_ON_PUT"], True)
+        self.assertEqual(self.app.config["MERGE_NESTED_DOCUMENTS"], True)
+
+        self.assertEqual(self.app.config["EXTENDED_MEDIA_INFO"], [])
+        self.assertEqual(self.app.config["RETURN_MEDIA_AS_BASE64_STRING"], True)
+        self.assertEqual(self.app.config["RETURN_MEDIA_AS_URL"], False)
+        self.assertEqual(self.app.config["MEDIA_ENDPOINT"], "media")
+        self.assertEqual(self.app.config["MEDIA_URL"], 'regex("[a-f0-9]{24}")')
+        self.assertEqual(self.app.config["MEDIA_BASE_URL"], None)
+
+        self.assertEqual(self.app.config["MULTIPART_FORM_FIELDS_AS_JSON"], False)
+        self.assertEqual(self.app.config["AUTO_COLLAPSE_MULTI_KEYS"], False)
+        self.assertEqual(self.app.config["AUTO_CREATE_LISTS"], False)
+        self.assertEqual(
+            self.app.config["JSON_REQUEST_CONTENT_TYPES"], ["application/json"]
+        )
+
+        self.assertEqual(self.app.config["SCHEMA_ENDPOINT"], None)
+
+        self.assertEqual(self.app.config["EXTRA_RESPONSE_FIELDS"], [])
+        self.assertEqual(self.app.config["BANDWIDTH_SAVER"], True)
+
         self.assertEqual(self.app.config["QUERY_PROJECTION"], "projection")
         self.assertEqual(self.app.config["QUERY_SORT"], "sort")
         self.assertEqual(self.app.config["QUERY_PAGE"], "page")
@@ -80,19 +187,28 @@ class TestConfig(TestBase):
         self.assertEqual(self.app.config["QUERY_EMBEDDED"], "embedded")
         self.assertEqual(self.app.config["QUERY_AGGREGATION"], "aggregate")
 
-        self.assertEqual(self.app.config["JSON_SORT_KEYS"], False)
-        self.assertEqual(self.app.config["SOFT_DELETE"], False)
-        self.assertEqual(self.app.config["DELETED"], "_deleted")
-        self.assertEqual(self.app.config["SHOW_DELETED_PARAM"], "show_deleted")
+        self.assertEqual(self.app.config["HEADER_TOTAL_COUNT"], "X-Total-Count")
+        self.assertEqual(self.app.config["OPTIMIZE_PAGINATION_FOR_SPEED"], False)
+
+        self.assertEqual(self.app.config["AUTH_FIELD"], None)
+
+        self.assertEqual(self.app.config["ALLOW_UNKNOWN"], False)
+
+        self.assertEqual(self.app.config["ALLOW_CUSTOM_FIELDS_IN_GEOJSON"], False)
+
+        self.assertEqual(self.app.config["RATE_LIMIT_GET"], None)
+        self.assertEqual(self.app.config["RATE_LIMIT_POST"], None)
+        self.assertEqual(self.app.config["RATE_LIMIT_PATCH"], None)
+        self.assertEqual(self.app.config["RATE_LIMIT_DELETE"], None)
+
+        self.assertEqual(self.app.config["MONGO_QUERY_BLACKLIST"], ["$where", "$regex"])
+        self.assertEqual(self.app.config["MONGO_QUERY_WHITELIST"], [])
+        self.assertEqual(self.app.config["MONGO_WRITE_CONCERN"], {"w": 1})
         self.assertEqual(
-            self.app.config["STANDARD_ERRORS"],
-            [400, 401, 403, 404, 405, 406, 409, 410, 412, 422, 428, 429],
+            self.app.config["MONGO_OPTIONS"], {"connect": True, "tz_aware": True}
         )
-        self.assertEqual(self.app.config["UPSERT_ON_PUT"], True)
-        self.assertEqual(
-            self.app.config["JSON_REQUEST_CONTENT_TYPES"], ["application/json"]
-        )
-        self.assertEqual(self.app.config["NORMALIZE_DOTTED_FIELDS"], True)
+
+        self.assertEqual(self.app.config["NORMALIZE_ON_PATCH"], True)
 
     def test_settings_as_dict(self):
         my_settings = {"API_VERSION": "override!", "DOMAIN": {"contacts": {}}}
