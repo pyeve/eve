@@ -6,10 +6,12 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
-- Versioning: support for dynamic datasources (`#1423`)
+- Documentation: corrected variable name (`#1426`_)
+- Versioning: support for dynamic datasources (`#1423`_)
 - Disable MD5 support in GridFS, as it is deprecated (`#1410`_)
-- Demo application has been terminated by Heroky; dropped any reference to it.
+- Demo application has been terminated by Heroku. Dropped any reference to it.
 
+.. _`#1426`: https://github.com/pyeve/eve/pull/1426
 .. _`#1423`: https://github.com/pyeve/eve/issues/1423
 .. _`#1410`: https://github.com/pyeve/eve/issues/1410
 

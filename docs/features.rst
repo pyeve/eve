@@ -1507,7 +1507,7 @@ Example:
 .. code-block:: pycon
 
     >>> def before_insert(resource_name, items):
-    ...  print('About to store items to "%s" ' % resource)
+    ...  print('About to store items to "%s" ' % resource_name)
 
     >>> def after_insert_contacts(items):
     ...  print('About to store contacts')
