@@ -30,7 +30,7 @@ def get_document_simulate_concurrent_update(*args, **kwargs):
     """
     Hostile version of get_document
 
-    This simluates another process updating MongoDB (and ETag) in
+    This simulates another process updating MongoDB (and ETag) in
     eve.methods.patch.patch_internal() during the critical area
     between get_document() and app.data.update()
     """

@@ -434,6 +434,7 @@ class TestBase(TestMinimal):
         self.item_etag = contact[ETAG]
         self.item_ref = contact["ref"]
         self.item_rows = contact["rows"]
+        self.item_city = contact["location"]["city"]
         self.item_id_url = "/%s/%s" % (
             self.domain[self.known_resource]["url"],
             self.item_id,

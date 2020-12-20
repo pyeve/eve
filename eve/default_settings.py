@@ -274,3 +274,7 @@ MONGO_OPTIONS = {"connect": True, "tz_aware": True}
 # this means fields will be reset their the default value, if any, unless
 # contained in the patch body.
 NORMALIZE_ON_PATCH = True
+
+# if true, the on_updated callback in PATCH requests gets the original data
+# in the `updates` argument, instead of the updates merged with nested data.
+ORIG_UPDATES_IN_CALLBACKS = False

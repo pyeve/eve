@@ -83,6 +83,9 @@ def patch_internal(
     :param mongo_options: options to pass to PyMongo. e.g. read_preferences of the initial get.
     :param **lookup: document lookup query.
 
+    .. versionchanged:: 1.1.5
+       on_updated callbacks gets the original `updates` when `orig_updates_in_callbacks` is true.
+
     .. versionchanged:: 0.6.2
        Fix: validator is not set when skip_validation is true.
 
@@ -95,7 +98,7 @@ def patch_internal(
        itself (#519).
        Push updates to the OpLog.
        Original patch() has been split into patch() and patch_internal().
-       You can now pass a pre-defined custom payload to the funcion.
+       You can now pass a pre-defined custom payload to the function.
        ETAG is now stored with the document (#369).
        Catching all HTTPExceptions and returning them to the caller, allowing
        for eventual flask.abort() invocations in callback functions to go
@@ -218,6 +221,8 @@ def patch_internal(
             getattr(app, "on_update")(resource, updates, original)
             getattr(app, "on_update_%s" % resource)(updates, original)
 
+            # keep track of the original update as the merge_nested_documents operation modifies them
+            orig_updates = updates
             if resource_def["merge_nested_documents"]:
                 updates = resolve_nested_documents(updates, updated)
 
@@ -227,6 +232,7 @@ def patch_internal(
                 resolve_document_etag(updated, resource)
                 # now storing the (updated) ETAG with every document (#453)
                 updates[config.ETAG] = updated[config.ETAG]
+                orig_updates[config.ETAG] = updated[config.ETAG]
             try:
                 app.data.update(resource, object_id, updates, original)
             except app.data.OriginalChangedError:
@@ -234,13 +240,16 @@ def patch_internal(
                     abort(412, description="Client and server etags don't match")
 
             # update oplog if needed
-            oplog_push(resource, updates, "PATCH", object_id)
+            oplog_push(resource, orig_updates, "PATCH", object_id)
 
             insert_versioning_documents(resource, updated)
 
-            # nofity callbacks
-            getattr(app, "on_updated")(resource, updates, original)
-            getattr(app, "on_updated_%s" % resource)(updates, original)
+            # notify callbacks
+            callback_updates = (
+                orig_updates if resource_def["orig_updates_in_callbacks"] else updates
+            )
+            getattr(app, "on_updated")(resource, callback_updates, original)
+            getattr(app, "on_updated_%s" % resource)(callback_updates, original)
 
             updated.update(updates)
 
@@ -262,7 +271,7 @@ def patch_internal(
         app.logger.exception(e)
         abort(400, description=debug_error_message("An exception occurred: %s" % e))
 
-    if len(issues):
+    if issues:
         response[config.ISSUES] = issues
         response[config.STATUS] = config.STATUS_ERR
         status = config.VALIDATION_ERROR_STATUS

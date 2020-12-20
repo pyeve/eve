@@ -866,15 +866,27 @@ class TestPatch(TestBase):
         return self.parse_response(r)
 
 
-class TestEvents(TestBase):
+class TestPatchEvents(TestBase):
     new_ref = "0123456789012345678901234"
+    new_city = "gotham"
 
     def test_on_pre_PATCH(self):
         devent = DummyEvent(self.before_update)
         self.app.on_pre_PATCH += devent
         self.patch()
-        self.assertEqual(self.known_resource, devent.called[0])
         self.assertEqual(3, len(devent.called))
+        resource, request, updates = devent.called
+        self.assertEqual(resource, self.known_resource)
+        self.assertTrue("_id" in updates)
+
+    def test_on_pre_PATCH_nested(self):
+        devent = DummyEvent(self.before_update)
+        self.app.on_pre_PATCH += devent
+        self.patch_nested()
+        self.assertEqual(3, len(devent.called))
+        resource, request, updates = devent.called
+        self.assertEqual(resource, self.known_resource)
+        self.assertTrue("_id" in updates)
 
     def test_on_pre_PATCH_contacts(self):
         devent = DummyEvent(self.before_update)
@@ -896,41 +908,101 @@ class TestEvents(TestBase):
         self.app.on_post_PATCH += devent
         self.patch()
         self.assertEqual(self.known_resource, devent.called[0])
-        self.assertEqual(200, devent.called[2].status_code)
         self.assertEqual(3, len(devent.called))
+        self.assertEqual(200, devent.called[2].status_code)
 
     def test_on_post_PATCH_contacts(self):
         devent = DummyEvent(self.after_update)
         self.app.on_post_PATCH_contacts += devent
         self.patch()
-        self.assertEqual(200, devent.called[1].status_code)
         self.assertEqual(2, len(devent.called))
+        self.assertEqual(200, devent.called[1].status_code)
 
     def test_on_update(self):
         devent = DummyEvent(self.before_update)
         self.app.on_update += devent
         self.patch()
-        self.assertEqual(self.known_resource, devent.called[0])
         self.assertEqual(3, len(devent.called))
+        resource, updates, orig = devent.called
+        self.assertEqual(resource, self.known_resource)
+        self.assertEqual(len(updates), 4)
+        self.assertTrue(all(kv in updates.items() for kv in self.patch_body.items()))
+        self.assertTrue(
+            all(
+                f in updates
+                for f in ["_etag", "_updated", "ref", "unsetted_default_value_field"]
+            )
+        )
+        self.assertEqual(orig["ref"], self.item["ref"])
+
+    def test_on_update_nested(self):
+        devent = DummyEvent(self.before_update_nested)
+        self.app.on_update += devent
+        self.patch_nested()
+        self.assertEqual(3, len(devent.called))
+        resource, updates, orig = devent.called
+        self.assertEqual(resource, self.known_resource)
+        # updates should only contain the update, no other nested fields
+        self.assertTrue(all(kv in updates.items() for kv in self.patch_body.items()))
 
     def test_on_update_contacts(self):
         devent = DummyEvent(self.before_update)
         self.app.on_update_contacts += devent
         self.patch()
         self.assertEqual(2, len(devent.called))
+        updates, orig = devent.called
+        self.assertTrue(all(kv in updates.items() for kv in self.patch_body.items()))
 
     def test_on_updated(self):
         devent = DummyEvent(self.after_update)
         self.app.on_updated += devent
         self.patch()
-        self.assertEqual(self.known_resource, devent.called[0])
         self.assertEqual(3, len(devent.called))
+        resource, updates, orig = devent.called
+        self.assertEqual(resource, self.known_resource)
+        # updates contains the patch_body and the _updated field
+        self.assertTrue(all(kv in updates.items() for kv in self.patch_body.items()))
+        self.assertEqual(orig["ref"], self.item["ref"])
+
+    def test_on_updated_nested_old(self):
+        """Assert that default pre-1.1.5 behaviour is unchanged: updates contains the complete nested changes"""
+        devent = DummyEvent(self.after_update_nested, deepcopy=True)
+        self.app.on_updated += devent
+        self.patch_nested()
+        self.assertEqual(3, len(devent.called))
+        resource, updates, orig = devent.called
+        self.assertEqual(resource, self.known_resource)
+        # updates contains the complete updated location, not just the city as in the original patch_body
+        self.assertNotEqual(updates["location"], {"city": self.new_city})
+
+    def test_on_updated_nested_orig_updates(self):
+        """Assert that on_updated hook can get the the original update in the callback"""
+        self.app.config["DOMAIN"][self.known_resource][
+            "orig_updates_in_callbacks"
+        ] = True
+        devent = DummyEvent(self.after_update_nested, deepcopy=True)
+        self.app.on_updated += devent
+        self.patch_nested()
+        self.assertEqual(3, len(devent.called))
+        resource, updates, orig = devent.called
+        self.assertEqual(resource, self.known_resource)
+        # updates should only contain the update, no other nested fields
+        self.assertEqual(updates["location"], {"city": self.new_city})
 
     def test_on_updated_contacts(self):
         devent = DummyEvent(self.after_update)
         self.app.on_updated_contacts += devent
         self.patch()
         self.assertEqual(2, len(devent.called))
+        updates, original = devent.called
+        self.assertEqual(updates.get("ref"), self.new_ref)
+        self.assertTrue(
+            all(
+                f in updates
+                for f in ["_etag", "_updated", "ref", "unsetted_default_value_field"]
+            )
+        )
+        self.assertEqual(original["ref"], self.item["ref"])
 
     def before_update(self):
         db = self.connection[MONGO_DBNAME]
@@ -940,7 +1012,22 @@ class TestEvents(TestBase):
     def after_update(self):
         return not self.before_update()
 
+    def before_update_nested(self):
+        db = self.connection[MONGO_DBNAME]
+        contact = db.contacts.find_one(ObjectId(self.item_id))
+        return contact["location"]["city"] == self.item_city
+
+    def after_update_nested(self):
+        return not self.before_update_nested()
+
     def patch(self):
         headers = [("Content-Type", "application/json"), ("If-Match", self.item_etag)]
-        data = json.dumps({"ref": self.new_ref})
+        self.patch_body = {"ref": self.new_ref}
+        data = json.dumps(self.patch_body)
+        return self.test_client.patch(self.item_id_url, data=data, headers=headers)
+
+    def patch_nested(self):
+        headers = [("Content-Type", "application/json"), ("If-Match", self.item_etag)]
+        self.patch_body = {"location": {"city": self.new_city}}
+        data = json.dumps(self.patch_body)
         return self.test_client.patch(self.item_id_url, data=data, headers=headers)
