@@ -94,19 +94,27 @@ class Validator(Validator):
         .. versionadded:: 0.6
         """
         if unique:
-            schema = self.schema
-            attribute_path = self.document_path + (field,)
-            temp_path = [attribute_path[0]]
 
-            for i, path in enumerate(attribute_path[:-1]):
-                schema = schema[path]
-                if schema["type"] != "list":
-                    temp_path.append(attribute_path[i + 1])
+            # In order to create the right query to check for unique values
+            # We need to obtain the schema path for the current field
+            # excluding any list fields in between.
+            schema = self.root_schema
+            document_field_path = list(self.document_path) + [field]
+            field_schema_path = []
 
-            final_path = ".".join(temp_path)
+            while document_field_path:
+                current_schema_path_type = schema.get("type")
+                path = document_field_path.pop(0)
+                if current_schema_path_type == "dict":
+                    schema = schema["schema"][path]
+                    field_schema_path.append(path)
+                elif schema.get("type") == "list":
+                    schema = schema["schema"]
+                else:
+                    schema = schema[path]
+                    field_schema_path.append(path)
 
-            query[final_path] = value
-
+            query[".".join(field_schema_path)] = value
             resource_config = config.DOMAIN[self.resource]
 
             # exclude soft deleted documents if applicable
