@@ -1020,17 +1020,77 @@ class TestPost(TestBase):
         self.assert201(status)
 
     def test_unique_within_resource_in_resource_without_filter(self):
-        r, status = self.post(
-            "test_unique", data={"unique_within_resource_attribute": "unique_value"}
-        )
+        def make_payload(unique_value):
+            return {"unique_within_resource_attribute": unique_value}
+
+        r, status = self.post("test_unique", data=make_payload("unique_value"))
         self.assert201(status)
-        r, status = self.post(
-            "test_unique", data={"unique_within_resource_attribute": "unique_value"}
-        )
+        r, status = self.post("test_unique", data=make_payload("unique_value"))
         self.assert422(status)
-        r, status = self.post(
-            "test_unique", data={"unique_within_resource_attribute": "unique_value 2"}
-        )
+        r, status = self.post("test_unique", data=make_payload("unique_value_2"))
+        self.assert201(status)
+
+    def test_unique_in_root_attribute(self):
+        def make_payload(unique_value):
+            return {"unique_attribute": unique_value}
+
+        r, status = self.post("test_unique", data=make_payload("unique_value"))
+        self.assert201(status)
+        r, status = self.post("test_unique", data=make_payload("unique_value"))
+        self.assert422(status)
+        r, status = self.post("test_unique", data=make_payload("unique_value_2"))
+        self.assert201(status)
+
+    def test_unique_in_dict_attribute(self):
+        def make_payload(unique_value):
+            return {"unique_in_dict_attribute": {"unique_attribute": unique_value}}
+
+        r, status = self.post("test_unique", data=make_payload("unique_value"))
+        self.assert201(status)
+        r, status = self.post("test_unique", data=make_payload("unique_value"))
+        self.assert422(status)
+        r, status = self.post("test_unique", data=make_payload("unique_value_2"))
+        self.assert201(status)
+
+    def test_unique_in_list_attribute(self):
+        def make_payload(unique_value):
+            return {"unique_in_list_attribute": [{"unique_attribute": unique_value}]}
+
+        r, status = self.post("test_unique", data=make_payload("unique_value"))
+        self.assert201(status)
+        r, status = self.post("test_unique", data=make_payload("unique_value"))
+        self.assert422(status)
+        r, status = self.post("test_unique", data=make_payload("unique_value_2"))
+        self.assert201(status)
+
+    def test_unique_in_deep_dict_attribute(self):
+        def make_payload(unique_value):
+            return {
+                "unique_in_deep_dict_attribute": {
+                    "dict_attribute": {"unique_attribute": unique_value}
+                }
+            }
+
+        r, status = self.post("test_unique", data=make_payload("unique_value"))
+        self.assert201(status)
+        r, status = self.post("test_unique", data=make_payload("unique_value"))
+        self.assert422(status)
+        r, status = self.post("test_unique", data=make_payload("unique_value_2"))
+        self.assert201(status)
+
+    def test_unique_in_deep_list_attribute(self):
+        def make_payload(unique_value):
+            return {
+                "unique_in_deep_list_attribute": {
+                    "list_attribute": [{"unique_attribute": unique_value}]
+                }
+            }
+
+        r, status = self.post("test_unique", data=make_payload("unique_value"))
+        self.assert201(status)
+        r, status = self.post("test_unique", data=make_payload("unique_value"))
+        self.assert422(status)
+        r, status = self.post("test_unique", data=make_payload("unique_value_2"))
         self.assert201(status)
 
     def perform_post(self, data, valid_items=[0]):

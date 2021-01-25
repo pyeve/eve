@@ -302,12 +302,48 @@ test_unique = {
     "datasource": {"source": "test_unique"},
     "schema": {
         "unique_attribute": {"type": "string", "unique": True},
+        "unique_in_dict_attribute": {
+            "type": "dict",
+            "schema": {"unique_attribute": {"type": "string", "unique": True}},
+        },
+        "unique_in_list_attribute": {
+            "type": "list",
+            "schema": {
+                "type": "dict",
+                "schema": {"unique_attribute": {"type": "string", "unique": True}},
+            },
+        },
+        "unique_in_deep_dict_attribute": {
+            "type": "dict",
+            "schema": {
+                "dict_attribute": {
+                    "type": "dict",
+                    "schema": {"unique_attribute": {"type": "string", "unique": True}},
+                }
+            },
+        },
+        "unique_in_deep_list_attribute": {
+            "type": "dict",
+            "schema": {
+                "list_attribute": {
+                    "type": "list",
+                    "schema": {
+                        "type": "dict",
+                        "schema": {
+                            "unique_attribute": {"type": "string", "unique": True}
+                        },
+                    },
+                }
+            },
+        },
         "unique_within_resource_attribute": {
             "type": "string",
             "unique_within_resource": True,
         },
     },
 }
+
+test_unique_nested = {"datasource": {"source": "test_unique_nested"}, "schema": {}}
 
 credit_rules = {
     "allow_unknown": True,
@@ -331,10 +367,7 @@ credit_rules = {
 
 brands = {
     "item_title": "brand",
-    "schema": {
-        "name": {"type": "string"},
-        "address": "string",
-    },
+    "schema": {"name": {"type": "string"}, "address": "string"},
 }
 
 components = {
