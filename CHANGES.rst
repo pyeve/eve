@@ -6,8 +6,16 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
+- hic sunt leones.
+
+Version 1.1.5
+-------------
+
+Released on January 25, 2021.
+
 Fixed
 ~~~~~
+
 - Nested unique field validation still don't work (`#1435`_)
 - Documentation: corrected variable name (`#1426`_)
 - Versioning: support for dynamic datasources (`#1423`_)
