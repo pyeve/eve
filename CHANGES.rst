@@ -6,7 +6,7 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
-- Added Python 3.9 support
+- Added Python 3.9 support and dropped Python 3.5 support
 
 Version 1.1.5
 -------------
