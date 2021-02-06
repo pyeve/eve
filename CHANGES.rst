@@ -6,7 +6,7 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
-- hic sunt leones.
+- Added Python 3.9 support
 
 Version 1.1.5
 -------------
