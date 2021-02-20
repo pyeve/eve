@@ -94,7 +94,7 @@ class TestRenders(TestBase):
         self.assertEqual(r.content_type, "application/json")
 
     def test_json_xml_disabled(self):
-        self.app.config["RENDERERS"] = tuple()
+        self.app.config["RENDERERS"] = ()
         r = self.test_client.get(
             self.known_resource_url, headers=[("Accept", "application/json")]
         )

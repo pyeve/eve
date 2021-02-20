@@ -779,14 +779,14 @@ class TestDeleteEvents(TestBase):
         devent2 = DummyEvent(self.before_delete)
         self.app.on_delete_resource_originals_contacts += devent2
         self.delete_resource()
-        self.assertEqual(tuple(), devent1.called)
+        self.assertEqual((), devent1.called)
         self.assertFalse(devent2.called is None)
 
     def test_on_deleted_resource_contacts(self):
         devent = DummyEvent(self.after_delete)
         self.app.on_deleted_resource_contacts += devent
         self.delete_resource()
-        self.assertEqual(tuple(), devent.called)
+        self.assertEqual((), devent.called)
 
     def test_on_delete_item(self):
         devent = DummyEvent(self.before_delete)

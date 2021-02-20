@@ -293,7 +293,7 @@ class Renderer(object):
 
     """
 
-    mime = tuple()
+    mime = ()
 
     def render(self, data):
         raise NotImplementedError("Renderer .render() method is not " "implemented")

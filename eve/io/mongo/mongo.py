@@ -204,7 +204,7 @@ class Mongo(DataLayer):
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
         """
-        args = dict()
+        args = {}
 
         if req and req.max_results:
             args["limit"] = req.max_results
