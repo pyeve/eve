@@ -743,11 +743,9 @@ class Eve(Flask, Events):
             # if inclusion project is empty, add all fields not excluded
             if not inclusion_projection:
                 projection.update(
-                    dict(
-                        (field, 1)
+                    {field: 1
                         for field in schema
-                        if field not in exclusion_projection
-                    )
+                        if field not in exclusion_projection}
                 )
             # enable retrieval of actual schema fields only. Eventual db
             # fields not included in the schema won't be returned.

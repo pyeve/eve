@@ -299,7 +299,7 @@ class TestConfig(TestBase):
         )
 
         self.assertEqual(
-            datasource["projection"], dict((field, 1) for (field) in compare)
+            datasource["projection"], {field: 1 for (field) in compare}
         )
         self.assertEqual(datasource["source"], resource)
         self.assertEqual(datasource["filter"], None)

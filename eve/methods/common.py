@@ -979,7 +979,7 @@ def sort_per_resource(embedded_docs, id_values_to_sort, id_field_name):
     if id_values_to_sort is None:
         id_values_to_sort = []
     embedded_docs = [x for x in embedded_docs if x is not None]
-    id2dict = dict((d[id_field_name], d) for d in embedded_docs)
+    id2dict = {d[id_field_name]: d for d in embedded_docs}
     temporary_embedded_docs = []
     for id_value_ in id_values_to_sort:
         if id_value_ in id2dict:
@@ -1194,7 +1194,7 @@ def marshal_write_response(document, resource):
     if app.config["BANDWIDTH_SAVER"] is True:
         # only return the automatic fields and special extra fields
         fields = auto_fields(resource) + resource_def["extra_response_fields"]
-        document = dict((k, v) for (k, v) in document.items() if k in fields)
+        document = {k: v for (k, v) in document.items() if k in fields}
     else:
         # avoid exposing the auth_field if it is not included in the
         # resource schema.
