@@ -6,9 +6,19 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
-- Add GitHub Actions to CI (`#1439`_)
+Fixed
+~~~~~
+
+- Do not return related fields if field is a empty list (`#1441`_)
+
+.. _`#1441`: https://github.com/pyeve/eve/pull/1441
+
+New
+~~~
+
 - Added Python 3.9 support (`#1437`_)
 - Dropped Python 3.5 support (`#1438`_)
+- Add GitHub Actions to CI (`#1439`_)
 
 .. _`#1439`: https://github.com/pyeve/eve/pull/1439
 .. _`#1438`: https://github.com/pyeve/eve/pull/1438
