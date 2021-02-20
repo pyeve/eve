@@ -6,7 +6,13 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
-- Added Python 3.9 support and dropped Python 3.5 support
+- Add GitHub Actions to CI (`#1439`_)
+- Added Python 3.9 support (`#1437`_)
+- Dropped Python 3.5 support (`#1438`_)
+
+.. _`#1439`: https://github.com/pyeve/eve/pull/1439
+.. _`#1438`: https://github.com/pyeve/eve/pull/1438
+.. _`#1437`: https://github.com/pyeve/eve/pull/1437
 
 Version 1.1.5
 -------------
