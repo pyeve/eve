@@ -77,9 +77,7 @@ class MongoVisitor(ast.NodeVisitor):
 
     def visit_Expr(self, node):
         """Make sure that we are parsing compare or boolean operators"""
-        if not (
-            isinstance(node.value, ast.Compare) or isinstance(node.value, ast.BoolOp)
-        ):
+        if not isinstance(node.value, (ast.Compare, ast.BoolOp)):
             raise ParseError("Will only parse conditional statements")
         self.generic_visit(node)
 
