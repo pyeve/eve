@@ -14,9 +14,6 @@ Version |release|.
 .. image:: https://github.com/pyeve/eve/workflows/CI/badge.svg
     :target: https://github.com/pyeve/eve/actions?query=workflow%3ACI
 
-.. image:: https://img.shields.io/travis/pyeve/eve.svg?branch=master&style=flat-square
-    :target: https://travis-ci.org/pyeve/eve
-
 .. image:: https://img.shields.io/pypi/pyversions/eve.svg?style=flat-square
     :target: https://pypi.org/project/eve
 
