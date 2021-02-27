@@ -294,11 +294,5 @@ endpoint:
 Cache directives and item title match our new settings. See :doc:`features` for
 a complete list of features available and more usage examples.
 
-.. note::
-    All examples and code snippets are from the :ref:`demo`, which is a fully
-    functional API that you can use to experiment on your own, either on the
-    live instance or locally (you can use the sample client app to populate
-    and/or reset the database).
-
 .. _`installed`: http://docs.mongodb.org/manual/installation/
 .. _running: http://docs.mongodb.org/manual/tutorial/manage-mongodb-processes/
