@@ -18,8 +18,9 @@ New
 
 - Added Python 3.9 support (`#1437`_)
 - Dropped Python 3.5 support (`#1438`_)
-- Add GitHub Actions to CI (`#1439`_)
+- Swtich from Travis CI to GitHub Actions (`#1439`_, `#1444`_)
 
+.. _`#1444`: https://github.com/pyeve/eve/pull/1444
 .. _`#1439`: https://github.com/pyeve/eve/pull/1439
 .. _`#1438`: https://github.com/pyeve/eve/pull/1438
 .. _`#1437`: https://github.com/pyeve/eve/pull/1437
