@@ -10,6 +10,8 @@
     :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
+from __future__ import division
+
 import math
 
 import copy
@@ -638,7 +640,7 @@ def _pagination_links(resource, req, document_count, document_id=None):
             }
 
             if document_count:
-                last_page = int(math.ceil(document_count / float(req.max_results)))
+                last_page = int(math.ceil(document_count / req.max_results))
                 q = querydef(
                     req.max_results,
                     req.where,

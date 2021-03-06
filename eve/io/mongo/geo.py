@@ -26,7 +26,7 @@ class GeoJSON(dict):
         return (
             isinstance(position, list)
             and len(position) > 1
-            and all(isinstance(pos, int) or isinstance(pos, float) for pos in position)
+            and all(isinstance(pos, (int, float)) for pos in position)
         )
 
 

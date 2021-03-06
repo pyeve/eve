@@ -10,7 +10,9 @@ Fixed
 ~~~~~
 
 - Do not return related fields if field is a empty list (`#1441`_)
+- Prepare for Python 3 switch (`#1445`_)
 
+.. _`#1445`: https://github.com/pyeve/eve/pull/1445
 .. _`#1441`: https://github.com/pyeve/eve/pull/1441
 
 New
