@@ -87,7 +87,7 @@ First time setup
 .. _latest version of git: https://git-scm.com/downloads
 .. _username: https://help.github.com/articles/setting-your-username-in-git/
 .. _email: https://help.github.com/articles/setting-your-email-in-git/
-.. _Fork: https://github.com/pallets/flask/fork
+.. _Fork: https://github.com/pyeve/eve/fork
 .. _Clone: https://help.github.com/articles/fork-a-repo/#step-2-create-a-local-clone-of-your-fork
 
 Start coding
