@@ -38,7 +38,7 @@
 
 """
 
-__version__ = "1.1.5"
+__version__ = "1.1.5.1"
 
 # RFC 1123 (ex RFC 822)
 DATE_FORMAT = "%a, %d %b %Y %H:%M:%S GMT"
