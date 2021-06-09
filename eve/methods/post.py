@@ -172,6 +172,7 @@ def post_internal(resource, payl=None, skip_validation=False):
     results = []
     failures = 0
     id_field = resource_def["id_field"]
+    unique_lookup_key = resource_def.get("unique_lookup_key")
 
     if config.BANDWIDTH_SAVER is True:
         embedded_fields = []
@@ -257,7 +258,11 @@ def post_internal(resource, payl=None, skip_validation=False):
         resolve_document_etag(documents, resource)
 
         # bulk insert
-        ids = app.data.insert(resource, documents)
+        ids = []
+        if unique_lookup_key:
+            ids = app.data.bulk_update(resource, unique_lookup_key, documents)
+        else:
+            ids = app.data.insert(resource, documents)
 
         # update oplog if needed
         oplog_push(resource, documents, "POST")

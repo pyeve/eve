@@ -673,6 +673,86 @@ class Mongo(DataLayer):
                 ),
             )
 
+    def bulk_update(self, resource, lookup_fields, doc_or_docs):
+        """Updates or inserts multiple documents.
+        `resource` is the name of the 
+        `lookup_fields` is a list of fields to be used as keys to determine if a specific document being inserted is unique.
+            The value of this field comes from the `unique_lookup_key` setting in the resource definition.
+            i.e. lookup_fields=["name", "account_id", {"saved":true}]
+        `doc_or_docs` is a single document or a list of documents that will be inserted or updated.  
+        """
+
+        datasource, _, _, _ = self._datasource_ex(resource)
+
+        coll = self.get_collection_with_write_concern(datasource, resource)
+
+        if isinstance(doc_or_docs, dict):
+            doc_or_docs = [doc_or_docs]
+
+        ids = []
+        operations = []
+        bulk_lookup_queries = {}
+        
+        try:
+            for doc in doc_or_docs:
+                # construct lookup fields
+                lookup = {} 
+                for field in lookup_fields:
+                    if isinstance(field, str):
+                        lookup[field] = doc[field]
+                        if field not in bulk_lookup_queries:
+                            bulk_lookup_queries[field] = {"$in": []}
+                        bulk_lookup_queries[field]["$in"].append(doc[field])
+                    elif isinstance(field, dict):
+                        lookup.update(field)
+                        bulk_lookup_queries.update(field)
+
+                # create the update operation for each document and 
+                # enable inserting if it does not exist
+                operations.append(pymongo.UpdateOne(lookup, {"$set": doc}, upsert=True))
+
+                # perform bulk write operations in chunks
+                if len(operations) == 1000:
+                    coll.bulk_write(operations, ordered=True)
+                    ids.extend([resp['_id'] for resp in coll.find(bulk_lookup_queries, projection=["_id"])])
+                    bulk_lookup_queries = {}
+                    operations = []
+            
+            if len(operations) > 0:
+                coll.bulk_write(operations, ordered=True)
+                ids.extend([resp['_id'] for resp in coll.find(bulk_lookup_queries, projection=["_id"])])
+            
+            return ids
+        except pymongo.errors.BulkWriteError as e:
+            self.app.logger.exception(e)
+
+            # since this is an ordered bulk operation, all remaining updates
+            # are aborted. Be aware that if BULK_ENABLED is True and more than
+            # one document is included with the payload, some documents might
+            # have been successfully inserted or updated, even if the operation was
+            # aborted.
+        
+            # report a duplicate key error since this can probably be
+            # handled by the client.
+            for error in e.details["writeErrors"]:
+                # amazingly enough, pymongo does not appear to be exposing
+                # error codes as constants.
+                if error["code"] == 11000:
+                    abort(
+                        409,
+                        description=debug_error_message(
+                            "Duplicate key error at index: %s, message: %s"
+                            % (error["index"], error["errmsg"])
+                        ),
+                    )
+
+            abort(
+                500,
+                description=debug_error_message(
+                    "pymongo.errors.BulkWriteError: %s" % e
+                ),
+            )
+
     # TODO: The next three methods could be pulled out to form the basis
     # of a separate MonqoQuery class
 
