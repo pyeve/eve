@@ -699,10 +699,15 @@ class Mongo(DataLayer):
                 lookup = {} 
                 for field in lookup_fields:
                     if isinstance(field, str):
-                        lookup[field] = doc[field]
-                        if field not in bulk_lookup_queries:
-                            bulk_lookup_queries[field] = {"$in": []}
-                        bulk_lookup_queries[field]["$in"].append(doc[field])
+                        if field in doc:
+                            lookup[field] = doc[field]
+                            if field not in bulk_lookup_queries:
+                                bulk_lookup_queries[field] = {"$in": []}
+                            bulk_lookup_queries[field]["$in"].append(doc[field])
+                        else:
+                            unknown_field = {field: {"$exists": False}}
+                            lookup.update(unknown_field)
+                            bulk_lookup_queries.update(unknown_field)
                     elif isinstance(field, dict):
                         lookup.update(field)
                         bulk_lookup_queries.update(field)
