@@ -174,6 +174,7 @@ INTERNAL_RESOURCE = False  # resources are public by default.
 JSONP_ARGUMENT = None  # JSONP disabled by default.
 SOFT_DELETE = False  # soft delete disabled by default.
 SHOW_DELETED_PARAM = "show_deleted"
+INCLUDE_AUTH_FIELD_PARAM = "include_user_id"
 BULK_ENABLED = True
 
 OPLOG = False  # oplog is disabled by default.

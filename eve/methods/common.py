@@ -602,14 +602,15 @@ def normalize_dotted_fields(document):
                 normalize_dotted_fields(document[field])
 
 
-def build_response_document(document, resource, embedded_fields, latest_doc=None):
+def build_response_document(document, resource, embedded_fields, latest_doc=None, req=None):
     """Prepares a document for response including generation of ETag and
     metadata fields.
 
     :param document: the document to embed other documents into.
     :param resource: the resource name.
     :param embedded_fields: the list of fields we are allowed to embed.
-    :param document: the latest version of document.
+    :param latest_doc: the latest version of document.
+    :param req: a :class:`ParsedRequest` instance.
 
     .. versionchanged:: 0.8.2
        Add data relation fields hateoas support (#1204).
@@ -622,7 +623,7 @@ def build_response_document(document, resource, embedded_fields, latest_doc=None
     """
     resource_def = config.DOMAIN[resource]
 
-    resolve_resource_projection(document, resource)
+    resolve_resource_projection(document, resource, req)
 
     # need to update the document field since the etag must be computed on the
     # same document representation that might have been used in the collection
@@ -673,12 +674,13 @@ def build_response_document(document, resource, embedded_fields, latest_doc=None
     resolve_embedded_documents(document, resource, embedded_fields)
 
 
-def resolve_resource_projection(document, resource):
+def resolve_resource_projection(document, resource, req=None):
     """Purges a document of fields that are not included in its resource
     projecton.
 
     :param document: the original document.
     :param resource: the resource name.
+    :param req: a :class:`ParsedRequest` instance.
     """
 
     if config.BANDWIDTH_SAVER:
@@ -692,6 +694,14 @@ def resolve_resource_projection(document, resource):
         # BANDWIDTH_SAVER is disabled, and no projection is defined or
         # projection feature is disabled, so return entire document.
         return
+
+    auth_field = resource_def["auth_field"]
+    if req and req.include_auth_field:
+        projection[auth_field] = 1
+    else:
+        if projection.get(auth_field):
+            del projection[auth_field]
+
     fields = {
         field for field, value in projection.items() if value and field in document
     }
