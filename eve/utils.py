@@ -92,6 +92,10 @@ class ParsedRequest(object):
     # Only relevant when soft delete is enabled. Defaults to False.
     show_deleted = False
 
+    # 'include_auth_field` True when the INCLUDE_AUTH_FIELD_PARAM is included
+    # in the query. Defaults to False.
+    include_auth_field = False
+
     # `aggregation` value of the query string (?aggregation). Defaults to None.
     aggregation = None
 
@@ -140,6 +144,7 @@ def parse_request(resource):
         r.aggregation = args.get(config.QUERY_AGGREGATION)
 
     r.show_deleted = config.SHOW_DELETED_PARAM in args
+    r.include_auth_field = config.INCLUDE_AUTH_FIELD_PARAM in args
 
     max_results_default = config.PAGINATION_DEFAULT if settings["pagination"] else 0
     try:

@@ -267,7 +267,7 @@ def _perform_find(resource, lookup):
     # If soft delete is enabled, data.find will not include items marked
     # deleted unless req.show_deleted is True
     for document in cursor:
-        build_response_document(document, resource, embedded_fields)
+        build_response_document(document, resource, embedded_fields, req=req)
         documents.append(document)
 
         # build last update for entire response
@@ -411,7 +411,7 @@ def getitem_internal(resource, **lookup):
         document = get_old_document(resource, req, lookup, document, version)
 
     # meld into response document
-    build_response_document(document, resource, embedded_fields, latest_doc)
+    build_response_document(document, resource, embedded_fields, latest_doc, req)
     if config.IF_MATCH:
         etag = document[config.ETAG]
         if resource_def["versioning"] is True:

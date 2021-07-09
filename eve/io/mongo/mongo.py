@@ -142,7 +142,14 @@ class Mongo(DataLayer):
         self.driver = PyMongos(self)
         self.mongo_prefix = None
 
-    def find(self, resource, req, sub_resource_lookup, perform_count=True):
+    def find(
+        self,
+        resource,
+        req,
+        sub_resource_lookup,
+        perform_count=True,
+        force_auth_field_projection=False
+    ):
         """Retrieves a set of documents matching a given request. Queries can
         be expressed in two different formats: the mongo query syntax, and the
         python syntax. The first kind of query would look like: ::
@@ -212,6 +219,9 @@ class Mongo(DataLayer):
         if req and req.page > 1:
             args["skip"] = (req.page - 1) * req.max_results
 
+        if req and req.include_auth_field:
+            force_auth_field_projection = True
+
         # TODO sort syntax should probably be coherent with 'where': either
         # mongo-like # or python-like. Currently accepts only mongo-like sort
         # syntax.
@@ -244,7 +254,11 @@ class Mongo(DataLayer):
         client_projection = self._client_projection(req)
 
         datasource, spec, projection, sort = self._datasource_ex(
-            resource, spec, client_projection, client_sort
+            resource,
+            spec,
+            client_projection,
+            client_sort,
+            force_auth_field_projection=force_auth_field_projection
         )
 
         if req and req.if_modified_since:
@@ -331,6 +345,9 @@ class Mongo(DataLayer):
         self._mongotize(lookup, resource)
 
         client_projection = self._client_projection(req)
+
+        if req and req.include_auth_field:
+            force_auth_field_projection = True
 
         datasource, filter_, projection, _ = self._datasource_ex(
             resource,
