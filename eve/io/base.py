@@ -477,12 +477,13 @@ class DataLayer(object):
         # documents.
         if (
             request
-            and request.method != "POST"
             and (check_auth_value or force_auth_field_projection)
         ):
             auth_field, request_auth_value = auth_field_and_value(resource)
             if auth_field:
-                if request_auth_value and check_auth_value:
+                if force_auth_field_projection:
+                    fields[auth_field] = 1
+                if request.method != "POST" and request_auth_value and check_auth_value:
                     if query:
                         # If the auth_field *replaces* a field in the query,
                         # and the values are /different/, deny the request
@@ -508,8 +509,7 @@ class DataLayer(object):
                             )
                     else:
                         query = {auth_field: request_auth_value}
-                if force_auth_field_projection:
-                    fields[auth_field] = 1
+
         return datasource, query, fields, sort
 
     def _client_projection(self, req):
