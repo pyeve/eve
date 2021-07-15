@@ -1188,7 +1188,7 @@ def resolve_one_media(file_id, resource):
         return None
 
 
-def marshal_write_response(document, resource):
+def marshal_write_response(document, resource, req=None):
     """Limit response document to minimize bandwidth when client supports it.
 
     :param document: the response document.
@@ -1205,7 +1205,7 @@ def marshal_write_response(document, resource):
         # only return the automatic fields and special extra fields
         fields = auto_fields(resource) + resource_def["extra_response_fields"]
         document = dict((k, v) for (k, v) in document.items() if k in fields)
-    else:
+    elif not req or not req.include_auth_field:
         # avoid exposing the auth_field if it is not included in the
         # resource schema.
         auth_field = resource_def.get("auth_field")
