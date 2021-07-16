@@ -245,7 +245,7 @@ def patch_internal(
             updated.update(updates)
 
             # build the full response document
-            build_response_document(updated, resource, embedded_fields, updated)
+            build_response_document(updated, resource, embedded_fields, updated, req)
             response = updated
             if config.IF_MATCH:
                 etag = response[config.ETAG]
@@ -271,7 +271,7 @@ def patch_internal(
         status = 200
 
     # limit what actually gets sent to minimize bandwidth usage
-    response = marshal_write_response(response, resource)
+    response = marshal_write_response(response, resource, req)
 
     return response, last_modified, etag, status
 
