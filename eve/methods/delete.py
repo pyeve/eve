@@ -47,7 +47,7 @@ def deleteitem(resource, **lookup):
     .. versionchanged:: 0.5
        Split into deleteitem() and deleteitem_internal().
     """
-    return deleteitem_internal(resource, concurrency_check=True, **lookup)
+    return deleteitem_internal(resource, concurrency_check=False, **lookup)
 
 
 def deleteitem_internal(
