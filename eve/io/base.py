@@ -501,7 +501,7 @@ class DataLayer(object):
                             abort(
                                 401,
                                 desc,
-                                ("WWW-Authenticate", 'Basic realm="%s"' % __package__),
+                                ("WWW-Authenticate", 'Bearer realm="%s"' % __package__),
                             )
                         else:
                             query = self.app.data.combine_queries(
