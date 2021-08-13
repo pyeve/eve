@@ -1,6 +1,21 @@
 # Change log
 All notable changes to this project will be documented in this file.
 
+# WWW-Authenticate header
+
+When authentication fails, Eve sets the following header in response:
+
+```
+WWW-Authenticate: Basic realm="eve"
+```
+This caused some browsers to show a user name/password dialog
+impacting our UI. Ideally, the authentication scheme in this header
+should be set based on the type of authentication that is being
+used. For example, if "TokenAuth" is used, the scheme should be
+"Bearer". But for now, we are hardcoding "Bearer".
+
+Commit ID: 70a18e6f96287d2643a9d23e77174e9bb7526287.
+
 # 2021-07-03
 ### Return user_id in the response, if "include_user_id" query parameter is set.
 By default, Eve does not allow the value of "auth_field" to be present in the response.
