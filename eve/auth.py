@@ -274,7 +274,7 @@ class TokenAuth(BasicAuth):
         if not auth and request.headers.get("Authorization"):
             auth = request.headers.get("Authorization").strip()
             if auth.lower().startswith(("token", "bearer")):
-                auth = auth.split(" ")[1]
+                auth = auth.split(" ")[1] if " " in auth else ""
 
         if auth:
             self.set_user_or_token(auth)
