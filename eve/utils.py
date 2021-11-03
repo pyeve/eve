@@ -11,6 +11,7 @@
 """
 
 import sys
+import pytz
 from importlib import import_module
 
 import eve
@@ -200,9 +201,20 @@ def str_to_date(string):
     """Converts a date string formatted as defined in the configuration
         to the corresponding datetime value.
 
+    Try to convert date-string to a iso datetime format, otherwise, try some other formats
+    until give it up.
+
     :param string: the RFC-1123 string to convert to datetime value.
     """
-    return datetime.strptime(string, config.DATE_FORMAT) if string else None
+    if string and isinstance(string, str):
+        accepted_date_formats = {config.DATE_FORMAT, *config.ACCEPTED_DATE_FORMATS}
+        for date_format in accepted_date_formats:
+            try:
+                date = datetime.strptime(string, date_format)
+                return date.replace(tzinfo=pytz.utc) if config.IGNORE_TZINFO else date
+            except ValueError:
+                continue
+    raise ValueError
 
 
 def date_to_str(date):

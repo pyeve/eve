@@ -17,6 +17,7 @@ INSTALL_REQUIRES = [
     "events>=0.3,<0.4",
     "flask",
     "pymongo>=3.7",
+    "pytz>2021.1",
     "simplejson>=3.3.0,<4.0",
 ]
 

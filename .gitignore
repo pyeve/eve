@@ -53,6 +53,7 @@ Scripts
 
 #pyenv
 .python-version
+/venv
 
 #OSX
 .Python

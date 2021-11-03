@@ -107,6 +107,8 @@
 
 # RFC 1123 (ex RFC 822)
 DATE_FORMAT = "%a, %d %b %Y %H:%M:%S GMT"
+ACCEPTED_DATE_FORMATS = ["%a, %d %b %Y %H:%M:%S GMT", "%a, %d %b %Y GMT"]
+IGNORE_TZINFO = False
 
 STATUS_OK = "OK"
 STATUS_ERR = "ERR"

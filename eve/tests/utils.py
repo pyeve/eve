@@ -141,6 +141,8 @@ class TestUtils(TestBase):
 
     def test_str_to_date(self):
         self.assertEqual(str_to_date(self.datestr), self.valid)
+        self.assertEqual(str_to_date("Tue, 18 Sep 2012 GMT"),
+                         self.valid.replace(hour=0, minute=0, second=0))
         self.assertRaises(ValueError, str_to_date, "not-a-date")
         self.assertRaises(ValueError, str_to_date, self.datestr.replace("GMT", "UTC"))
 

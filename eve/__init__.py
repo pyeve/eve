@@ -43,6 +43,8 @@ __version__ = "1.1.6.dev0"
 # RFC 1123 (ex RFC 822)
 DATE_FORMAT = "%a, %d %b %Y %H:%M:%S GMT"
 RFC1123_DATE_FORMAT = "%a, %d %b %Y %H:%M:%S GMT"
+ACCEPTED_DATE_FORMATS = ["%a, %d %b %Y %H:%M:%S GMT", "%a, %d %b %Y GMT"]
+IGNORE_TZINFO = False
 
 URL_PREFIX = ""
 API_VERSION = ""
