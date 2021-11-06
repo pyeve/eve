@@ -749,7 +749,7 @@ uppercase.
                                     altogether. Defaults to ``[400, 401, 403,
                                     404, 405, 406, 409, 410, 412, 422, 428]``
 
-``VALIDATION_ERROR_AS_STRING``      If ``True`` even single field errors will
+``VALIDATION_ERROR_AS_LIST``        If ``True`` even single field errors will
                                     be returned in a list. By default single
                                     field errors are returned as strings while
                                     multiple field errors are bundled in a
