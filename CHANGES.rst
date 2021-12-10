@@ -9,10 +9,12 @@ In Development
 Fixed
 ~~~~~
 
+- Pin pymongo version in dependencies (`#1461`_)
 - Fix fork link in contributing info (`#1447`_)
 - Do not return related fields if field is a empty list (`#1441`_)
 - Prepare for Python 3 switch (`#1445`_)
 
+.. _`#1461`: https://github.com/pyeve/eve/issues/1461
 .. _`#1447`: https://github.com/pyeve/eve/pull/1447
 .. _`#1445`: https://github.com/pyeve/eve/pull/1445
 .. _`#1441`: https://github.com/pyeve/eve/pull/1441
