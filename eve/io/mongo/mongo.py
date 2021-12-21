@@ -706,9 +706,9 @@ class Mongo(DataLayer):
         if isinstance(doc_or_docs, dict):
             doc_or_docs = [doc_or_docs]
 
-        ids = []
         operations = []
         bulk_lookup_queries = {}
+        response_documents = []
         
         try:
             for doc in doc_or_docs:
@@ -736,15 +736,15 @@ class Mongo(DataLayer):
                 # perform bulk write operations in chunks
                 if len(operations) == 1000:
                     coll.bulk_write(operations, ordered=True)
-                    ids.extend([resp['_id'] for resp in coll.find(bulk_lookup_queries, projection=["_id"])])
+                    response_documents.extend(coll.find(bulk_lookup_queries))
                     bulk_lookup_queries = {}
                     operations = []
             
             if len(operations) > 0:
                 coll.bulk_write(operations, ordered=True)
-                ids.extend([resp['_id'] for resp in coll.find(bulk_lookup_queries, projection=["_id"])])
+                response_documents.extend(coll.find(bulk_lookup_queries))
             
-            return ids
+            return response_documents
         except pymongo.errors.BulkWriteError as e:
             self.app.logger.exception(e)
 

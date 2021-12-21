@@ -260,7 +260,7 @@ def post_internal(resource, payl=None, skip_validation=False):
         # bulk insert
         ids = []
         if unique_lookup_key:
-            ids = app.data.bulk_update(resource, unique_lookup_key, documents)
+            documents = app.data.bulk_update(resource, unique_lookup_key, documents)
         else:
             ids = app.data.insert(resource, documents)
 
@@ -269,10 +269,13 @@ def post_internal(resource, payl=None, skip_validation=False):
 
         # assign document ids
         for document in documents:
-            # either return the custom ID_FIELD or the id returned by
-            # data.insert().
-            id_ = document.get(id_field, ids.pop(0))
-            document[id_field] = id_
+            # documents updated or upserted through a bulk update will always have 
+            # the "_id" field set.
+            if not unique_lookup_key:
+                # either return the custom ID_FIELD or the id returned by
+                # data.insert().
+                id_ = document.get(id_field, ids.pop(0))
+                document[id_field] = id_
 
             # build the full response document
             result = document
