@@ -27,6 +27,8 @@ class TestGet(TestBase):
         self.assertResourceLink(links, self.empty_resource)
         self.assertHomeLink(links)
 
+        self.assertPagination(response, 1, 0, 25)
+
     def test_get_max_results(self):
         maxr = 10
         response, status = self.get(self.known_resource, "?max_results=%d" % maxr)
@@ -381,7 +383,7 @@ class TestGet(TestBase):
             self.assertTrue(r[self.app.config["DATE_CREATED"]] != self.epoch)
 
     def test_get_static_projection(self):
-        """ Test that static projections are honoured """
+        """Test that static projections are honoured"""
         response, status = self.get(self.different_resource)
         self.assert200(status)
 
@@ -1279,21 +1281,21 @@ class TestGet(TestBase):
         self.assert200(status)
 
     def test_get_invalid_idfield_cors(self):
-        """ test that #381 is fixed. """
+        """test that #381 is fixed."""
         request = "/%s/badid" % self.known_resource
         self.app.config["X_DOMAINS"] = "*"
         r = self.test_client.get(request, headers=[("Origin", "test.com")])
         self.assert404(r.status_code)
 
     def test_get_invalid_where_syntax(self):
-        """ test that 'where' syntax with unknown '$' operator returns 400. """
+        """test that 'where' syntax with unknown '$' operator returns 400."""
         response, status = self.get(
             self.known_resource, '?where={"field": {"$foo": "bar"}}'
         )
         self.assert400(status)
 
     def test_get_invalid_sort_syntax(self):
-        """ test that invalid sort syntax returns a 400 """
+        """test that invalid sort syntax returns a 400"""
         response, status = self.get(self.known_resource, '?sort=[("prog":1)]')
         self.assert400(status)
         response, status = self.get(self.known_resource, '?sort="firstname"')
