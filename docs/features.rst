@@ -100,8 +100,8 @@ These additional fields are automatically handled by the API (clients don't
 need to provide them when adding/editing resources).
 
 The ``_meta`` field provides pagination data and will only be there if
-:ref:`Pagination` has been enabled (it is by default) and there is at least one
-document being returned. The ``_links`` list provides HATEOAS_ directives.
+:ref:`Pagination` has been enabled (it is by default). The ``_links`` list
+provides HATEOAS_ directives.
 
 .. _subresources:
 

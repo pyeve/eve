@@ -27,6 +27,8 @@ class TestGet(TestBase):
         self.assertResourceLink(links, self.empty_resource)
         self.assertHomeLink(links)
 
+        self.assertPagination(response, 1, 0, 25)
+
     def test_get_max_results(self):
         maxr = 10
         response, status = self.get(self.known_resource, "?max_results=%d" % maxr)
