@@ -837,7 +837,7 @@ class TestPost(TestBase):
         self.assertValidationErrorStatus(status)
 
     def test_post_valueschema_dict(self):
-        """ make sure Cerberus#48 is fixed """
+        """make sure Cerberus#48 is fixed"""
         del self.domain["contacts"]["schema"]["ref"]["required"]
         r, status = self.post(
             self.known_resource_url, data={"valueschema_dict": {"k1": "1"}}

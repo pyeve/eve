@@ -51,7 +51,7 @@ class EveWSGIRequestHandler(WSGIRequestHandler):
 
 
 class RegexConverter(BaseConverter):
-    """ Extend werkzeug routing by supporting regex for urls/API endpoints """
+    """Extend werkzeug routing by supporting regex for urls/API endpoints"""
 
     def __init__(self, url_map, *items):
         super(RegexConverter, self).__init__(url_map)

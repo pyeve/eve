@@ -43,9 +43,9 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = u"Eve"
+project = "Eve"
 copyright = (
-    u'%s. Python-Eve is a <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project'
+    '%s. Python-Eve is a <a href="http://nicolaiarocci.com">Nicola Iarocci</a> Project'
     % datetime.datetime.now().year
 )
 
@@ -212,7 +212,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ("index", "Eve.tex", u"Eve Documentation", u"Nicola Iarocci", "manual")
+    ("index", "Eve.tex", "Eve Documentation", "Nicola Iarocci", "manual")
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -240,7 +240,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [("index", "eve", u"Eve Documentation", [u"Nicola Iarocci"], 1)]
+man_pages = [("index", "eve", "Eve Documentation", ["Nicola Iarocci"], 1)]
 
 # If true, show URL addresses after external links.
 # man_show_urls = False
@@ -255,8 +255,8 @@ texinfo_documents = [
     (
         "index",
         "Eve",
-        u"Eve Documentation",
-        u"Nicola Iarocci",
+        "Eve Documentation",
+        "Nicola Iarocci",
         "Eve",
         "One line description of project.",
         "Miscellaneous",

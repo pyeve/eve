@@ -1140,7 +1140,7 @@ def resolve_media_files(document, resource):
 
 
 def resolve_one_media(file_id, resource):
-    """ Get response for one media file """
+    """Get response for one media file"""
     _file = app.media.get(file_id, resource)
 
     if _file:

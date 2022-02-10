@@ -65,7 +65,7 @@ class Validator(cerberus.Validator):
         return super(Validator, self).validate(document)
 
     def _normalize_default(self, mapping, schema, field):
-        """ {'nullable': True} """
+        """{'nullable': True}"""
 
         # fields with no default are of no use here
         if "default" not in schema[field]:
@@ -97,7 +97,7 @@ class Validator(cerberus.Validator):
             super(Validator, self)._normalize_default_setter(mapping, schema, field)
 
     def _validate_dependencies(self, dependencies, field, value):
-        """ {'type': ['dict', 'hashable', 'list']} """
+        """{'type': ['dict', 'hashable', 'list']}"""
         persisted = self._filter_persisted_fields_not_in_document(dependencies)
         if persisted:
             dcopy = copy.copy(self.document)
@@ -120,7 +120,7 @@ class Validator(cerberus.Validator):
         return [field for field in fields if persisted_but_not_in_document(field)]
 
     def _validate_readonly(self, read_only, field, value):
-        """ {'type': 'boolean'} """
+        """{'type': 'boolean'}"""
         persisted_value = (
             self.persisted_document.get(field) if self.persisted_document else None
         )

@@ -360,14 +360,14 @@ class TestRenders(TestBase):
         methods = ["GET", "OPTIONS"]
 
     def test_CORS_OPTIONS_schema(self):
-        """ Test that CORS is also supported at SCHEMA_ENDPOINT """
+        """Test that CORS is also supported at SCHEMA_ENDPOINT"""
         self.app.config["SCHEMA_ENDPOINT"] = "schema"
         self.app._init_schema_endpoint()
         methods = ["GET", "OPTIONS"]
         self.test_CORS_OPTIONS("schema", methods)
 
     def test_deprecated_renderers_supports_py27(self):
-        """ Make sure #1175 is fixed """
+        """Make sure #1175 is fixed"""
         self.app.config["RENDERES"] = False
         try:
             self.app.check_deprecated_features()

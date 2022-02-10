@@ -61,11 +61,11 @@ class Validator(Validator):
     """
 
     def _validate_versioned(self, unique, field, value):
-        """ {'type': 'boolean'} """
+        """{'type': 'boolean'}"""
         pass
 
     def _validate_unique_to_user(self, unique, field, value):
-        """ {'type': 'boolean'} """
+        """{'type': 'boolean'}"""
         auth_field, auth_value = auth_field_and_value(self.resource)
 
         # if an auth value has been set for this request, then make sure it is
@@ -75,14 +75,14 @@ class Validator(Validator):
         self._is_value_unique(unique, field, value, query)
 
     def _validate_unique_within_resource(self, unique, field, value):
-        """ {'type': 'boolean'} """
+        """{'type': 'boolean'}"""
         _, filter_, _, _ = app.data.datasource(self.resource)
         if filter_ is None:
             filter_ = {}
         self._is_value_unique(unique, field, value, filter_)
 
     def _validate_unique(self, unique, field, value):
-        """ {'type': 'boolean'} """
+        """{'type': 'boolean'}"""
         self._is_value_unique(unique, field, value, {})
 
     def _is_value_unique(self, unique, field, value, query):

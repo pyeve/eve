@@ -63,7 +63,7 @@ class TestPatchAtomicConcurrent(TestBase):
         self.assertEqual(status, 412)
 
     def tearDown(self):
-        """ Remove patch of eve.methods.patch.get_document """
+        """Remove patch of eve.methods.patch.get_document"""
         sys.modules["eve.methods.patch"].get_document = self.original_get_document
         return super(TestPatchAtomicConcurrent, self).tearDown()
 

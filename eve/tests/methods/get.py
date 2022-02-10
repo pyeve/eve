@@ -381,7 +381,7 @@ class TestGet(TestBase):
             self.assertTrue(r[self.app.config["DATE_CREATED"]] != self.epoch)
 
     def test_get_static_projection(self):
-        """ Test that static projections are honoured """
+        """Test that static projections are honoured"""
         response, status = self.get(self.different_resource)
         self.assert200(status)
 
@@ -1101,10 +1101,7 @@ class TestGet(TestBase):
     def test_get_reference_embedded_in_subdocuments_with_nested_dicts(self):
         _db = self.connection[MONGO_DBNAME]
         cpu_brand_name = self.random_string(10)
-        cpu_brand = {
-            "name": cpu_brand_name,
-            "address": self.random_string(30),
-        }
+        cpu_brand = {"name": cpu_brand_name, "address": self.random_string(30)}
         motherboard_brand_name = self.random_string(15)
         motherboard_brand = {
             "name": motherboard_brand_name,
@@ -1179,10 +1176,7 @@ class TestGet(TestBase):
         )
         self.assert200(result.status_code)
         content = json.loads(result.get_data())
-        self.assertEqual(
-            content["components"]["cpu"]["brand"]["name"],
-            cpu_brand_name,
-        )
+        self.assertEqual(content["components"]["cpu"]["brand"]["name"], cpu_brand_name)
         self.assertEqual(
             content["components"]["motherboard"]["brand"]["name"],
             motherboard_brand_name,
@@ -1279,21 +1273,21 @@ class TestGet(TestBase):
         self.assert200(status)
 
     def test_get_invalid_idfield_cors(self):
-        """ test that #381 is fixed. """
+        """test that #381 is fixed."""
         request = "/%s/badid" % self.known_resource
         self.app.config["X_DOMAINS"] = "*"
         r = self.test_client.get(request, headers=[("Origin", "test.com")])
         self.assert404(r.status_code)
 
     def test_get_invalid_where_syntax(self):
-        """ test that 'where' syntax with unknown '$' operator returns 400. """
+        """test that 'where' syntax with unknown '$' operator returns 400."""
         response, status = self.get(
             self.known_resource, '?where={"field": {"$foo": "bar"}}'
         )
         self.assert400(status)
 
     def test_get_invalid_sort_syntax(self):
-        """ test that invalid sort syntax returns a 400 """
+        """test that invalid sort syntax returns a 400"""
         response, status = self.get(self.known_resource, '?sort=[("prog":1)]')
         self.assert400(status)
         response, status = self.get(self.known_resource, '?sort="firstname"')

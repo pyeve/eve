@@ -368,7 +368,7 @@ class TestConfig(TestBase):
             )
 
     def test_pretty_resource_urls(self):
-        """ test that regexes are stripped out of urls and #466 is fixed. """
+        """test that regexes are stripped out of urls and #466 is fixed."""
         resource_url = self.app.config["URLS"]["peopleinvoices"]
         pretty_url = "users/<person>/invoices"
         self.assertEqual(resource_url, pretty_url)
