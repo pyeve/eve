@@ -91,6 +91,11 @@ Try requesting ``people`` now:
           "href": "/",
           "title": "home"
         }
+      },
+      "_meta": {
+        "max_results": 25,
+        "page": 1,
+        "total": 0
       }
     }
 
