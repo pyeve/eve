@@ -9,12 +9,14 @@ In Development
 Fixed
 ~~~~~
 
+- Documentation typos (`#1462`_)
 - PyMongo 3.12+ supports keys that include dotted fields (`#1466`_)
 - Pin pymongo version in dependencies (`#1461`_)
 - Fix fork link in contributing info (`#1447`_)
 - Do not return related fields if field is a empty list (`#1441`_)
 - Prepare for Python 3 switch (`#1445`_)
 
+.. _`#1462`: https://github.com/pyeve/eve/pull/1462
 .. _`#1466`: https://github.com/pyeve/eve/issues/1466
 .. _`#1461`: https://github.com/pyeve/eve/issues/1461
 .. _`#1447`: https://github.com/pyeve/eve/pull/1447
