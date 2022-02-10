@@ -58,7 +58,7 @@ to provide the correct credentials in order to consume the API:
 By default access is restricted to all endpoints for all HTTP verbs
 (methods), effectively locking down the whole API.
 
-But what if your authorization logic is more complex, and you only want to
+But what if your authentication logic is more complex, and you only want to
 secure some endpoints or apply different logics depending on the
 endpoint being consumed? You could get away with just adding logic to your
 authentication class, maybe with something like this:
@@ -310,7 +310,7 @@ resources and/or methods to public access -see docs).
         def check_auth(self, token, allowed_roles, resource, method):
             """For the purpose of this example the implementation is as simple as
             possible. A 'real' token should probably contain a hash of the
-            username/password combo, which sould then validated against the account
+            username/password combo, which should then be validated against the account
             data stored on the DB.
             """
             # use Eve's own db driver; no additional connections/resources are used
