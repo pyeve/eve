@@ -26,7 +26,9 @@ New
 
 - Added Python 3.9 support (`#1437`_)
 - Dropped Python 3.5 support (`#1438`_)
-- Swtich from Travis CI to GitHub Actions (`#1439`_, `#1444`_)
+- Switch from Travis CI to GitHub Actions (`#1439`_, `#1444`_)
+- Use Python 3.9 as base python for tox.
+- Perform tox linting checks on Python 3.9.
 
 .. _`#1444`: https://github.com/pyeve/eve/pull/1444
 .. _`#1439`: https://github.com/pyeve/eve/pull/1439
