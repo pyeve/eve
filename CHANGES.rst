@@ -9,6 +9,7 @@ In Development
 Fixed
 ~~~~~
 
+- Fix 500 error with empty token/bearer (`1456`_)
 - Update docs and tests regarding pagination of empty resources (`1463`_)
 - Documentation typos (`#1462`_)
 - PyMongo 3.12+ supports keys that include dotted fields (`#1466`_)
@@ -17,6 +18,7 @@ Fixed
 - Do not return related fields if field is a empty list (`#1441`_)
 - Prepare for Python 3 switch (`#1445`_)
 
+.. _`#1456`: https://github.com/pyeve/eve/pull/156
 .. _`#1463`: https://github.com/pyeve/eve/pull/1463
 .. _`#1462`: https://github.com/pyeve/eve/pull/1462
 .. _`#1466`: https://github.com/pyeve/eve/issues/1466
