@@ -993,14 +993,13 @@ class TestPost(TestBase):
             "test",
             {"normalize_dotted_fields": False, "schema": {"a_dict": {"type": "dict"}}},
         )
+        self.app.config["BANDWIDTH_SAVER"] = False
 
         data = {"a_dict": {"dotted.field": True}}
         headers = [("Content-Type", "application/json")]
         resp = self.test_client.post("test/", data=json.dumps(data), headers=headers)
         _, status = self.parse_response(resp)
-        # mongo returns bson.errors.InvalidDocument:
-        # key 'dotted.fields' must not contain '.'
-        self.assertEqual(500, status)
+        self.assertTrue(json.loads(resp.data)["a_dict"]["dotted.field"])
 
     def test_post_projection_is_honored(self):
         data = {"ref": "1234567890123456789054321", "aninteger": 100}
