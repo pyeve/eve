@@ -6,18 +6,40 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
+Breaking
+~~~~~~~~
+Starting from this release, Eve supports Python 3.7 and above.
+
+- Drop Python 2 (`#1440`_)
+- Drop Python 3.5 (`#1440`_, `#1438`_)
+- Drop Python 3.6 (`#1440`_)
+
+.. _`#1440`: https://github.com/pyeve/eve/issues/1440
+.. _`#1438`: https://github.com/pyeve/eve/pull/1438
+
+New
+~~~
+
+- Add Python 3.9 support (`#1437`_)
+- Add Python 3.10 support (`#1440`_)
+
+.. _`#1444`: https://github.com/pyeve/eve/pull/1444
+
 Fixed
 ~~~~~
 
 - Fix 500 error with empty token/bearer (`#1456`_)
-- Update docs and tests regarding pagination of empty resources (`#1463`_)
-- Documentation typos (`#1462`_)
+- Do not return related fields if field is a empty list (`#1441`_)
 - PyMongo 3.12+ supports keys that include dotted fields (`#1466`_)
 - Pin pymongo version in dependencies (`#1461`_)
-- Fix fork link in contributing info (`#1447`_)
-- Do not return related fields if field is a empty list (`#1441`_)
 - Prepare for Python 3 switch (`#1445`_)
+- Update docs and tests regarding pagination of empty resources (`#1463`_)
+- Fix fork link in contributing info (`#1447`_)
+- Documentation typos (`#1462`_)
+- Switch to GitHub Actions from Travis CI (`#1439`_, `#1444`_)
 
+.. _`#1439`: https://github.com/pyeve/eve/pull/1439
+.. _`#1437`: https://github.com/pyeve/eve/pull/1437
 .. _`#1456`: https://github.com/pyeve/eve/pull/1456
 .. _`#1463`: https://github.com/pyeve/eve/pull/1463
 .. _`#1462`: https://github.com/pyeve/eve/pull/1462
@@ -26,18 +48,6 @@ Fixed
 .. _`#1447`: https://github.com/pyeve/eve/pull/1447
 .. _`#1445`: https://github.com/pyeve/eve/pull/1445
 .. _`#1441`: https://github.com/pyeve/eve/pull/1441
-
-New
-~~~
-
-- Added Python 3.9 support (`#1437`_)
-- Dropped Python 3.5 support (`#1438`_)
-- Swtich from Travis CI to GitHub Actions (`#1439`_, `#1444`_)
-
-.. _`#1444`: https://github.com/pyeve/eve/pull/1444
-.. _`#1439`: https://github.com/pyeve/eve/pull/1439
-.. _`#1438`: https://github.com/pyeve/eve/pull/1438
-.. _`#1437`: https://github.com/pyeve/eve/pull/1437
 
 Version 1.1.5
 -------------
