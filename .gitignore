@@ -68,3 +68,4 @@ _build
 .vscode
 .pytest_cache
 pip-wheel-metadata/
+!/.eggs/

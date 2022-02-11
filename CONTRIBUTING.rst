@@ -111,27 +111,27 @@ Start coding
 Running the tests
 ~~~~~~~~~~~~~~~~~
 
-You should have both Python 2.7 and 3.6 available in your system. Now
+You should have Python 3.7+  available in your system. Now
 running tests is as simple as issuing this command::
 
-    $ tox -e linting,py27,py36
+    $ tox -e linting,py37,py38
 
-This command will run tests via the "tox" tool against Python 2.7 and 3.6 and
+This command will run tests via the "tox" tool against Python 3.7 and 3.8 and
 also perform "lint" coding-style checks.
 
 You can pass different options to ``tox``. For example, to run tests on Python
-2.7 and pass options to pytest (e.g. enter pdb on failure) to pytest you can
+3.10 and pass options to pytest (e.g. enter pdb on failure) to pytest you can
 do::
 
-    $ tox -e py27 -- --pdb
+    $ tox -e py310 -- --pdb
 
 Or to only run tests in a particular test module on Python 3.6::
 
-    $ tox -e py36 -- -k TestGet
+    $ tox -e py310 -- -k TestGet
 
-Travis-CI will run the full suite when you submit your pull request. The full
+CI will run the full suite when you submit your pull request. The full
 test suite takes a long time to run because it tests multiple combinations of
-Python and dependencies. You need to have Python 2.7, 3.5, 3.6, and PyPy
+Python and dependencies. You need to have Python 3.7, 3.8, 3.9, 3.10 and PyPy
 installed to run all of the environments. Then run::
 
     tox
