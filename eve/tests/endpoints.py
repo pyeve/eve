@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import pytest
 import simplejson as json
 from werkzeug.routing import BaseConverter
 from eve.tests import TestBase, TestMinimal

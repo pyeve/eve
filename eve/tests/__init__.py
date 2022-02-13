@@ -7,8 +7,8 @@ import random
 import os
 import simplejson as json
 from datetime import datetime, timedelta
-from pymongo import MongoClient
 from bson import ObjectId
+from pymongo import MongoClient
 from eve.tests.test_settings import (
     MONGO_PASSWORD,
     MONGO_USERNAME,
@@ -360,7 +360,9 @@ class TestMinimal(unittest.TestCase):
         self.assertEqual(status, 500)
 
     def setupDB(self):
-        self.connection = MongoClient(MONGO_HOST, MONGO_PORT)
+        self.connection = MongoClient(
+            MONGO_HOST, MONGO_PORT, uuidRepresentation="standard"
+        )
         self.connection.drop_database(MONGO_DBNAME)
         if MONGO_USERNAME:
             db = self.connection[MONGO_DBNAME]
@@ -623,4 +625,3 @@ class TestBase(TestMinimal):
         _db.internal_transactions.insert_many(self.random_internal_transactions(4))
         products = self.generate_products()
         _db.products.insert_many(products)
-        self.connection.close()
