@@ -85,6 +85,7 @@ details on custom validation):
         def _validate_type_uuid(self, value):
             try:
                 UUID(value)
+                return True
             except ValueError:
                 pass
 
