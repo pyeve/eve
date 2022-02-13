@@ -135,6 +135,13 @@ supposed to pass the value, like so:
     POST
     {"name":"bill", "_id":"48c00ee9-4dbe-413f-9fc3-d5f12a91de1c"}
 
+.. note::
+    By default, Eve sets PyMongo's ``UuidRepresentation`` to ``standard``.
+    This allows for seamlessly handling of modern Python-generated UUID values. You
+    can change the default by setting the ``uuidRepresentation`` value of ``MONGO_OPTIONS``
+    as desired. For more informations, see `PyMongo documentation`_.
+
 .. _`custom url converters`: http://werkzeug.pocoo.org/docs/routing/#custom-converters
 .. _Flask: http://flask.pocoo.org/
 .. _Werkzeug: http://werkzeug.pocoo.org/
+.. _PyMongo documentation: https://pymongo.readthedocs.io/en/stable/examples/uuid.html#configuring-uuid-representation

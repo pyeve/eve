@@ -13,6 +13,8 @@
 import sys
 from importlib import import_module
 
+from bson import UuidRepresentation
+
 import eve
 import hashlib
 import werkzeug.exceptions
@@ -336,6 +338,19 @@ def document_etag(value, ignore_fields=None):
        Using bson.json_util.dumps over str(value) to make etag computation
        consistent between different runs and/or server instances (#16).
     """
+
+    def uuid_representation_as_string():
+        uuid_map = {
+            "standard": UuidRepresentation.STANDARD,
+            "unspecified": UuidRepresentation.UNSPECIFIED,
+            "pythonLegacy": UuidRepresentation.PYTHON_LEGACY,
+            "csharpLegacy": UuidRepresentation.CSHARP_LEGACY,
+            "javaLegacy": UuidRepresentation.JAVA_LEGACY,
+        }
+        return uuid_map[
+            config.MONGO_OPTIONS.get("uuidRepresentation", UuidRepresentation.STANDARD)
+        ]
+
     if ignore_fields:
 
         def filter_ignore_fields(d, fields):
@@ -359,8 +374,17 @@ def document_etag(value, ignore_fields=None):
 
     h = hashlib.sha1()
     json_encoder = app.data.json_encoder_class()
+    from bson.json_util import DEFAULT_JSON_OPTIONS
+
     h.update(
-        dumps(value_, sort_keys=True, default=json_encoder.default).encode("utf-8")
+        dumps(
+            value_,
+            sort_keys=True,
+            default=json_encoder.default,
+            json_options=DEFAULT_JSON_OPTIONS.with_options(
+                uuid_representation=uuid_representation_as_string()
+            ),
+        ).encode("utf-8")
     )
     return h.hexdigest()
 

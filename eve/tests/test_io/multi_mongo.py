@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 
+import pytest
 import simplejson as json
 from bson import ObjectId
 from pymongo import MongoClient
@@ -57,7 +58,6 @@ class TestMultiMongo(TestBase):
         works = self.random_works(self.known_resource_count)
         _db.works.insert_many(works)
         self.work = _db.works.find_one()
-        self.connection.close()
 
     def random_works(self, num):
         works = []
@@ -94,7 +94,6 @@ class TestMethodsAcrossMultiMongo(TestMultiMongo):
         id_field = self.domain["works"]["id_field"]
         new = db.works.find_one({id_field: ObjectId(work[id_field])})
         self.assertTrue(new is not None)
-        self.connection.close()
 
         # while 'contacts' endpoint stores data to MONGO
         contact = {"ref": "1234567890123456789054321"}
@@ -104,7 +103,6 @@ class TestMethodsAcrossMultiMongo(TestMultiMongo):
         id_field = self.domain["contacts"]["id_field"]
         new = db.contacts.find_one({id_field: ObjectId(r[id_field])})
         self.assertTrue(new is not None)
-        self.connection.close()
 
     def test_patch_multidb(self):
         # test that a PATCH on 'works' udpates data on MONGO1
@@ -122,7 +120,6 @@ class TestMethodsAcrossMultiMongo(TestMultiMongo):
         db = self.connection[MONGO1_DBNAME]
         updated = db.works.find_one({id_field: ObjectId(id)})
         self.assertEqual(updated["author"], "mike")
-        self.connection.close()
 
         # while 'contacts' endpoint updates data on MONGO
         field, value = "ref", "1234567890123456789012345"
@@ -137,7 +134,6 @@ class TestMethodsAcrossMultiMongo(TestMultiMongo):
         db = self.connection[MONGO_DBNAME]
         updated = db.contacts.find_one({id_field: ObjectId(self.item_id)})
         self.assertEqual(updated[field], value)
-        self.connection.close()
 
     def test_put_multidb(self):
         # test that a PUT on 'works' udpates data on MONGO1
@@ -155,7 +151,6 @@ class TestMethodsAcrossMultiMongo(TestMultiMongo):
         db = self.connection[MONGO1_DBNAME]
         updated = db.works.find_one({id_field: ObjectId(id)})
         self.assertEqual(updated["author"], "mike")
-        self.connection.close()
 
         # while 'contacts' endpoint updates data on MONGO
         field, value = "ref", "1234567890123456789012345"
@@ -170,7 +165,6 @@ class TestMethodsAcrossMultiMongo(TestMultiMongo):
         db = self.connection[MONGO_DBNAME]
         updated = db.contacts.find_one({id_field: ObjectId(self.item_id)})
         self.assertEqual(updated[field], value)
-        self.connection.close()
 
     def test_delete_multidb(self):
         # test that DELETE on 'works' deletes data on MONGO1
@@ -182,7 +176,6 @@ class TestMethodsAcrossMultiMongo(TestMultiMongo):
         db = self.connection[MONGO1_DBNAME]
         lost = db.works.find_one({id_field: ObjectId(id)})
         self.assertEqual(lost, None)
-        self.connection.close()
 
         # while 'contacts' still deletes on MONGO
         r = self.test_client.delete(
@@ -193,7 +186,6 @@ class TestMethodsAcrossMultiMongo(TestMultiMongo):
         id_field = self.domain["contacts"]["id_field"]
         lost = db.contacts.find_one({id_field: ObjectId(self.item_id)})
         self.assertEqual(lost, None)
-        self.connection.close()
 
     def test_create_index_with_mongo_uri_and_prefix(self):
         self.app.config["MONGO_URI"] = "mongodb://%s:%s/%s" % (

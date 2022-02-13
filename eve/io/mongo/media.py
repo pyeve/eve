@@ -59,7 +59,7 @@ class GridFSMediaStorage(MediaStorage):
 
         px = driver.current_mongo_prefix(resource)
         if px not in self._fs:
-            self._fs[px] = GridFS(driver.pymongo(prefix=px).db, disable_md5=True)
+            self._fs[px] = GridFS(driver.pymongo(prefix=px).db)
         return self._fs[px]
 
     def get(self, _id, resource=None):

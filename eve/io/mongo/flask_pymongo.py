@@ -10,7 +10,7 @@
     :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-
+from bson import UuidRepresentation
 from flask import current_app
 from pymongo import MongoClient, uri_parser
 
@@ -73,13 +73,12 @@ class PyMongo(object):
             client_kwargs["port"] = app.config[key("PORT")]
 
         client_kwargs["host"] = host
+        client_kwargs["authSource"] = dbname
 
         if key("DOCUMENT_CLASS") in app.config:
             client_kwargs["document_class"] = app.config[key("DOCUMENT_CLASS")]
 
-        cx = MongoClient(**client_kwargs)
-        db = cx[dbname]
-
+        auth_kwargs = {}
         if key("USERNAME") in app.config:
             app.config.setdefault(key("PASSWORD"), None)
             username = app.config[key("USERNAME")]
@@ -87,14 +86,18 @@ class PyMongo(object):
             auth = (username, password)
             if any(auth) and not all(auth):
                 raise Exception("Must set both USERNAME and PASSWORD or neither")
+            client_kwargs["username"] = username
+            client_kwargs["password"] = password
             if any(auth):
                 auth_mapping = {
-                    "AUTH_MECHANISM": "mechanism",
-                    "AUTH_SOURCE": "source",
+                    "AUTH_MECHANISM": "authMechanism",
+                    "AUTH_SOURCE": "authSource",
                     "AUTH_MECHANISM_PROPERTIES": "authMechanismProperties",
                 }
                 auth_kwargs = config_to_kwargs(auth_mapping)
-                db.authenticate(username, password, **auth_kwargs)
+
+        cx = MongoClient(**{**client_kwargs, **auth_kwargs})
+        db = cx[dbname]
 
         app.extensions["pymongo"][config_prefix] = (cx, db)
 

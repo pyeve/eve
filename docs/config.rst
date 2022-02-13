@@ -555,7 +555,7 @@ uppercase.
 
 ``MONGO_OPTIONS``                   MongoDB keyword arguments to passed to
                                     MongoClient class ``__init__``.
-                                    Defaults to ``{'connect': True, 'tz_aware': True, 'appname': 'flask_app_name'}``.
+                                    Defaults to ``{'connect': True, 'tz_aware': True, 'appname': 'flask_app_name', 'uuidRepresentation': 'standard'}``.
                                     See `PyMongo mongo_client`_ for reference.
 
 ``MONGO_AUTH_SOURCE``               MongoDB authorization database. Defaults to ``None``.
@@ -1636,4 +1636,4 @@ read access open to the public.
 .. _`MongoDB Aggregation Framework`: https://docs.mongodb.org/v3.0/applications/aggregation/
 .. _`PyMongo aggregation defaults`: http://api.mongodb.org/python/current/api/pymongo/collection.html#pymongo.collection.Collection.aggregate
 .. _`PyMongo Authentication Mechanisms`: https://docs.mongodb.com/v3.0/core/authentication-mechanisms/
-.. _`PyMongo mongo_client`: http://api.mongodb.com/python/current/api/pymongo/mongo_client.html
+.. _`PyMongo mongo_client`: https://pymongo.readthedocs.io/en/stable/api/pymongo/mongo_client.html

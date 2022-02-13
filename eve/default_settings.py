@@ -11,6 +11,9 @@
     :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 
+    .. versionchanged:: 2.0
+       'MONGO_OPTIONS', 'uuidRepresentation' option added.
+
     .. versionchanged:: 1.1.0
        'MONGO_QUERY_WHITELIST' added and set to emtpy list.
 
@@ -268,7 +271,7 @@ MONGO_QUERY_WHITELIST = []
 # Explicitly set default write_concern to 'safe' (do regular
 # aknowledged writes). This is also the current PyMongo/Mongo default setting.
 MONGO_WRITE_CONCERN = {"w": 1}
-MONGO_OPTIONS = {"connect": True, "tz_aware": True}
+MONGO_OPTIONS = {"connect": True, "tz_aware": True, "uuidRepresentation": "standard"}
 
 # if true, the document will be normalized according to the schema during patch
 # this means fields will be reset their the default value, if any, unless

@@ -22,12 +22,16 @@ New
 
 - Add Python 3.9 support (`#1437`_)
 - Add Python 3.10 support (`#1440`_)
+- ``MONGO_OPTIONS`` acquires a new ``uuidRepresentation`` setting, with ``standard`` as its default value. This is needed by PyMongo 4+ in order to seamlessly process eventual ``uuid`` values. See `PyMongo documentation`_ for details (`#1461`_, `#1464`_).
+
 
 .. _`#1444`: https://github.com/pyeve/eve/pull/1444
+.. _`PyMongo documentation`: https://github.com/pyeve/eve/pull/1438
 
 Fixed
 ~~~~~
 
+- Eve doesn't work with latest PyMongo (v4) (`#1461`_, `#1464`_)
 - Fix 500 error with empty token/bearer (`#1456`_)
 - Do not return related fields if field is a empty list (`#1441`_)
 - PyMongo 3.12+ supports keys that include dotted fields (`#1466`_)
@@ -38,13 +42,14 @@ Fixed
 - Documentation typos (`#1462`_)
 - Switch to GitHub Actions from Travis CI (`#1439`_, `#1444`_)
 
+.. _`#1464`: https://github.com/pyeve/eve/issues/1464
+.. _`#1461`: https://github.com/pyeve/eve/issues/1461
 .. _`#1439`: https://github.com/pyeve/eve/pull/1439
 .. _`#1437`: https://github.com/pyeve/eve/pull/1437
 .. _`#1456`: https://github.com/pyeve/eve/pull/1456
 .. _`#1463`: https://github.com/pyeve/eve/pull/1463
 .. _`#1462`: https://github.com/pyeve/eve/pull/1462
 .. _`#1466`: https://github.com/pyeve/eve/issues/1466
-.. _`#1461`: https://github.com/pyeve/eve/issues/1461
 .. _`#1447`: https://github.com/pyeve/eve/pull/1447
 .. _`#1445`: https://github.com/pyeve/eve/pull/1445
 .. _`#1441`: https://github.com/pyeve/eve/pull/1441

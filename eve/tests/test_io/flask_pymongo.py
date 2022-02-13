@@ -1,3 +1,5 @@
+import pytest
+
 from eve.tests import TestBase
 from pymongo import MongoClient
 from pymongo.errors import OperationFailure
@@ -41,9 +43,14 @@ class TestPyMongo(TestBase):
     def test_invalid_auth_params_provided(self):
         # if bad username and/or password is provided in MONGO_URL and mongo
         # run w\o --auth pymongo won't raise exception
+        def func():
+            with self.app.app_context():
+                db = PyMongo(self.app, "MONGO1").db
+                db.works.find_one()
+
         self.app.config["MONGO1_USERNAME"] = "bad_username"
         self.app.config["MONGO1_PASSWORD"] = "bad_password"
-        self.assertRaises(OperationFailure, self._pymongo_instance)
+        self.assertRaises(OperationFailure, func)
 
     def test_invalid_port(self):
         self.app.config["MONGO1_PORT"] = "bad_value"
