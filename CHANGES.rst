@@ -40,9 +40,10 @@ Fixed
 - Update docs and tests regarding pagination of empty resources (`#1463`_)
 - Fix fork link in contributing info (`#1447`_)
 - Tutorial mistake on custom IDs values with UUIDs (`#1451`_)
-- Documentation typos (`#1462`_)
+- Documentation typos (`#1462`_, `#1469`_)
 - Switch to GitHub Actions from Travis CI (`#1439`_, `#1444`_)
 
+.. _`#1469`: https://github.com/pyeve/eve/pull/1469
 .. _`#1451`: https://github.com/pyeve/eve/issues/1451
 .. _`#1464`: https://github.com/pyeve/eve/issues/1464
 .. _`#1461`: https://github.com/pyeve/eve/issues/1461
