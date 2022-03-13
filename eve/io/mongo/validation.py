@@ -13,6 +13,7 @@
 """
 from bson import ObjectId, decimal128
 from bson.dbref import DBRef
+import cerberus
 from flask import current_app as app
 from werkzeug.datastructures import FileStorage
 
@@ -59,6 +60,23 @@ class Validator(Validator):
        Support for 'transparent_schema_rules' introduced with Cerberus 0.0.3,
        which allows for insertion of 'default' values in POST requests.
     """
+    types_mapping = Validator.types_mapping.copy()
+    types_mapping.update({
+        "objectid": cerberus.TypeDefinition("objectid", (ObjectId,), ()),
+        "decimal": cerberus.TypeDefinition("decimal", (decimal128.Decimal128,), ()),
+        "dbref": cerberus.TypeDefinition("dbref", (DBRef,), ()),
+        "media": cerberus.TypeDefinition("media", (FileStorage,), ()),
+        "point": cerberus.TypeDefinition("point", (Point,), ()),
+        "linestring": cerberus.TypeDefinition("linestring", (LineString,), ()),
+        "polygon": cerberus.TypeDefinition("polygon", (Polygon,), ()),
+        "multipoint": cerberus.TypeDefinition("multipoint", (MultiPoint,), ()),
+        "multilinestring": cerberus.TypeDefinition("multilinestring", (MultiLineString,), ()),
+        "multipolygon": cerberus.TypeDefinition("multipolygon", (MultiPolygon,), ()),
+        "geometrycollection": cerberus.TypeDefinition("geometrycollection", (GeometryCollection,), ()),
+        "feature": cerberus.TypeDefinition("feature", (Feature,), ()),
+        "featurecollection": cerberus.TypeDefinition("featurecollection", (FeatureCollection,), ()),
+    })
+    Validator.types_mapping = types_mapping
 
     def _validate_versioned(self, unique, field, value):
         """{'type': 'boolean'}"""
@@ -216,90 +234,3 @@ class Validator(Validator):
                             data_relation["field"],
                         ),
                     )
-
-    def _validate_type_objectid(self, value):
-        if ObjectId.is_valid(value):
-            return True
-
-    def _validate_type_decimal(self, value):
-        if isinstance(value, decimal128.Decimal128):
-            return True
-
-    def _validate_type_dbref(self, value):
-        if isinstance(value, DBRef):
-            return True
-
-    def _validate_type_media(self, value):
-        if isinstance(value, FileStorage):
-            return True
-
-    def _validate_type_point(self, value):
-        try:
-            Point(value)
-            return True
-        except TypeError:
-            pass
-
-    def _validate_type_linestring(self, value):
-        try:
-            LineString(value)
-            return True
-        except TypeError:
-            pass
-
-    def _validate_type_polygon(self, value):
-        try:
-            Polygon(value)
-            return True
-        except TypeError:
-            pass
-
-    def _validate_type_multipoint(self, value):
-        try:
-            MultiPoint(value)
-            return True
-        except TypeError:
-            pass
-
-    def _validate_type_multilinestring(self, value):
-        try:
-            MultiLineString(value)
-            return True
-        except TypeError:
-            pass
-
-    def _validate_type_multipolygon(self, value):
-        try:
-            MultiPolygon(value)
-            return True
-        except TypeError:
-            pass
-
-    def _validate_type_geometrycollection(self, value):
-        try:
-            GeometryCollection(value)
-            return True
-        except TypeError:
-            pass
-
-    def _validate_type_feature(self, value):
-        """Enables validation for `feature`data type
-
-        :param value: field value
-        """
-        try:
-            Feature(value)
-            return True
-        except TypeError:
-            pass
-
-    def _validate_type_featurecollection(self, value):
-        """Enables validation for `featurecollection`data type
-
-        :param value: field value
-        """
-        try:
-            FeatureCollection(value)
-            return True
-        except TypeError:
-            pass

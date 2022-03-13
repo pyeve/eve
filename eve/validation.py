@@ -19,7 +19,6 @@ from cerberus import DocumentError, SchemaError  # noqa
 
 from eve.utils import config
 
-
 class Validator(cerberus.Validator):
     def __init__(self, *args, **kwargs):
         if not config.VALIDATION_ERROR_AS_LIST:
