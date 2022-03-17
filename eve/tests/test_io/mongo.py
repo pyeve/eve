@@ -9,6 +9,7 @@ from unittest import TestCase
 
 from eve.io.mongo import Validator, Mongo, MongoJSONEncoder
 from eve.io.mongo.parser import parse, ParseError
+from eve.io.mongo.validation import is_valid_dbref, is_valid_decimal, is_valid_feature, is_valid_geometrycollection, is_valid_featurecollection, is_valid_objectid, is_valid_point, is_valid_linestring, is_valid_multilinestring, is_valid_multipoint, is_valid_polygon, is_valid_multipolygon
 from eve.tests import TestBase
 from eve.tests.test_settings import MONGO_DBNAME
 
@@ -93,7 +94,7 @@ class TestMongoValidator(TestCase):
         pass
 
     def test_decimal_fail(self):
-        schema = {"decimal": {"type": "decimal"}}
+        schema = {"decimal": {"check_with": is_valid_decimal}}
         doc = {"decimal": "not_a_decimal"}
         v = Validator(schema, None)
         self.assertFalse(v.validate(doc))
@@ -101,13 +102,13 @@ class TestMongoValidator(TestCase):
         self.assertTrue("decimal" in v.errors["decimal"])
 
     def test_decimal_success(self):
-        schema = {"decimal": {"type": "decimal"}}
+        schema = {"decimal": {"check_with": is_valid_decimal}}
         doc = {"decimal": decimal128.Decimal128("123.123")}
         v = Validator(schema, None)
         self.assertTrue(v.validate(doc))
 
     def test_objectid_fail(self):
-        schema = {"id": {"type": "objectid"}}
+        schema = {"id": {"check_with": is_valid_objectid}}
         doc = {"id": "not_an_object_id"}
         v = Validator(schema, None)
         self.assertFalse(v.validate(doc))
@@ -115,13 +116,13 @@ class TestMongoValidator(TestCase):
         self.assertTrue("objectid" in v.errors["id"])
 
     def test_objectid_success(self):
-        schema = {"id": {"type": "objectid"}}
+        schema = {"id": {"check_with": is_valid_objectid}}
         doc = {"id": ObjectId("50656e4538345b39dd0414f0")}
         v = Validator(schema, None)
         self.assertTrue(v.validate(doc))
 
     def test_dbref_fail(self):
-        schema = {"id": {"type": "dbref"}}
+        schema = {"id": {"check_with": is_valid_dbref}}
         doc = {"id": "not_an_object_id"}
         v = Validator(schema, None)
         self.assertFalse(v.validate(doc))
@@ -129,7 +130,7 @@ class TestMongoValidator(TestCase):
         self.assertTrue("dbref" in v.errors["id"])
 
     def test_dbref_success(self):
-        schema = {"id": {"type": "dbref"}}
+        schema = {"id": {"check_with": is_valid_dbref}}
         doc = {"id": DBRef("SomeCollection", ObjectId("50656e4538345b39dd0414f0"))}
         v = Validator(schema, None)
         self.assertTrue(v.validate(doc))
@@ -139,7 +140,7 @@ class TestMongoValidator(TestCase):
         self.assertRaises(SchemaError, lambda: Validator(schema))
 
     def test_geojson_not_compilant(self):
-        schema = {"location": {"type": "point"}}
+        schema = {"location": {"check_with": is_valid_point}}
         doc = {"location": [10.0, 123.0]}
         v = Validator(schema)
         self.assertFalse(v.validate(doc))
@@ -147,7 +148,7 @@ class TestMongoValidator(TestCase):
         self.assertTrue("point" in v.errors["location"])
 
     def test_geometry_not_compilant(self):
-        schema = {"location": {"type": "point"}}
+        schema = {"location": {"check_with": is_valid_point}}
         doc = {"location": {"type": "Point", "geometries": [10.0, 123.0]}}
         v = Validator(schema)
         self.assertFalse(v.validate(doc))
@@ -155,7 +156,7 @@ class TestMongoValidator(TestCase):
         self.assertTrue("point" in v.errors["location"])
 
     def test_geometrycollection_not_compilant(self):
-        schema = {"location": {"type": "geometrycollection"}}
+        schema = {"location": {"check_with": is_valid_geometrycollection}}
         doc = {"location": {"type": "GeometryCollection", "coordinates": [10.0, 123.0]}}
         v = Validator(schema)
         self.assertFalse(v.validate(doc))
@@ -163,13 +164,13 @@ class TestMongoValidator(TestCase):
         self.assertTrue("geometrycollection" in v.errors["location"])
 
     def test_point_success(self):
-        schema = {"location": {"type": "point"}}
+        schema = {"location": {"check_with": is_valid_point}}
         doc = {"location": {"type": "Point", "coordinates": [100.0, 0.0]}}
         v = Validator(schema)
         self.assertTrue(v.validate(doc))
 
     def test_point_fail(self):
-        schema = {"location": {"type": "point"}}
+        schema = {"location": {"check_with": is_valid_point}}
         doc = {"location": {"type": "Point", "coordinates": ["asdasd", 123.0]}}
         v = Validator(schema)
         self.assertFalse(v.validate(doc))
@@ -177,7 +178,7 @@ class TestMongoValidator(TestCase):
         self.assertTrue("point" in v.errors["location"])
 
     def test_point_coordinates_fail(self):
-        schema = {"location": {"type": "point"}}
+        schema = {"location": {"check_with": is_valid_point}}
         doc = {"location": {"type": "Point", "coordinates": [123.0]}}
         v = Validator(schema)
         self.assertFalse(v.validate(doc))
@@ -185,13 +186,13 @@ class TestMongoValidator(TestCase):
         self.assertTrue("point" in v.errors["location"])
 
     def test_point_integer_success(self):
-        schema = {"location": {"type": "point"}}
+        schema = {"location": {"check_with": is_valid_point}}
         doc = {"location": {"type": "Point", "coordinates": [10, 123.0]}}
         v = Validator(schema)
         self.assertTrue(v.validate(doc))
 
     def test_linestring_success(self):
-        schema = {"location": {"type": "linestring"}}
+        schema = {"location": {"check_with": is_valid_linestring}}
         doc = {
             "location": {
                 "type": "LineString",
@@ -202,7 +203,7 @@ class TestMongoValidator(TestCase):
         self.assertTrue(v.validate(doc))
 
     def test_linestring_fail(self):
-        schema = {"location": {"type": "linestring"}}
+        schema = {"location": {"check_with": is_valid_linestring}}
         doc = {
             "location": {
                 "type": "LineString",
@@ -215,7 +216,7 @@ class TestMongoValidator(TestCase):
         self.assertTrue("linestring" in v.errors["location"])
 
     def test_polygon_success(self):
-        schema = {"location": {"type": "polygon"}}
+        schema = {"location": {"check_with": is_valid_polygon}}
         doc = {
             "location": {
                 "type": "Polygon",
@@ -234,7 +235,7 @@ class TestMongoValidator(TestCase):
         self.assertTrue(v.validate(doc))
 
     def test_polygon_fail(self):
-        schema = {"location": {"type": "polygon"}}
+        schema = {"location": {"check_with": is_valid_polygon}}
         doc = {
             "location": {
                 "type": "Polygon",
@@ -247,7 +248,7 @@ class TestMongoValidator(TestCase):
         self.assertTrue("polygon" in v.errors["location"])
 
     def test_multipoint_success(self):
-        schema = {"location": {"type": "multipoint"}}
+        schema = {"location": {"check_with": is_valid_multipoint}}
         doc = {
             "location": {
                 "type": "MultiPoint",
@@ -258,7 +259,7 @@ class TestMongoValidator(TestCase):
         self.assertTrue(v.validate(doc))
 
     def test_multilinestring_success(self):
-        schema = {"location": {"type": "multilinestring"}}
+        schema = {"location": {"check_with": is_valid_multilinestring}}
         doc = {
             "location": {
                 "type": "MultiLineString",
@@ -272,7 +273,7 @@ class TestMongoValidator(TestCase):
         self.assertTrue(v.validate(doc))
 
     def test_multipolygon_success(self):
-        schema = {"location": {"type": "multipolygon"}}
+        schema = {"location": {"check_with": is_valid_multipolygon}}
         doc = {
             "location": {
                 "type": "MultiPolygon",
@@ -309,7 +310,7 @@ class TestMongoValidator(TestCase):
         self.assertTrue(v.validate(doc))
 
     def test_geometrycollection_success(self):
-        schema = {"locations": {"type": "geometrycollection"}}
+        schema = {"locations": {"check_with": is_valid_geometrycollection}}
         doc = {
             "locations": {
                 "type": "GeometryCollection",
@@ -323,7 +324,7 @@ class TestMongoValidator(TestCase):
         self.assertTrue(v.validate(doc))
 
     def test_geometrycollection_fail(self):
-        schema = {"locations": {"type": "geometrycollection"}}
+        schema = {"locations": {"check_with": is_valid_geometrycollection}}
         doc = {
             "locations": {
                 "type": "GeometryCollection",
@@ -336,7 +337,7 @@ class TestMongoValidator(TestCase):
         self.assertTrue("geometrycollection" in v.errors["locations"])
 
     def test_feature_success(self):
-        schema = {"locations": {"type": "feature"}}
+        schema = {"locations": {"check_with": is_valid_feature}}
         doc = {
             "locations": {
                 "type": "Feature",
@@ -358,7 +359,7 @@ class TestMongoValidator(TestCase):
         self.assertTrue(v.validate(doc))
 
     def test_feature_fail(self):
-        schema = {"locations": {"type": "feature"}}
+        schema = {"locations": {"check_with": is_valid_feature}}
         doc = {
             "locations": {
                 "type": "Feature",
@@ -378,7 +379,7 @@ class TestMongoValidator(TestCase):
         self.assertTrue("feature" in v.errors["locations"])
 
     def test_featurecollection_success(self):
-        schema = {"locations": {"type": "featurecollection"}}
+        schema = {"locations": {"check_with": is_valid_featurecollection}}
         doc = {
             "locations": {
                 "type": "FeatureCollection",
@@ -394,7 +395,7 @@ class TestMongoValidator(TestCase):
         self.assertTrue(v.validate(doc))
 
     def test_featurecollection_fail(self):
-        schema = {"locations": {"type": "featurecollection"}}
+        schema = {"locations": {"check_with": is_valid_featurecollection}}
         doc = {
             "locations": {
                 "type": "FeatureCollection",

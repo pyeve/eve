@@ -113,7 +113,7 @@ allowing something like this:
 
     'schema': {
         'owner': {
-            'type': 'objectid',
+            'check_with': is_valid_objectid,
             'required': True,
         },
     }

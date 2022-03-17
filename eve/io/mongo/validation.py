@@ -13,7 +13,6 @@
 """
 from bson import ObjectId, decimal128
 from bson.dbref import DBRef
-import cerberus
 from flask import current_app as app
 from werkzeug.datastructures import FileStorage
 
@@ -60,23 +59,6 @@ class Validator(Validator):
        Support for 'transparent_schema_rules' introduced with Cerberus 0.0.3,
        which allows for insertion of 'default' values in POST requests.
     """
-    types_mapping = Validator.types_mapping.copy()
-    types_mapping.update({
-        "objectid": cerberus.TypeDefinition("objectid", (ObjectId,), ()),
-        "decimal": cerberus.TypeDefinition("decimal", (decimal128.Decimal128,), ()),
-        "dbref": cerberus.TypeDefinition("dbref", (DBRef,), ()),
-        "media": cerberus.TypeDefinition("media", (FileStorage,), ()),
-        "point": cerberus.TypeDefinition("point", (Point,), ()),
-        "linestring": cerberus.TypeDefinition("linestring", (LineString,), ()),
-        "polygon": cerberus.TypeDefinition("polygon", (Polygon,), ()),
-        "multipoint": cerberus.TypeDefinition("multipoint", (MultiPoint,), ()),
-        "multilinestring": cerberus.TypeDefinition("multilinestring", (MultiLineString,), ()),
-        "multipolygon": cerberus.TypeDefinition("multipolygon", (MultiPolygon,), ()),
-        "geometrycollection": cerberus.TypeDefinition("geometrycollection", (GeometryCollection,), ()),
-        "feature": cerberus.TypeDefinition("feature", (Feature,), ()),
-        "featurecollection": cerberus.TypeDefinition("featurecollection", (FeatureCollection,), ()),
-    })
-    Validator.types_mapping = types_mapping
 
     def _validate_versioned(self, unique, field, value):
         """{'type': 'boolean'}"""
@@ -234,3 +216,86 @@ class Validator(Validator):
                             data_relation["field"],
                         ),
                     )
+
+
+def is_valid_objectid(field, value, error):
+    if not ObjectId.is_valid(value):
+        error(field, "Must be a valid objectid")
+
+
+def is_valid_decimal(field, value, error):
+    if not isinstance(value, decimal128.Decimal128):
+        error(field, "Must be a valid decimal number")
+
+
+def is_valid_dbref(field, value, error):
+    if not isinstance(value, DBRef):
+        error(field, "Must be a valid dbref")
+
+
+def is_valid_media(field, value, error):
+    if not isinstance(value, FileStorage):
+        error(field, "Must be a valid filestorage")
+
+
+def is_valid_point(field, value, error):
+    try:
+        Point(value)
+    except TypeError:
+        error(field, "Must be a valid point")
+
+
+def is_valid_linestring(field, value, error):
+    try:
+        LineString(value)
+    except TypeError:
+        error(field, "Must be a valid linestring")
+
+
+def is_valid_polygon(field, value, error):
+    try:
+        Polygon(value)
+    except TypeError:
+        error(field, "Must be a valid polygon")
+
+
+def is_valid_multipoint(field, value, error):
+    try:
+        MultiPoint(value)
+    except TypeError:
+        error(field, "Must be a valid multipoint")
+
+
+def is_valid_multilinestring(field, value, error):
+    try:
+        MultiLineString(value)
+    except TypeError:
+        error(field, "Must be a valid multilinestring")
+
+
+def is_valid_multipolygon(field, value, error):
+    try:
+        MultiPolygon(value)
+    except TypeError:
+        error(field, "Must be a valid multipolygon")
+
+
+def is_valid_geometrycollection(field, value, error):
+    try:
+        GeometryCollection(value)
+    except TypeError:
+        error(field, "Must be a valid geometrycollection")
+
+
+def is_valid_feature(field, value, error):
+    try:
+        Feature(value)
+    except TypeError:
+        error(field, "Must be a valid feature")
+
+
+def is_valid_featurecollection(field, value, error):
+    try:
+        FeatureCollection(value)
+    except TypeError:
+        error(field, "Must be a valid featurecollection")
