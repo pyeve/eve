@@ -15,6 +15,7 @@ import time
 import datetime
 import simplejson as json
 from werkzeug import utils
+from markupsafe import escape
 from functools import wraps
 from eve.methods.common import get_rate_limit
 from eve.utils import (
@@ -385,7 +386,7 @@ class XMLRenderer(Renderer):
         href = title = ""
         if links and "self" in links:
             self_ = links.pop("self")
-            href = ' href="%s" ' % utils.escape(self_["href"])
+            href = ' href="%s" ' % escape(self_["href"])
             if "title" in self_:
                 title = ' title="%s" ' % self_["title"]
         return "<resource%s%s>" % (href, title)
@@ -443,11 +444,11 @@ class XMLRenderer(Renderer):
 
             elif isinstance(link, list):
                 xml += "".join(
-                    chunk % (rel, utils.escape(d["href"]), utils.escape(d["title"]))
+                    chunk % (rel, escape(d["href"]), escape(d["title"]))
                     for d in link
                 )
             else:
-                xml += "".join(chunk % (rel, utils.escape(link["href"]), link["title"]))
+                xml += "".join(chunk % (rel, escape(link["href"]), link["title"]))
         return xml
 
     @classmethod
@@ -524,7 +525,7 @@ class XMLRenderer(Renderer):
                     xml += cls.xml_field_close(k)
                 else:
                     xml += cls.xml_field_open(k, idx, related_links)
-                    xml += "%s" % utils.escape(value)
+                    xml += "%s" % escape(value)
                     xml += cls.xml_field_close(k)
         return xml
 
@@ -542,13 +543,13 @@ class XMLRenderer(Renderer):
             if isinstance(related_links[field], list):
                 return '<%s href="%s" title="%s">' % (
                     field,
-                    utils.escape(related_links[field][idx]["href"]),
+                    escape(related_links[field][idx]["href"]),
                     related_links[field][idx]["title"],
                 )
             else:
                 return '<%s href="%s" title="%s">' % (
                     field,
-                    utils.escape(related_links[field]["href"]),
+                    escape(related_links[field]["href"]),
                     related_links[field]["title"],
                 )
         else:
