@@ -31,6 +31,8 @@ New
 Fixed
 ~~~~~
 
+- AttributeError: module 'werkzeug.utils' has no attribute 'escape' (`#1474`_)
+- Starting with Werkzeug 2.1, HATEOAS links are relative instead of absolute (`#1475`_)
 - Eve doesn't work with latest PyMongo (v4) (`#1461`_, `#1464`_)
 - Fix 500 error with empty token/bearer (`#1456`_)
 - Do not return related fields if field is a empty list (`#1441`_)
@@ -42,10 +44,10 @@ Fixed
 - Tutorial mistake on custom IDs values with UUIDs (`#1451`_)
 - Documentation typos (`#1462`_, `#1469`_)
 - Switch to GitHub Actions from Travis CI (`#1439`_, `#1444`_)
-- Starting with Werkzeug 2.1, HATEOAS links are relative instead of absolute (`#1475`_)
 
 .. _`#1469`: https://github.com/pyeve/eve/pull/1469
 .. _`#1475`: https://github.com/pyeve/eve/issues/1475
+.. _`#1474`: https://github.com/pyeve/eve/issues/1474
 .. _`#1451`: https://github.com/pyeve/eve/issues/1451
 .. _`#1464`: https://github.com/pyeve/eve/issues/1464
 .. _`#1461`: https://github.com/pyeve/eve/issues/1461
