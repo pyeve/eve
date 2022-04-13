@@ -158,6 +158,7 @@ def _prepare_response(
         # build the main wsgi response object
         resp = make_response(rendered, status)
         resp.mimetype = mime
+        resp.autocorrect_location_header = True
 
     # extra headers
     if headers:
