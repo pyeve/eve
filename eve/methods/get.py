@@ -280,6 +280,9 @@ def _perform_find(resource, lookup):
 
     response[config.ITEMS] = documents
 
+    getattr(app, "on_fetch_resource_documents")(resource, response)
+    count = len(response[config.ITEMS])
+
     if count is not None:
         headers.append((config.HEADER_TOTAL_COUNT, count))
 
