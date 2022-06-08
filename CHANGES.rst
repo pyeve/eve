@@ -6,6 +6,13 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
+- his sunt leones.
+
+Version v2.0
+------------
+
+Released on Jun 8, 2022.
+
 Breaking
 ~~~~~~~~
 Starting from this release, Eve supports Python 3.7 and above.
