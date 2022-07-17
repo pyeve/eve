@@ -204,7 +204,7 @@ def delete(resource, **lookup):
        'on_deleted_resource' raised after performing the delete
 
     .. versionchanged:: 0.3
-       Support for the lookup filter, which allows for develtion of
+       Support for the lookup filter, which allows for devolution of
        sub-resources (only delete documents that match a given condition).
 
     .. versionchanged:: 0.0.4

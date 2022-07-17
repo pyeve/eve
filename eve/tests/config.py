@@ -424,7 +424,7 @@ class TestConfig(TestBase):
 
     def test_oplog_config(self):
 
-        # if OPLOG_ENDPOINT is eanbled the endoint is included with the domain
+        # if OPLOG_ENDPOINT is enabled the endoint is included with the domain
         self.app.config["OPLOG_ENDPOINT"] = "oplog"
         self.app._init_oplog()
         self.assertOplog("oplog", "oplog")

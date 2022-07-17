@@ -5,7 +5,7 @@ RESTful Account Management
     This tutorial assumes that you've read the :ref:`quickstart` and the
     :ref:`auth` guides.
 
-Except for the relatively rare occurence of open (and generally read-only) public
+Except for the relatively rare occurrence of open (and generally read-only) public
 APIs, most services are only accessible to authenticated users.  A common
 pattern is that users create their account on a website or with a mobile
 application.  Once they have an account, they are allowed to consume one or more

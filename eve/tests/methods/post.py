@@ -828,7 +828,7 @@ class TestPost(TestBase):
 
     def test_post_readonly_in_dict(self):
         # Test that a post with a readonly field inside a dict is properly
-        # validated (even if it has a defult value)
+        # validated (even if it has a default value)
         del self.domain["contacts"]["schema"]["ref"]["required"]
         test_field = "dict_with_read_only"
         test_value = {"read_only_in_dict": "default"}

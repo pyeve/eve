@@ -739,7 +739,7 @@ class TestPatch(TestBase):
 
     def test_patch_dependent_field_on_origin_document(self):
         """Test that when patching a field which is dependent on another field's
-        existance, and this other field is not provided in the patch, but does
+        existence, and this other field is not provided in the patch, but does
         exist on the persisted document, the patch will be accepted.
 
         The value on the document can be there either because is was set
