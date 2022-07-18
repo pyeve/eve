@@ -6,7 +6,9 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
-- his sunt leones.
+- Fix documentation typos (`#1481`_)
+
+.. _`#1781`: https://github.com/pyeve/eve/pull/1481
 
 Version v2.0
 ------------
