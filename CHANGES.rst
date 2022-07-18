@@ -8,7 +8,7 @@ In Development
 
 - Fix documentation typos (`#1481`_)
 
-.. _`#1781`: https://github.com/pyeve/eve/pull/1481
+.. _`#1481`: https://github.com/pyeve/eve/pull/1481
 
 Version v2.0
 ------------
