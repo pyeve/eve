@@ -64,16 +64,29 @@ class PyMongo(object):
             host = app.config[key("URI")]
             # raises an exception if uri is invalid
             mongo_settings = uri_parser.parse_uri(host)
+
+            # extract username and password from uri
+            if mongo_settings.get("username"):
+                client_kwargs["username"] = mongo_settings["username"]
+                client_kwargs["password"] = mongo_settings["password"]
+
+            # extract default database from uri
             dbname = mongo_settings.get("database")
             if not dbname:
                 dbname = app.config[key("DBNAME")]
+
+            # extract auth source from uri
+            auth_source = mongo_settings["options"].get("authSource")
+            if not auth_source:
+                auth_source = dbname
         else:
             dbname = app.config[key("DBNAME")]
+            auth_source = dbname
             host = app.config[key("HOST")]
             client_kwargs["port"] = app.config[key("PORT")]
 
         client_kwargs["host"] = host
-        client_kwargs["authSource"] = dbname
+        client_kwargs["authSource"] = auth_source
 
         if key("DOCUMENT_CLASS") in app.config:
             client_kwargs["document_class"] = app.config[key("DOCUMENT_CLASS")]
