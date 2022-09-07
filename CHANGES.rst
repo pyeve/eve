@@ -9,6 +9,7 @@ In Development
 - MONGO_URI's username, password, and authSource are not parsed correctly (`#1478`_)
 - Lock Flask dependency to version 2.1.
 - Fix documentation typos (`#1481`_)
+- Only build Python 3 wheels.
 
 .. _`#1478`: https://github.com/pyeve/eve/issues/1478
 .. _`#1481`: https://github.com/pyeve/eve/pull/1481
