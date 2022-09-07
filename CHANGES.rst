@@ -6,11 +6,22 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
-- MONGO_URI's username, password, and authSource are not parsed correctly (`#1478`_)
-- Lock Flask dependency to version 2.1.
+- *hic sunt dracones*
+
+Version v2.0.1
+--------------
+
+Released on Sep 7, 2022.
+
+Fixed
+~~~~~
+
+- ``MONGO_URI`` username, password, and authSource are not parsed correctly (`#1478`_)
+- Lock Flask dependency to version 2.1 (`#1485`_)
 - Fix documentation typos (`#1481`_)
 - Only build Python 3 wheels.
 
+.. _`#1485`: https://github.com/pyeve/eve/issues/1485
 .. _`#1478`: https://github.com/pyeve/eve/issues/1478
 .. _`#1481`: https://github.com/pyeve/eve/pull/1481
 
