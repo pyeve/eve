@@ -348,7 +348,7 @@ def document_etag(value, ignore_fields=None):
             "javaLegacy": UuidRepresentation.JAVA_LEGACY,
         }
         return uuid_map[
-            config.MONGO_OPTIONS.get("uuidRepresentation", UuidRepresentation.STANDARD)
+            config.MONGO_OPTIONS.get("uuidRepresentation", "standard")
         ]
 
     if ignore_fields:
