@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import pytest
 import simplejson as json
 
 from bson import ObjectId
@@ -337,6 +338,20 @@ class TestBearerTokenAuth(TestTokenAuth):
         r = self.test_client.get("/", headers=self.valid_auth)
         # will fail because check_auth() is not implemented in the custom class
         self.assert500(r.status_code)
+
+    def test_invalid_auth_header(self):
+        # Setup.
+        self.app = Eve(settings=self.settings_file, auth=ValidTokenAuth)
+        self.test_client = self.app.test_client()
+
+        cases = ["", "invalid header", "bearertokenbutalsoinvalid"]
+        for case in cases:
+            with self.subTest(case=case):
+                # Attempt to fetch the root.
+                response = self.test_client.get("/", headers=[("Authorization", case)])
+
+                # Validate that the request fails with a HTTP/401 error.
+                self.assert401(response.status_code)
 
 
 class TestCustomTokenAuth(TestTokenAuth):
