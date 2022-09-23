@@ -6,6 +6,14 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
+Version v2.0.2
+--------------
+
+Released on Sep 23, 2022.
+
+Fixed
+~~~~~
+
 - Fix: etag generation fails if ``uuidRepresentation`` is not set in MONGO_OPTIONS (`#1486`_)
 
 .. _`#1486`: https://github.com/pyeve/eve/issues/1486
