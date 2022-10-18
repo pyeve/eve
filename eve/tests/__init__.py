@@ -427,52 +427,10 @@ class TestBase(TestMinimal):
             "/%s" % self.domain[self.resource_exclude_media]["url"]
         )
 
-        response, _ = self.get("contacts", "?max_results=2")
-        contact = self.response_item(response)
-        self.item = contact
-        self.item_id = contact[self.domain["contacts"]["id_field"]]
-        self.item_name = contact["ref"]
-        self.item_tid = contact["tid"]
-        self.item_etag = contact[ETAG]
-        self.item_ref = contact["ref"]
-        self.item_rows = contact["rows"]
-        self.item_id_url = "/%s/%s" % (
-            self.domain[self.known_resource]["url"],
-            self.item_id,
-        )
-        self.item_name_url = "/%s/%s" % (
-            self.domain[self.known_resource]["url"],
-            self.item_name,
-        )
-        self.alt_ref = self.response_item(response, 1)["ref"]
-
-        response, _ = self.get("payments", "?max_results=1")
-        self.readonly_id = self.response_item(response)["_id"]
-        self.readonly_id_url = "%s/%s" % (self.readonly_resource_url, self.readonly_id)
-
-        response, _ = self.get("users")
-        user = self.response_item(response)
-        self.user_id = user[self.domain["users"]["id_field"]]
-        self.user_username = user["username"]
-        self.user_name = user["ref"]
-        self.user_etag = user[ETAG]
-        self.user_id_url = "/%s/%s" % (
-            self.domain[self.different_resource]["url"],
-            self.user_id,
-        )
-        self.user_username_url = "/%s/%s" % (
-            self.domain[self.different_resource]["url"],
-            self.user_username,
-        )
-
-        response, _ = self.get("invoices")
-        invoice = self.response_item(response)
-        self.invoice_id = invoice[self.domain["invoices"]["id_field"]]
-        self.invoice_etag = invoice[ETAG]
-        self.invoice_id_url = "/%s/%s" % (
-            self.domain["invoices"]["url"],
-            self.invoice_id,
-        )
+        self._item = None
+        self._readonly_id = None
+        self._user = None
+        self._invoice = None
 
         self.epoch = date_to_str(datetime(1970, 1, 1))
 
@@ -484,6 +442,130 @@ class TestBase(TestMinimal):
 
         self.test_patch = "test_patch"
         self.test_patch_url = "/%s" % self.domain[self.test_patch]["url"]
+
+    def _contact_response(self):
+        response, _ = self.get("contacts", "?max_results=2")
+        return response
+
+    @property
+    def item(self):
+        if self._item is None:
+            response = self._contact_response()
+            self._item = self.response_item(response)
+        return self._item
+
+    @property
+    def item_id(self):
+        return self.item[self.domain["contacts"]["id_field"]]
+
+    @property
+    def item_name(self):
+        return self.item["ref"]
+
+    @property
+    def item_tid(self):
+        return self.item["tid"]
+
+    @property
+    def item_etag(self):
+        return self.item[ETAG]
+
+    @property
+    def item_ref(self):
+        return self.item["ref"]
+
+    @property
+    def item_rows(self):
+        return self.item["rows"]
+
+    @property
+    def item_id_url(self):
+        return "/%s/%s" % (self.domain[self.known_resource]["url"], self.item_id)
+
+    @property
+    def item_name_url(self):
+        return "/%s/%s" % (self.domain[self.known_resource]["url"], self.item_name)
+
+    @property
+    def alt_ref(self):
+        response = self._contact_response()
+        return self.response_item(response, 1)["ref"]
+
+    def _payments_response(self):
+        response, _ = self.get("payments", "?max_results=1")
+        return response
+
+    @property
+    def readonly_id(self):
+        if self._readonly_id is None:
+            response = self._payments_response()
+            self._readonly_id = self.response_item(response)["_id"]
+        return self._readonly_id
+
+    @property
+    def readonly_id_url(self):
+        return "%s/%s" % (self.readonly_resource_url, self.readonly_id)
+
+    def _users_response(self):
+        response, _ = self.get("users")
+        return response
+
+    @property
+    def user(self):
+        if self._user is None:
+            response = self._users_response()
+            self._user = self.response_item(response)
+        return self._user
+
+    @property
+    def user_id(self):
+        return self.user[self.domain["users"]["id_field"]]
+
+    @property
+    def user_username(self):
+        return self.user["username"]
+
+    @property
+    def user_name(self):
+        return self.user["ref"]
+
+    @property
+    def user_etag(self):
+        return self.user[ETAG]
+
+    @property
+    def user_id_url(self):
+        return "/%s/%s" % (self.domain[self.different_resource]["url"], self.user_id)
+
+    @property
+    def user_username_url(self):
+        return "/%s/%s" % (
+            self.domain[self.different_resource]["url"],
+            self.user_username,
+        )
+
+    def _invoices_response(self):
+        response, _ = self.get("invoices")
+        return response
+
+    @property
+    def invoice(self):
+        if self._invoice is None:
+            response = self._invoices_response()
+            self._invoice = self.response_item(response)
+        return self._invoice
+
+    @property
+    def invoice_id(self):
+        return self.invoice[self.domain["invoices"]["id_field"]]
+
+    @property
+    def invoice_etag(self):
+        return self.invoice[ETAG]
+
+    @property
+    def invoice_id_url(self):
+        return "/%s/%s" % (self.domain["invoices"]["url"], self.invoice_id)
 
     def response_item(self, response, i=0):
         if self.app.config["HATEOAS"]:
