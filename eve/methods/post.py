@@ -11,7 +11,6 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from datetime import datetime
 from flask import current_app as app, abort
 from eve.utils import config, parse_request, debug_error_message
 from eve.auth import requires_auth
@@ -30,6 +29,7 @@ from eve.methods.common import (
     resolve_document_etag,
     oplog_push,
     resource_link,
+    utcnow,
 )
 from eve.versioning import resolve_document_version, insert_versioning_documents
 
@@ -157,7 +157,7 @@ def post_internal(resource, payl=None, skip_validation=False):
        JSON links. Superflous ``response`` container removed.
     """
 
-    date_utc = datetime.utcnow().replace(microsecond=0)
+    date_utc = utcnow()
     resource_def = app.config["DOMAIN"][resource]
     schema = resource_def["schema"]
     validator = (

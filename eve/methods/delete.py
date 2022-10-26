@@ -19,6 +19,7 @@ from eve.methods.common import (
     pre_event,
     oplog_push,
     resolve_document_etag,
+    utcnow,
 )
 from eve.versioning import (
     versioned_id_field,
@@ -26,7 +27,6 @@ from eve.versioning import (
     insert_versioning_documents,
     late_versioning_catch,
 )
-from datetime import datetime
 import copy
 
 
@@ -118,7 +118,7 @@ def deleteitem_internal(
         marked_document = copy.deepcopy(original)
 
         # Set DELETED flag and update metadata
-        last_modified = datetime.utcnow().replace(microsecond=0)
+        last_modified = utcnow()
         marked_document[config.DELETED] = True
         marked_document[config.LAST_UPDATED] = last_modified
 
