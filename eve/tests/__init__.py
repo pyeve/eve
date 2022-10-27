@@ -6,7 +6,7 @@ import string
 import random
 import os
 import simplejson as json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from bson import ObjectId
 from pymongo import MongoClient
 from eve.tests.test_settings import (
@@ -495,7 +495,7 @@ class TestBase(TestMinimal):
         schema = DOMAIN["contacts"]["schema"]
         contacts = []
         for i in range(num):
-            dt = datetime.utcnow().replace(microsecond=0)
+            dt = datetime.utcnow().replace(microsecond=0, tzinfo=timezone.utc)
             contact = {
                 "ref": self.random_string(schema["ref"]["maxlength"]),
                 "prog": i,
@@ -534,7 +534,7 @@ class TestBase(TestMinimal):
     def random_payments(self, num):
         payments = []
         for i in range(num):
-            dt = datetime.utcnow().replace(microsecond=0)
+            dt = datetime.utcnow().replace(microsecond=0, tzinfo=timezone.utc)
             payment = {
                 "a_string": self.random_string(10),
                 "a_number": i,
@@ -547,7 +547,7 @@ class TestBase(TestMinimal):
     def random_invoices(self, num):
         invoices = []
         for _ in range(num):
-            dt = datetime.utcnow().replace(microsecond=0)
+            dt = datetime.utcnow().replace(microsecond=0, tzinfo=timezone.utc)
             invoice = {
                 "inv_number": self.random_string(10),
                 eve.LAST_UPDATED: dt,
@@ -599,7 +599,7 @@ class TestBase(TestMinimal):
     def random_internal_transactions(self, num):
         transactions = []
         for i in range(num):
-            dt = datetime.utcnow().replace(microsecond=0)
+            dt = datetime.utcnow().replace(microsecond=0, tzinfo=timezone.utc)
             transaction = {
                 "internal_string": self.random_string(10),
                 "internal_number": i,

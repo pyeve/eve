@@ -13,7 +13,7 @@ import re
 import base64
 import time
 from copy import copy
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import wraps
 
 import simplejson as json
@@ -1511,7 +1511,7 @@ def oplog_push(resource, document, op, id=None):
         if config.LAST_UPDATED in update:
             last_update = update[config.LAST_UPDATED]
         else:
-            last_update = datetime.utcnow().replace(microsecond=0)
+            last_update = utcnow()
         entry[config.LAST_UPDATED] = entry[config.DATE_CREATED] = last_update
         if config.OPLOG_AUDIT:
             entry["ip"] = request.remote_addr
@@ -1538,3 +1538,7 @@ def oplog_push(resource, document, op, id=None):
         getattr(app, "on_oplog_push")(resource, entries)
         # oplog push
         app.data.insert(config.OPLOG_NAME, entries)
+
+
+def utcnow():
+    return datetime.utcnow().replace(microsecond=0, tzinfo=timezone.utc)

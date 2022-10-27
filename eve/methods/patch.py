@@ -13,7 +13,6 @@
 from copy import deepcopy
 from flask import current_app as app, abort
 from werkzeug import exceptions
-from datetime import datetime
 from eve.utils import config, debug_error_message, parse_request
 from eve.auth import requires_auth
 from cerberus.validator import DocumentError
@@ -29,6 +28,7 @@ from eve.methods.common import (
     marshal_write_response,
     resolve_document_etag,
     oplog_push,
+    utcnow,
 )
 from eve.versioning import (
     resolve_document_version,
@@ -198,7 +198,7 @@ def patch_internal(
             resolve_document_version(updates, resource, "PATCH", original)
 
             # some datetime precision magic
-            updates[config.LAST_UPDATED] = datetime.utcnow().replace(microsecond=0)
+            updates[config.LAST_UPDATED] = utcnow()
 
             if resource_def["soft_delete"] is True:
                 # PATCH with soft delete enabled should always set the DELETED

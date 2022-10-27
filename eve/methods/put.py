@@ -9,7 +9,6 @@
     :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-from datetime import datetime
 
 from flask import current_app as app, abort
 from werkzeug import exceptions
@@ -29,6 +28,7 @@ from eve.methods.common import (
     resolve_sub_resource_path,
     resolve_document_etag,
     oplog_push,
+    utcnow,
 )
 from eve.methods.post import post_internal
 from eve.utils import config, debug_error_message, parse_request
@@ -188,7 +188,7 @@ def put_internal(
             late_versioning_catch(original, resource)
 
             # update meta
-            last_modified = datetime.utcnow().replace(microsecond=0)
+            last_modified = utcnow()
             document[config.LAST_UPDATED] = last_modified
             document[config.DATE_CREATED] = original[config.DATE_CREATED]
             if resource_def["soft_delete"] is True:
