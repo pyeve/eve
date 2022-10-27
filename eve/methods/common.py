@@ -1511,7 +1511,7 @@ def oplog_push(resource, document, op, id=None):
         if config.LAST_UPDATED in update:
             last_update = update[config.LAST_UPDATED]
         else:
-            last_update = datetime.utcnow().replace(microsecond=0)
+            last_update = utcnow()
         entry[config.LAST_UPDATED] = entry[config.DATE_CREATED] = last_update
         if config.OPLOG_AUDIT:
             entry["ip"] = request.remote_addr
