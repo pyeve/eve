@@ -16,7 +16,7 @@ Released on Nov 2, 2022.
 Fixed
 ~~~~~
 
-- Fix: malformed ``LAST_UPDATED`` field (`#1490`_)
+- Malformed ``LAST_UPDATED`` field (`#1490`_)
 
 .. _`#1490`: https://github.com/pyeve/eve/issues/1490
 
