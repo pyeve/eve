@@ -10,12 +10,13 @@
     :license: BSD, see LICENSE for more details.
 """
 import datetime
-import simplejson as json
 from copy import copy
-from flask import request, abort
-from eve.utils import date_to_str
+
+import simplejson as json
+from flask import abort, request
+
 from eve.auth import auth_field_and_value
-from eve.utils import config, auto_fields, debug_error_message
+from eve.utils import auto_fields, config, date_to_str, debug_error_message
 
 
 class BaseJSONEncoder(json.JSONEncoder):
@@ -27,11 +28,11 @@ class BaseJSONEncoder(json.JSONEncoder):
         if isinstance(obj, datetime.datetime):
             # convert any datetime to RFC 1123 format
             return date_to_str(obj)
-        elif isinstance(obj, (datetime.time, datetime.date)):
+        if isinstance(obj, (datetime.time, datetime.date)):
             # should not happen since the only supported date-like format
             # supported at dmain schema level is 'datetime' .
             return obj.isoformat()
-        elif isinstance(obj, set):
+        if isinstance(obj, set):
             # convert set objects to encodable lists
             return list(obj)
         return json.JSONEncoder.default(self, obj)
@@ -58,7 +59,7 @@ class ConnectionException(Exception):
         return msg
 
 
-class DataLayer(object):
+class DataLayer():
     """Base data layer class. Defines the interface that actual data-access
     classes, being subclasses, must implement. Implemented as a Flask
     extension.
@@ -528,7 +529,7 @@ class DataLayer(object):
                 client_projection = json.loads(req.projection)
                 if not isinstance(client_projection, dict):
                     raise Exception("The projection parameter has to be a " "dict")
-            except:
+            except Exception:
                 abort(
                     400,
                     description=debug_error_message(

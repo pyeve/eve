@@ -10,24 +10,17 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from flask import current_app as app, abort
-from eve.utils import config, ParsedRequest
-from eve.auth import requires_auth
-from eve.methods.common import (
-    get_document,
-    ratelimit,
-    pre_event,
-    oplog_push,
-    resolve_document_etag,
-    utcnow,
-)
-from eve.versioning import (
-    versioned_id_field,
-    resolve_document_version,
-    insert_versioning_documents,
-    late_versioning_catch,
-)
 import copy
+
+from flask import abort
+from flask import current_app as app
+
+from eve.auth import requires_auth
+from eve.methods.common import (get_document, oplog_push, pre_event, ratelimit,
+                                resolve_document_etag, utcnow)
+from eve.utils import ParsedRequest, config
+from eve.versioning import (insert_versioning_documents, late_versioning_catch,
+                            resolve_document_version, versioned_id_field)
 
 
 def all_done():

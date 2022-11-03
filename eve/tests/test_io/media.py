@@ -1,11 +1,13 @@
+import base64
 from io import BytesIO
 from unittest import TestCase
+
+from bson import ObjectId
+
+from eve import ETAG, ISSUES, STATUS, STATUS_ERR, STATUS_OK
 from eve.io.media import MediaStorage
 from eve.io.mongo import GridFSMediaStorage
-from eve.tests import TestBase, MONGO_DBNAME
-from eve import STATUS_OK, STATUS, STATUS_ERR, ISSUES, ETAG
-import base64
-from bson import ObjectId
+from eve.tests import MONGO_DBNAME, TestBase
 
 
 class TestMediaStorage(TestCase):
@@ -24,7 +26,7 @@ class TestMediaStorage(TestCase):
 
 class TestGridFSMediaStorage(TestBase):
     def setUp(self):
-        super(TestGridFSMediaStorage, self).setUp()
+        super().setUp()
         self.url = self.known_resource_url
         self.resource = self.known_resource
         self.headers = [("Content-Type", "multipart/form-data")]

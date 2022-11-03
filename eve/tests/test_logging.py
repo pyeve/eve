@@ -1,5 +1,6 @@
-from eve.tests import TestBase
 from testfixtures import log_capture
+
+from eve.tests import TestBase
 
 
 class TestUtils(TestBase):

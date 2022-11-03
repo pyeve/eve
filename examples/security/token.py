@@ -20,10 +20,10 @@
     Consider it public domain.
 """
 
+from settings_security import SETTINGS
+
 from eve import Eve
 from eve.auth import TokenAuth
-
-from settings_security import SETTINGS
 
 
 class TokenAuth(TokenAuth):

@@ -10,19 +10,14 @@ from pymongo.errors import OperationFailure
 import eve
 from eve.auth import BasicAuth
 from eve.tests import TestBase
-from eve.tests.test_settings import (
-    MONGO1_PASSWORD,
-    MONGO1_USERNAME,
-    MONGO1_DBNAME,
-    MONGO_DBNAME,
-    MONGO_HOST,
-    MONGO_PORT,
-)
+from eve.tests.test_settings import (MONGO1_DBNAME, MONGO1_PASSWORD,
+                                     MONGO1_USERNAME, MONGO_DBNAME, MONGO_HOST,
+                                     MONGO_PORT)
 
 
 class TestMultiMongo(TestBase):
     def setUp(self):
-        super(TestMultiMongo, self).setUp()
+        super().setUp()
 
         self.setupDB2()
 
@@ -32,7 +27,7 @@ class TestMultiMongo(TestBase):
         self.app.register_resource("works", settings)
 
     def tearDown(self):
-        super(TestMultiMongo, self).tearDown()
+        super().tearDown()
         self.dropDB2()
 
     def setupDB2(self):

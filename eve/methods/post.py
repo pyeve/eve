@@ -11,27 +11,21 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from flask import current_app as app, abort
-from eve.utils import config, parse_request, debug_error_message
-from eve.auth import requires_auth
 from cerberus.validator import DocumentError
-from eve.methods.common import (
-    parse,
-    payload,
-    ratelimit,
-    pre_event,
-    store_media_files,
-    resolve_user_restricted_access,
-    resolve_embedded_fields,
-    build_response_document,
-    marshal_write_response,
-    resolve_sub_resource_path,
-    resolve_document_etag,
-    oplog_push,
-    resource_link,
-    utcnow,
-)
-from eve.versioning import resolve_document_version, insert_versioning_documents
+from flask import abort
+from flask import current_app as app
+
+from eve.auth import requires_auth
+from eve.methods.common import (build_response_document,
+                                marshal_write_response, oplog_push, parse,
+                                payload, pre_event, ratelimit,
+                                resolve_document_etag, resolve_embedded_fields,
+                                resolve_sub_resource_path,
+                                resolve_user_restricted_access, resource_link,
+                                store_media_files, utcnow)
+from eve.utils import config, debug_error_message, parse_request
+from eve.versioning import (insert_versioning_documents,
+                            resolve_document_version)
 
 
 @ratelimit()

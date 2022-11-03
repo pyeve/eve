@@ -17,17 +17,9 @@ from flask import current_app as app
 from werkzeug.datastructures import FileStorage
 
 from eve.auth import auth_field_and_value
-from eve.io.mongo.geo import (
-    Point,
-    MultiPoint,
-    LineString,
-    Polygon,
-    MultiLineString,
-    MultiPolygon,
-    GeometryCollection,
-    Feature,
-    FeatureCollection,
-)
+from eve.io.mongo.geo import (Feature, FeatureCollection, GeometryCollection,
+                              LineString, MultiLineString, MultiPoint,
+                              MultiPolygon, Point, Polygon)
 from eve.utils import config
 from eve.validation import Validator
 from eve.versioning import get_data_version_relation_document

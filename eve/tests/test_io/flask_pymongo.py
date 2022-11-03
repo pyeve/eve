@@ -1,21 +1,16 @@
 import pytest
-
-from eve.tests import TestBase
 from pymongo import MongoClient
 from pymongo.errors import OperationFailure
-from eve.tests.test_settings import (
-    MONGO1_DBNAME,
-    MONGO1_USERNAME,
-    MONGO1_PASSWORD,
-    MONGO_HOST,
-    MONGO_PORT,
-)
+
 from eve.io.mongo.flask_pymongo import PyMongo
+from eve.tests import TestBase
+from eve.tests.test_settings import (MONGO1_DBNAME, MONGO1_PASSWORD,
+                                     MONGO1_USERNAME, MONGO_HOST, MONGO_PORT)
 
 
 class TestPyMongo(TestBase):
     def setUp(self, url_converters=None):
-        super(TestPyMongo, self).setUp(url_converters)
+        super().setUp(url_converters)
         self._setupdb()
         schema = {"title": {"type": "string"}}
         settings = {"schema": schema, "mongo_prefix": "MONGO1"}

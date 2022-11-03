@@ -13,6 +13,7 @@
 """
 
 import copy
+
 import cerberus
 import cerberus.errors
 from cerberus import DocumentError, SchemaError  # noqa
@@ -26,7 +27,7 @@ class Validator(cerberus.Validator):
             kwargs["error_handler"] = SingleErrorAsStringErrorHandler
 
         self.is_update_operation = False
-        super(Validator, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def validate_update(
         self, document, document_id, persisted_document=None, normalize_document=True
@@ -42,7 +43,7 @@ class Validator(cerberus.Validator):
         self.is_update_operation = True
         self.document_id = document_id
         self.persisted_document = persisted_document
-        return super(Validator, self).validate(
+        return super().validate(
             document, update=True, normalize=normalize_document
         )
 
@@ -62,7 +63,7 @@ class Validator(cerberus.Validator):
         """
         self.document_id = document_id
         self.persisted_document = persisted_document
-        return super(Validator, self).validate(document)
+        return super().validate(document)
 
     def _normalize_default(self, mapping, schema, field):
         """{'nullable': True}"""
@@ -86,7 +87,7 @@ class Validator(cerberus.Validator):
         #   - A PATCH to an existing document where the field is not set
         #   - A PUT to a document where the field maybe is set
 
-        super(Validator, self)._normalize_default(mapping, schema, field)
+        super()._normalize_default(mapping, schema, field)
 
     def _normalize_default_setter(self, mapping, schema, field):
         """{'oneof': [
@@ -94,7 +95,7 @@ class Validator(cerberus.Validator):
         {'type': 'string'}
         ]}"""
         if not self.persisted_document or field not in self.persisted_document:
-            super(Validator, self)._normalize_default_setter(mapping, schema, field)
+            super()._normalize_default_setter(mapping, schema, field)
 
     def _validate_dependencies(self, dependencies, field, value):
         """{'type': ['dict', 'hashable', 'list']}"""
@@ -107,7 +108,7 @@ class Validator(cerberus.Validator):
             validator.validate(dcopy, update=self.update)
             self._error(validator._errors)
         else:
-            super(Validator, self)._validate_dependencies(dependencies, field, value)
+            super()._validate_dependencies(dependencies, field, value)
 
     def _filter_persisted_fields_not_in_document(self, fields):
         def persisted_but_not_in_document(field):
@@ -125,7 +126,7 @@ class Validator(cerberus.Validator):
             self.persisted_document.get(field) if self.persisted_document else None
         )
         if value != persisted_value:
-            super(Validator, self)._validate_readonly(read_only, field, value)
+            super()._validate_readonly(read_only, field, value)
 
     @property
     def resource(self):
@@ -163,7 +164,7 @@ class SingleErrorAsStringErrorHandler(cerberus.errors.BasicErrorHandler):
 
     @property
     def pretty_tree(self):
-        pretty = super(SingleErrorAsStringErrorHandler, self).pretty_tree
+        pretty = super().pretty_tree
         self._unpack_single_element_lists(pretty)
         return pretty
 

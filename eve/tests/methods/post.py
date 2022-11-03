@@ -1,20 +1,16 @@
 from base64 import b64decode
-from bson import ObjectId
-
-import simplejson as json
-
-from eve.tests import TestBase
-from eve.tests.utils import DummyEvent
-from eve.tests.test_settings import MONGO_DBNAME
-
-from eve import STATUS_OK, LAST_UPDATED, DATE_CREATED, ISSUES, STATUS, ETAG
-from eve.methods.post import post
-from eve.methods.post import post_internal
-from eve.utils import str_type
-
 from io import BytesIO
 
+import simplejson as json
+from bson import ObjectId
 from werkzeug.datastructures import MultiDict
+
+from eve import DATE_CREATED, ETAG, ISSUES, LAST_UPDATED, STATUS, STATUS_OK
+from eve.methods.post import post, post_internal
+from eve.tests import TestBase
+from eve.tests.test_settings import MONGO_DBNAME
+from eve.tests.utils import DummyEvent
+from eve.utils import str_type
 
 
 class TestPost(TestBase):
@@ -1137,8 +1133,7 @@ class TestPost(TestBase):
         self.assertEqual(item[DATE_CREATED], item[LAST_UPDATED])
         if isinstance(fields, list):
             return [item[field] for field in fields]
-        else:
-            return item[fields]
+        return item[fields]
 
     def post(self, url, data, headers=None, content_type="application/json"):
         if not headers:

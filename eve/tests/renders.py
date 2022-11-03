@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from bson import ObjectId
-from eve.tests import TestBase
-from eve.utils import api_prefix
-from eve.tests.test_settings import MONGO_DBNAME
 import simplejson as json
+from bson import ObjectId
+
+from eve.tests import TestBase
+from eve.tests.test_settings import MONGO_DBNAME
+from eve.utils import api_prefix
 
 
 class TestRenders(TestBase):

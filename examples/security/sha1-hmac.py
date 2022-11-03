@@ -21,11 +21,11 @@
     Consider it public domain.
 """
 
-from eve import Eve
-from eve.auth import BasicAuth
+from settings_security import SETTINGS
 from werkzeug.security import check_password_hash
 
-from settings_security import SETTINGS
+from eve import Eve
+from eve.auth import BasicAuth
 
 
 class Sha1Auth(BasicAuth):

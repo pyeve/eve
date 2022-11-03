@@ -14,6 +14,7 @@
 import ast
 import sys
 from datetime import datetime  # noqa
+
 from bson import ObjectId  # noqa
 
 
@@ -68,7 +69,7 @@ class MongoVisitor(ast.NodeVisitor):
 
         # if we didn't obtain a query, it is likely that an unsupported
         # python expression has been passed.
-        if self.mongo_query == {}:
+        if not self.mongo_query:
             raise ParseError(
                 "Only conditional statements with boolean "
                 "(and, or) and comparison operators are "
@@ -125,7 +126,7 @@ class MongoVisitor(ast.NodeVisitor):
             if node.func.id == "ObjectId":
                 try:
                     self.current_value = ObjectId(node.args[0].s)
-                except:
+                except Exception:
                     pass
             elif node.func.id == "datetime":
                 values = []
@@ -133,7 +134,7 @@ class MongoVisitor(ast.NodeVisitor):
                     values.append(arg.n)
                 try:
                     self.current_value = datetime(*values)
-                except:
+                except Exception:
                     pass
 
     def visit_Attribute(self, node):

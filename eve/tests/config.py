@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
-import eve
 import os
-from eve.flaskapp import RegexConverter
-from eve.flaskapp import Eve
+
+import eve
+from eve.exceptions import ConfigException, SchemaException
+from eve.flaskapp import Eve, RegexConverter
 from eve.io.base import DataLayer
+from eve.io.mongo import Mongo, Validator
 from eve.tests import TestBase
 from eve.tests.test_settings import MONGO_HOST, MONGO_PORT
-from eve.exceptions import ConfigException, SchemaException
-from eve.io.mongo import Mongo, Validator
 
 
 class TestConfig(TestBase):
@@ -299,7 +299,7 @@ class TestConfig(TestBase):
         )
 
         self.assertEqual(
-            datasource["projection"], dict((field, 1) for (field) in compare)
+            datasource["projection"], dict((field, 1) for field in compare)
         )
         self.assertEqual(datasource["source"], resource)
         self.assertEqual(datasource["filter"], None)

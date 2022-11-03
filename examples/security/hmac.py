@@ -46,12 +46,12 @@
     Consider it public domain.
 """
 import hmac
-
-from eve import Eve
-from eve.auth import HMACAuth
 from hashlib import sha1
 
 from settings_security import SETTINGS
+
+from eve import Eve
+from eve.auth import HMACAuth
 
 
 class HMACAuth(HMACAuth):

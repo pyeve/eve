@@ -10,24 +10,24 @@
     :license: BSD, see LICENSE for more details.
 """
 
+import hashlib
 import sys
+from copy import deepcopy
+from datetime import datetime, timedelta
 from importlib import import_module
 
-from bson import UuidRepresentation
-
-import eve
-import hashlib
 import werkzeug.exceptions
-from copy import deepcopy
-from flask import request
-from flask import current_app as app
-from datetime import datetime, timedelta
+from bson import UuidRepresentation
 from bson.json_util import dumps
-from eve import RFC1123_DATE_FORMAT
+from flask import current_app as app
+from flask import request
 from werkzeug.datastructures import MultiDict
 
+import eve
+from eve import RFC1123_DATE_FORMAT
 
-class Config(object):
+
+class Config():
     """Helper class used through the code to access configuration settings.
     If the main flaskapp object is not instantiated yet, returns the default
     setting in the eve __init__.py module, otherwise returns the flaskapp
@@ -39,7 +39,7 @@ class Config(object):
             # will return 'working outside of application context' if the
             # current_app is not available yet
             return app.config.get(name)
-        except:
+        except Exception:
             # fallback to the module-level default value
             return getattr(eve, name)
 
@@ -49,7 +49,7 @@ class Config(object):
 config = Config()
 
 
-class ParsedRequest(object):
+class ParsedRequest():
     """This class, by means of its attributes, describes a client request.
 
     .. versionchanged:: 9,5
@@ -172,8 +172,7 @@ def parse_request(resource):
             # remove double quotes from challenge etag format to allow direct
             # string comparison with stored values
             return etag.replace('"', "")
-        else:
-            return None
+        return None
 
     if headers:
         r.if_modified_since = weak_date(headers.get("If-Modified-Since"))
@@ -476,7 +475,7 @@ def validate_filters(where, resource):
                                 # sized list
                                 sub = dict_sub_schema(base_schema["schema"])
                                 return [sub] if sub is not None else []
-                            elif "items" in base_schema:
+                            if "items" in base_schema:
                                 # Try to get dict sub-schema(s) for
                                 # fixed-size list
                                 items = base_schema["items"]
@@ -505,10 +504,9 @@ def validate_filters(where, resource):
                                         return True
 
                             return False
-                        else:
-                            field_schema = schema.get(key)
-                            v = app.validator({key: field_schema})
-                            return v.validate({key: value})
+                        field_schema = schema.get(key)
+                        v = app.validator({key: field_schema})
+                        return v.validate({key: value})
 
                     res_schema = config.DOMAIN[resource]["schema"]
                     if not recursive_validate_filter(key, value, res_schema):

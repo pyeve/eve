@@ -1,5 +1,7 @@
-import simplejson as json
 import sys
+
+import simplejson as json
+
 import eve.methods.common
 from eve.tests import TestBase
 from eve.utils import config
@@ -49,7 +51,7 @@ class TestPatchAtomicConcurrent(TestBase):
         sys.modules[
             "eve.methods.patch"
         ].get_document = get_document_simulate_concurrent_update
-        return super(TestPatchAtomicConcurrent, self).setUp()
+        return super().setUp()
 
     def test_etag_changed_after_get_document(self):
         """
@@ -65,7 +67,7 @@ class TestPatchAtomicConcurrent(TestBase):
     def tearDown(self):
         """Remove patch of eve.methods.patch.get_document"""
         sys.modules["eve.methods.patch"].get_document = self.original_get_document
-        return super(TestPatchAtomicConcurrent, self).tearDown()
+        return super().tearDown()
 
     def patch(self, url, data, headers=[]):
         headers.append(("Content-Type", "application/json"))

@@ -10,9 +10,9 @@
     :license: BSD, see LICENSE for more details.
 """
 
+from eve.methods.delete import delete, deleteitem
 # flake8: noqa
 from eve.methods.get import get, getitem
-from eve.methods.post import post
 from eve.methods.patch import patch
+from eve.methods.post import post
 from eve.methods.put import put
-from eve.methods.delete import delete, deleteitem

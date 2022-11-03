@@ -1,8 +1,8 @@
 from __future__ import absolute_import
 
 import logging
-from flask import request
 
+from flask import request
 
 # TODO right now we are only logging exceptions. We should probably
 # add support for some INFO and maybe DEBUG level logging (like, log each time

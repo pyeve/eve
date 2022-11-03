@@ -1,17 +1,19 @@
 import time
+from collections import OrderedDict  # noqa
 from datetime import datetime
 from random import shuffle
+
 import simplejson as json
 from bson import ObjectId, decimal128
 from bson.dbref import DBRef
-from eve.tests.suite_generator import EmbeddedDoc
-from eve.methods.common import serialize, normalize_dotted_fields, sort_per_resource
+
+from eve.methods.common import (normalize_dotted_fields, serialize,
+                                sort_per_resource)
 from eve.tests import TestBase
-from eve.tests.auth import ValidBasicAuth, ValidTokenAuth, ValidHMACAuth
+from eve.tests.auth import ValidBasicAuth, ValidHMACAuth, ValidTokenAuth
+from eve.tests.suite_generator import EmbeddedDoc
 from eve.tests.test_settings import MONGO_DBNAME
 from eve.utils import config
-
-from collections import OrderedDict  # noqa
 
 
 class TestSerializer(TestBase):
@@ -472,7 +474,7 @@ class TestNormalizeDottedFields(TestBase):
 
 class TestOpLogBase(TestBase):
     def setUp(self):
-        super(TestOpLogBase, self).setUp()
+        super().setUp()
         self.test_field, self.test_value = "ref", "1234567890123456789054321"
         self.data = {self.test_field: self.test_value}
         self.test_client = self.app.test_client()
@@ -511,7 +513,7 @@ class TestOpLogBase(TestBase):
 
 class TestOpLogEndpointDisabled(TestOpLogBase):
     def setUp(self):
-        super(TestOpLogEndpointDisabled, self).setUp()
+        super().setUp()
 
         self.app.config["OPLOG"] = True
         from eve.default_settings import OPLOG_CHANGE_METHODS
@@ -539,7 +541,7 @@ class TestOpLogEndpointDisabled(TestOpLogBase):
 
 class TestOpLogEndpointEnabled(TestOpLogBase):
     def setUp(self):
-        super(TestOpLogEndpointEnabled, self).setUp()
+        super().setUp()
 
         self.app.config["OPLOG"] = True
         self.app.config["OPLOG_ENDPOINT"] = "oplog"
@@ -763,7 +765,7 @@ class TestTickets(TestBase):
 
 class TestEmbeddedDocuments(TestBase):
     def setUp(self, url_converters=None):
-        super(TestEmbeddedDocuments, self).setUp()
+        super().setUp()
 
     def test_sort_per_resource_embedded_docs(self):
         object_ids = [ObjectId() for _ in range(8)]

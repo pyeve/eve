@@ -15,7 +15,7 @@ from flask import current_app
 from pymongo import MongoClient, uri_parser
 
 
-class PyMongo(object):
+class PyMongo():
     """
     Creates Mongo connection and database based on Flask configuration.
     """

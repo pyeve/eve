@@ -18,8 +18,9 @@ from __future__ import print_function
     Consider it public domain.
 """
 from flask import request
-from eve import Eve
 from notifications_settings import SETTINGS
+
+from eve import Eve
 
 app = Eve(auth=None, settings=SETTINGS)
 

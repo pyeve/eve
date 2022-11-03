@@ -1,23 +1,20 @@
 # -*- coding: utf-8 -*-
 
-import unittest
-import eve
-import string
-import random
 import os
-import simplejson as json
+import random
+import string
+import unittest
 from datetime import datetime, timedelta, timezone
+
+import simplejson as json
 from bson import ObjectId
 from pymongo import MongoClient
-from eve.tests.test_settings import (
-    MONGO_PASSWORD,
-    MONGO_USERNAME,
-    MONGO_DBNAME,
-    DOMAIN,
-    MONGO_HOST,
-    MONGO_PORT,
-)
-from eve import ISSUES, ETAG
+
+import eve
+from eve import ETAG, ISSUES
+from eve.tests.test_settings import (DOMAIN, MONGO_DBNAME, MONGO_HOST,
+                                     MONGO_PASSWORD, MONGO_PORT,
+                                     MONGO_USERNAME)
 from eve.utils import date_to_str
 
 try:
@@ -26,7 +23,7 @@ except ImportError:
     from urllib.parse import parse_qs, urlparse
 
 
-class ValueStack(object):
+class ValueStack():
     """
     Descriptor to store multiple assignments in an attribute.
 
@@ -385,7 +382,7 @@ class TestMinimal(unittest.TestCase):
 
 class TestBase(TestMinimal):
     def setUp(self, url_converters=None):
-        super(TestBase, self).setUp(url_converters=url_converters)
+        super().setUp(url_converters=url_converters)
 
         self.disabled_bulk = "disabled_bulk"
         self.disabled_bulk_url = "/%s" % self.domain[self.disabled_bulk]["url"]
@@ -488,8 +485,7 @@ class TestBase(TestMinimal):
     def response_item(self, response, i=0):
         if self.app.config["HATEOAS"]:
             return response["_items"][i]
-        else:
-            return response[i]
+        return response[i]
 
     def random_contacts(self, num, standard_date_fields=True):
         schema = DOMAIN["contacts"]["schema"]
