@@ -754,11 +754,7 @@ def resolve_data_relation_links(document, resource):
         if "data_relation" not in field_def:
             continue
 
-        if (
-            field in document
-            and document[field] is not None
-            and document[field] is not []
-        ):
+        if field in document and document[field] is not None and document[field] != []:
             related_links = []
 
             # Make the code DRY for list of linked relation and single linked relation

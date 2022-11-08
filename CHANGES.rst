@@ -6,7 +6,9 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
-- hic sunt leones.
+- Fix: comparison of incompatible types (`#1492`_)
+
+.. _`#1492`: https://github.com/pyeve/eve/issues/1492
 
 Version v2.0.3
 --------------
