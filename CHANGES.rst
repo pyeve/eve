@@ -6,7 +6,17 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
-- Fix: comparison of incompatible types (`#1492`_)
+- *hic sunt leones*
+
+Version v2.0.4
+--------------
+
+Released on Nov 10, 2022.
+
+Fixed
+~~~~~
+
+- Comparison of incompatible types (`#1492`_)
 - Python 3 updates, and some refactoring (`#1493`_)
 
 .. _`#1492`: https://github.com/pyeve/eve/issues/1492
