@@ -1,12 +1,13 @@
-from eve.tests import TestBase
 import time
+
+from eve.tests import TestBase
 
 
 class TestRateLimit(TestBase):
     def setUp(self):
-        super(TestRateLimit, self).setUp()
+        super().setUp()
         try:
-            from redis import Redis, ConnectionError
+            from redis import ConnectionError, Redis
 
             self.app.redis = Redis()
             try:

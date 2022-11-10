@@ -1,22 +1,24 @@
 # -*- coding: utf-8 -*-
 
-from ast import literal_eval
-from eve.tests import TestBase
-import simplejson as json
-import eve
 import os
+from ast import literal_eval
+
+import simplejson as json
+
+import eve
+from eve.tests import TestBase
 
 
 class TestResponse(TestBase):
     def setUp(self):
-        super(TestResponse, self).setUp()
+        super().setUp()
         self.r = self.test_client.get("/%s/" % self.empty_resource)
 
     def test_response_data(self):
         response = None
         try:
             response = literal_eval(self.r.get_data().decode())
-        except:
+        except Exception:
             self.fail("standard response cannot be converted to a dict")
         self.assertTrue(isinstance(response, dict))
 
@@ -43,7 +45,7 @@ class TestResponse(TestBase):
 
 class TestNoHateoas(TestBase):
     def setUp(self):
-        super(TestNoHateoas, self).setUp()
+        super().setUp()
         self.app.config["HATEOAS"] = False
         self.domain[self.known_resource]["hateoas"] = False
 

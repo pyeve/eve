@@ -1,6 +1,8 @@
-from flask import current_app as app, abort
-from eve.utils import config, debug_error_message, ParsedRequest
+from flask import abort
+from flask import current_app as app
 from werkzeug.exceptions import BadRequestKeyError
+
+from eve.utils import ParsedRequest, config, debug_error_message
 
 
 def versioned_id_field(resource_settings):

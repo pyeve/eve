@@ -10,23 +10,22 @@
     :license: BSD, see LICENSE for more details.
 """
 
+import datetime
 import re
 import time
-import datetime
-import simplejson as json
-from werkzeug import utils
-from markupsafe import escape
-from functools import wraps
-from eve.methods.common import get_rate_limit
-from eve.utils import (
-    date_to_str,
-    date_to_rfc1123,
-    config,
-    debug_error_message,
-    import_from_string,
-)
-from flask import make_response, request, Response, current_app as app, abort
 from collections import OrderedDict  # noqa
+from functools import wraps
+
+import simplejson as json
+from flask import Response, abort
+from flask import current_app as app
+from flask import make_response, request
+from markupsafe import escape
+from werkzeug import utils
+
+from eve.methods.common import get_rate_limit
+from eve.utils import (config, date_to_rfc1123, date_to_str,
+                       debug_error_message, import_from_string)
 
 
 def raise_event(f):
@@ -89,8 +88,7 @@ def send_response(resource, response):
     """
     if isinstance(response, Response):
         return response
-    else:
-        return _prepare_response(resource, *response if response else [None])
+    return _prepare_response(resource, *response if response else [None])
 
 
 def _prepare_response(
@@ -289,7 +287,7 @@ def _best_mime():
     return best_match, renders[best_match]
 
 
-class Renderer(object):
+class Renderer():
     """Base class for all the renderers. Renderer should set valid `mime`
     attr and have `.render()` method implemented.
 
@@ -464,7 +462,7 @@ class XMLRenderer(Renderer):
         """
         try:
             xml = "".join(cls.xml_item(item) for item in data[config.ITEMS])
-        except:
+        except Exception:
             xml = cls.xml_dict(data)
         return xml
 
@@ -547,14 +545,12 @@ class XMLRenderer(Renderer):
                     escape(related_links[field][idx]["href"]),
                     related_links[field][idx]["title"],
                 )
-            else:
-                return '<%s href="%s" title="%s">' % (
-                    field,
-                    escape(related_links[field]["href"]),
-                    related_links[field]["title"],
-                )
-        else:
-            return "<%s>" % field
+            return '<%s href="%s" title="%s">' % (
+                field,
+                escape(related_links[field]["href"]),
+                related_links[field]["title"],
+            )
+        return "<%s>" % field
 
     @classmethod
     def xml_field_close(cls, field):

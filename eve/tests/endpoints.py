@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
+import os
+from datetime import datetime
+from uuid import UUID
+
 import pytest
 import simplejson as json
 from werkzeug.routing import BaseConverter
-from eve.tests import TestBase, TestMinimal
+
 from eve import Eve
-from datetime import datetime
-from eve.utils import config
 from eve.io.base import BaseJSONEncoder
-from eve.tests.test_settings import MONGO_DBNAME, MONGO_USERNAME, MONGO_PASSWORD
-from uuid import UUID
 from eve.io.mongo import Validator
-import os
+from eve.tests import TestBase, TestMinimal
+from eve.tests.test_settings import (MONGO_DBNAME, MONGO_PASSWORD,
+                                     MONGO_USERNAME)
+from eve.utils import config
 
 
 class UUIDEncoder(BaseJSONEncoder):
@@ -22,9 +25,8 @@ class UUIDEncoder(BaseJSONEncoder):
     def default(self, obj):
         if isinstance(obj, UUID):
             return str(obj)
-        else:
-            # delegate rendering to base class method
-            return super(UUIDEncoder, self).default(obj)
+        # delegate rendering to base class method
+        return super().default(obj)
 
 
 class UUIDConverter(BaseConverter):
@@ -33,7 +35,7 @@ class UUIDConverter(BaseConverter):
     """
 
     def __init__(self, url_map, strict=True):
-        super(UUIDConverter, self).__init__(url_map)
+        super().__init__(url_map)
 
     def to_python(self, value):
         return UUID(value)
@@ -78,7 +80,7 @@ class TestCustomConverters(TestMinimal):
         self.url = "/uuids/%s" % self.uuid_valid
         self.headers = [("Content-Type", "application/json")]
 
-        super(TestCustomConverters, self).setUp(
+        super().setUp(
             settings_file=settings, url_converters=url_converters
         )
 
@@ -353,7 +355,7 @@ class TestEndPoints(TestBase):
     def test_schema_endpoint_does_not_attempt_callable_serialization(self):
         self.domain[self.known_resource]["schema"]["lambda"] = {
             "type": "boolean",
-            "coerce": lambda v: v if type(v) is bool else v.lower() in ["true", "1"],
+            "coerce": lambda v: v if isinstance(v, bool) else v.lower() in ["true", "1"],
         }
         known_schema_path = "/schema/%s" % self.known_resource
         self.app.config["SCHEMA_ENDPOINT"] = "schema"

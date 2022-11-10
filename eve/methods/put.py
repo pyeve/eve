@@ -10,34 +10,24 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from flask import current_app as app, abort
+from cerberus.validator import DocumentError
+from flask import abort
+from flask import current_app as app
 from werkzeug import exceptions
 
 from eve.auth import auth_field_and_value, requires_auth
-from eve.methods.common import (
-    get_document,
-    parse,
-    payload as payload_,
-    ratelimit,
-    pre_event,
-    store_media_files,
-    resolve_user_restricted_access,
-    resolve_embedded_fields,
-    build_response_document,
-    marshal_write_response,
-    resolve_sub_resource_path,
-    resolve_document_etag,
-    oplog_push,
-    utcnow,
-)
+from eve.methods.common import (build_response_document, get_document,
+                                marshal_write_response, oplog_push, parse)
+from eve.methods.common import payload as payload_
+from eve.methods.common import (pre_event, ratelimit, resolve_document_etag,
+                                resolve_embedded_fields,
+                                resolve_sub_resource_path,
+                                resolve_user_restricted_access,
+                                store_media_files, utcnow)
 from eve.methods.post import post_internal
 from eve.utils import config, debug_error_message, parse_request
-from cerberus.validator import DocumentError
-from eve.versioning import (
-    resolve_document_version,
-    insert_versioning_documents,
-    late_versioning_catch,
-)
+from eve.versioning import (insert_versioning_documents, late_versioning_catch,
+                            resolve_document_version)
 
 
 @ratelimit()
@@ -151,8 +141,7 @@ def put_internal(
                 id = str(id)
             payload[resource_def["id_field"]] = id
             return post_internal(resource, payl=payload)
-        else:
-            abort(404)
+        abort(404)
 
     # If the document exists, but is owned by someone else, return
     # 403 Forbidden

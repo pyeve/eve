@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
+from unittest import TestCase
 
 import simplejson as json
 from bson import ObjectId, decimal128
 from bson.dbref import DBRef
 from cerberus import SchemaError
-from unittest import TestCase
 
-from eve.io.mongo import Validator, Mongo, MongoJSONEncoder
-from eve.io.mongo.parser import parse, ParseError
+from eve.io.mongo import Mongo, MongoJSONEncoder, Validator
+from eve.io.mongo.parser import ParseError, parse
 from eve.tests import TestBase
 from eve.tests.test_settings import MONGO_DBNAME
 

@@ -1,7 +1,8 @@
 import copy
-import simplejson as json
 
+import simplejson as json
 from bson import ObjectId
+
 from eve import ETAG
 from eve.methods.delete import deleteitem_internal
 from eve.tests import TestBase
@@ -12,7 +13,7 @@ from eve.utils import ParsedRequest
 
 class TestDelete(TestBase):
     def setUp(self):
-        super(TestDelete, self).setUp()
+        super().setUp()
         # Etag used to delete an item (a contact)
         self.etag_headers = [("If-Match", self.item_etag)]
 
@@ -256,7 +257,7 @@ class TestDelete(TestBase):
 
 class TestSoftDelete(TestDelete):
     def setUp(self):
-        super(TestSoftDelete, self).setUp()
+        super().setUp()
 
         # Enable soft delete
         self.app.config["SOFT_DELETE"] = True
@@ -321,7 +322,7 @@ class TestSoftDelete(TestDelete):
         """
         # TestDelete deletes resource at known_resource_url, and confirms
         # subsequent queries to the resource return zero items
-        super(TestSoftDelete, self).test_delete_from_resource_endpoint()
+        super().test_delete_from_resource_endpoint()
 
         r = self.test_client.get(self.item_id_url)
         data, status = self.parse_response(r)
@@ -667,7 +668,7 @@ class TestSoftDelete(TestDelete):
 
 class TestResourceSpecificSoftDelete(TestBase):
     def setUp(self):
-        super(TestResourceSpecificSoftDelete, self).setUp()
+        super().setUp()
 
         # Enable soft delete for one resource
         domain = copy.copy(self.domain)

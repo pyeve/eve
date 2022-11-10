@@ -7,8 +7,10 @@ In Development
 ---------------
 
 - Fix: comparison of incompatible types (`#1492`_)
+- Python 3 updates, and some refactoring (`#1493`_)
 
 .. _`#1492`: https://github.com/pyeve/eve/issues/1492
+.. _`#1493`: https://github.com/pyeve/eve/pull/1493
 
 Version v2.0.3
 --------------

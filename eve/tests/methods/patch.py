@@ -1,13 +1,8 @@
 import simplejson as json
-
 from bson import ObjectId
 from pymongo import ReadPreference
 
-from eve import ETAG
-from eve import ISSUES
-from eve import LAST_UPDATED
-from eve import STATUS
-from eve import STATUS_OK
+from eve import ETAG, ISSUES, LAST_UPDATED, STATUS, STATUS_OK
 from eve.methods.patch import patch_internal
 from eve.tests import TestBase
 from eve.tests.test_settings import MONGO_DBNAME
@@ -388,8 +383,7 @@ class TestPatch(TestBase):
         )
         if isinstance(fields, str):
             return r[fields]
-        else:
-            return [r[field] for field in fields]
+        return [r[field] for field in fields]
 
     def test_patch_allow_unknown(self):
         changes = {"unknown": "unknown"}

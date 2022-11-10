@@ -9,9 +9,10 @@
     :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-import re
 import base64
+import re
 import time
+from collections import Counter
 from copy import copy
 from datetime import datetime, timezone
 from functools import wraps
@@ -19,9 +20,11 @@ from functools import wraps
 import simplejson as json
 from bson.dbref import DBRef
 from bson.errors import InvalidId
-from cerberus import schema_registry, rules_set_registry
-from flask import abort, current_app as app, g, request
-from werkzeug.datastructures import MultiDict, CombinedMultiDict
+from cerberus import rules_set_registry, schema_registry
+from flask import abort
+from flask import current_app as app
+from flask import g, request
+from werkzeug.datastructures import CombinedMultiDict, MultiDict
 
 from eve.utils import (
     auto_fields,
@@ -31,7 +34,6 @@ from eve.utils import (
     parse_request,
 )
 from eve.versioning import get_data_version_relation_document, resolve_document_version
-from collections import Counter
 
 
 def get_document(
@@ -152,7 +154,7 @@ def parse(value, resource):
     try:
         # assume it's not decoded to json yet (request Content-Type = form)
         document = json.loads(value)
-    except:
+    except Exception:
         # already a json
         document = value
 
@@ -161,7 +163,7 @@ def parse(value, resource):
     # formatted objectid).
     try:
         document = serialize(document, resource)
-    except:
+    except Exception:
         pass
 
     return document
@@ -197,13 +199,13 @@ def payload():
 
     if content_type in config.JSON_REQUEST_CONTENT_TYPES:
         return request.get_json(force=True)
-    elif content_type == "application/x-www-form-urlencoded":
+    if content_type == "application/x-www-form-urlencoded":
         return (
             multidict_to_dict(request.form)
             if len(request.form)
             else abort(400, description="No form-urlencoded data supplied")
         )
-    elif content_type == "multipart/form-data":
+    if content_type == "multipart/form-data":
         # as multipart is also used for file uploads, we let an empty
         # request.form go through as long as there are also files in the
         # request.
@@ -226,10 +228,8 @@ def payload():
             payload = CombinedMultiDict([formItems, request.files])
             return multidict_to_dict(payload)
 
-        else:
-            abort(400, description="No multipart/form-data supplied")
-    else:
-        abort(400, description="Unknown or no Content-Type header supplied")
+        abort(400, description="No multipart/form-data supplied")
+    abort(400, description="Unknown or no Content-Type header supplied")
 
 
 def multidict_to_dict(multidict):
@@ -243,11 +243,10 @@ def multidict_to_dict(multidict):
             if len(value) == 1:
                 d[key] = value[0]
         return d
-    else:
-        return multidict.to_dict()
+    return multidict.to_dict()
 
 
-class RateLimit(object):
+class RateLimit:
     """Implements the Rate-Limiting logic using Redis as a backend.
 
     :param key_prefix: the key used to uniquely identify a client.
@@ -349,8 +348,7 @@ def last_updated(document):
     """
     if config.LAST_UPDATED in document:
         return document[config.LAST_UPDATED].replace(tzinfo=None)
-    else:
-        return epoch()
+    return epoch()
 
 
 def date_created(document):
@@ -459,12 +457,12 @@ def serialize(document, resource=None, schema=None, fields=None):
                                 else document[field]
                             )
                             for subdocument in embedded:
-                                if type(subdocument) is not dict:
+                                if not isinstance(subdocument, dict):
                                     # value is not a dict - continue
                                     # serialization error will be reported by
                                     # validation if appropriate
                                     continue
-                                elif "schema" in field_schema:
+                                if "schema" in field_schema:
                                     serialize(
                                         subdocument, schema=field_schema["schema"]
                                     )
@@ -797,7 +795,7 @@ def resolve_data_relation_links(document, resource):
             else:
                 related_dict.update({field: related_links[0]})
 
-    if related_dict != {}:
+    if related_dict:
         document[config.LINKS].update({"related": related_dict})
 
 
@@ -932,10 +930,9 @@ def embedded_document(references, data_relation, field_name):
 
     if output_is_list:
         return embedded_docs
-    elif embedded_docs:
+    if embedded_docs:
         return embedded_docs[0]
-    else:
-        return None
+    return None
 
 
 def sort_db_response(embedded_docs, id_value_to_sort, list_of_id_field_name):
@@ -1172,10 +1169,8 @@ def resolve_one_media(file_id, resource):
                     )
 
             return ret
-        else:
-            return ret_file
-    else:
-        return None
+        return ret_file
+    return None
 
 
 def marshal_write_response(document, resource):
@@ -1202,7 +1197,7 @@ def marshal_write_response(document, resource):
         if auth_field and auth_field not in resource_def["schema"]:
             try:
                 del document[auth_field]
-            except:
+            except Exception:
                 # 'auth_field' value has not been set by the auth class.
                 pass
     return document
@@ -1440,8 +1435,7 @@ def resource_link(resource=None):
     # We are creating a path for data relation resources
     if resource and not re.search(config.DOMAIN[resource]["url"], path):
         return config.DOMAIN[resource]["url"]
-    else:
-        return path
+    return path
 
 
 def oplog_push(resource, document, op, id=None):

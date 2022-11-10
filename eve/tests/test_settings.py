@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import copy
 
-
 MONGO_HOST = "localhost"
 MONGO_PORT = 27017
 MONGO_USERNAME = MONGO1_USERNAME = "test_user"

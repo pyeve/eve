@@ -9,8 +9,11 @@
     :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-from flask import request, current_app as app, g, abort
 from functools import wraps
+
+from flask import abort
+from flask import current_app as app
+from flask import g, request
 
 
 def requires_auth(endpoint_class):
@@ -84,7 +87,7 @@ def requires_auth(endpoint_class):
     return fdec
 
 
-class BasicAuth(object):
+class BasicAuth():
     """Implements Basic AUTH logic. Should be subclassed to implement custom
     authentication checking.
 
@@ -214,7 +217,7 @@ class HMACAuth(BasicAuth):
         try:
             userid, hmac_hash = auth.split(":")
             self.set_user_or_token(userid)
-        except:
+        except Exception:
             auth = None
         return auth and self.check_auth(
             userid,

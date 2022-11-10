@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 import io
 import re
-
-from setuptools import setup, find_packages
 from collections import OrderedDict
+
+from setuptools import find_packages, setup
 
 DESCRIPTION = "Python REST API for Humans."
 with open("README.rst") as f:

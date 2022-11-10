@@ -1,12 +1,8 @@
 import simplejson as json
-
 from bson import ObjectId
 from bson.dbref import DBRef
-from eve import ETAG
-from eve import ISSUES
-from eve import LAST_UPDATED
-from eve import STATUS
-from eve import STATUS_OK
+
+from eve import ETAG, ISSUES, LAST_UPDATED, STATUS, STATUS_OK
 from eve.methods.put import put_internal
 from eve.tests import TestBase
 from eve.tests.test_settings import MONGO_DBNAME
@@ -585,8 +581,7 @@ class TestPut(TestBase):
         self.assertEqual(raw_r.headers.get("ETag").replace('"', ""), put_response[ETAG])
         if isinstance(fields, str):
             return r[fields]
-        else:
-            return [r[field] for field in fields]
+        return [r[field] for field in fields]
 
 
 class TestEvents(TestBase):

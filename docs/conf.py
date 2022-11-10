@@ -11,7 +11,10 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys, os, datetime
+import datetime
+import os
+import sys
+
 import alabaster
 
 # If extensions (or modules to document with autodoc) are in another directory,

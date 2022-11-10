@@ -2,22 +2,14 @@
 
 import copy
 import hashlib
-from bson.json_util import dumps
 from datetime import datetime, timedelta
+
+from bson.json_util import dumps
+
 from eve.tests import TestBase
-from eve.utils import (
-    parse_request,
-    str_to_date,
-    config,
-    weak_date,
-    date_to_str,
-    querydef,
-    document_etag,
-    extract_key_values,
-    debug_error_message,
-    validate_filters,
-    import_from_string,
-)
+from eve.utils import (config, date_to_str, debug_error_message, document_etag,
+                       extract_key_values, import_from_string, parse_request,
+                       querydef, str_to_date, validate_filters, weak_date)
 
 
 class TestUtils(TestBase):
@@ -27,7 +19,7 @@ class TestUtils(TestBase):
     """
 
     def setUp(self):
-        super(TestUtils, self).setUp()
+        super().setUp()
         self.dt_fmt = config.DATE_FORMAT
         self.datestr = "Tue, 18 Sep 2012 10:12:30 GMT"
         self.valid = datetime.strptime(self.datestr, self.dt_fmt)
@@ -300,7 +292,7 @@ class TestUtils(TestBase):
         self.assertEqual(dt, datetime)
 
 
-class DummyEvent(object):
+class DummyEvent():
     """
     Even handler that records the call parameters and asserts a check
 

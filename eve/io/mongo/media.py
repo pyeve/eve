@@ -31,7 +31,7 @@ class GridFSMediaStorage(MediaStorage):
         .. versionchanged:: 0.6
            Support for multiple, cached, GridFS instances
         """
-        super(GridFSMediaStorage, self).__init__(app)
+        super().__init__(app)
 
         self.validate()
         self._fs = {}
@@ -80,7 +80,7 @@ class GridFSMediaStorage(MediaStorage):
         _file = None
         try:
             _file = self.fs(resource).get(_id)
-        except:
+        except Exception:
             pass
         return _file
 

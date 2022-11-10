@@ -14,14 +14,16 @@
 import re
 
 from bson import tz_util
-from flask import abort, request, current_app as app, Response
+from flask import Response, abort
+from flask import current_app as app
+from flask import request
 
+import eve
 from eve.auth import requires_auth, resource_auth
-from eve.methods import get, getitem, post, patch, delete, deleteitem, put
+from eve.methods import delete, deleteitem, get, getitem, patch, post, put
 from eve.methods.common import ratelimit
 from eve.render import send_response
-from eve.utils import config, weak_date, date_to_rfc1123
-import eve
+from eve.utils import config, date_to_rfc1123, weak_date
 
 
 def collections_endpoint(**lookup):
@@ -154,8 +156,7 @@ def home_endpoint():
 
         response[config.LINKS] = {"child": links}
         return send_response(None, (response,))
-    else:
-        return send_response(None, (response,))
+    return send_response(None, (response,))
 
 
 def error_endpoint(error):
@@ -216,7 +217,7 @@ def media_endpoint(_id):
             begin, end = m.groups()
             begin = int(begin)
             end = int(end)
-        except:
+        except Exception:
             begin, end = 0, None
 
         length = size - begin

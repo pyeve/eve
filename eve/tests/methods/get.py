@@ -1,17 +1,19 @@
 import base64
 import time
-from io import BytesIO
-import simplejson as json
 from datetime import datetime, timedelta
+from io import BytesIO
+
+import simplejson as json
 from bson import ObjectId
 from bson.dbref import DBRef
 from bson.son import SON
 from werkzeug.datastructures import ImmutableMultiDict, MultiDict
-from eve.tests import TestBase
-from eve.tests.utils import DummyEvent
-from eve.tests.test_settings import MONGO_DBNAME
-from eve.utils import str_to_date, date_to_rfc1123
+
 from eve.methods.get import get_internal, getitem_internal
+from eve.tests import TestBase
+from eve.tests.test_settings import MONGO_DBNAME
+from eve.tests.utils import DummyEvent
+from eve.utils import date_to_rfc1123, str_to_date
 
 
 class TestGet(TestBase):
@@ -2208,7 +2210,7 @@ class TestHead(TestBase):
 
 class TestEvents(TestBase):
     def setUp(self):
-        super(TestEvents, self).setUp()
+        super().setUp()
         self.devent = DummyEvent(lambda: True)
 
     def test_on_pre_GET_for_item(self):

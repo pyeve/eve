@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
-from bson import ObjectId
 import copy
 import time
+
+from bson import ObjectId
+
+from eve import ETAG, STATUS, STATUS_OK
 from eve.tests import TestBase
-from eve.tests.utils import DummyEvent
-from eve import STATUS, STATUS_OK, ETAG
 from eve.tests.test_settings import MONGO_DBNAME
+from eve.tests.utils import DummyEvent
 
 
 class TestVersioningBase(TestBase):
@@ -15,7 +17,7 @@ class TestVersioningBase(TestBase):
         self.unversioned_field = "prog"
         self.fields = [self.versioned_field, self.unversioned_field]
 
-        super(TestVersioningBase, self).setUp()
+        super().setUp()
 
         self.id_field = self.domain[self.known_resource]["id_field"]
         self.version_field = self.app.config["VERSION"]
@@ -26,7 +28,7 @@ class TestVersioningBase(TestBase):
         self._db = self.connection[MONGO_DBNAME]
 
     def tearDown(self):
-        super(TestVersioningBase, self).tearDown()
+        super().tearDown()
         self.connection.close()
 
     def enableVersioning(self, partial=False):
@@ -123,7 +125,7 @@ class TestVersioningBase(TestBase):
 
 class TestNormalVersioning(TestVersioningBase):
     def setUp(self):
-        super(TestNormalVersioning, self).setUp()
+        super().setUp()
 
         # create some dummy contacts to use for versioning tests
         self.item = {
@@ -301,7 +303,7 @@ class TestNormalVersioning(TestVersioningBase):
 
 class TestCompleteVersioning(TestNormalVersioning):
     def setUp(self):
-        super(TestCompleteVersioning, self).setUp()
+        super().setUp()
         self.enableVersioning()
         self.insertTestData()
 
@@ -948,7 +950,7 @@ class TestCompleteVersioning(TestNormalVersioning):
 
 class TestVersionedDataRelation(TestNormalVersioning):
     def setUp(self):
-        super(TestVersionedDataRelation, self).setUp()
+        super().setUp()
 
         # enable versioning in the invoice data_relation definition
         self.enableDataVersionRelation()
@@ -1152,7 +1154,7 @@ class TestVersionedDataRelation(TestNormalVersioning):
 
 class TestVersionedDataRelationCustomField(TestNormalVersioning):
     def setUp(self):
-        super(TestVersionedDataRelationCustomField, self).setUp()
+        super().setUp()
 
         # enable versioning in the invoice data_relation definition with custom
         # relation field
@@ -1202,7 +1204,7 @@ class TestVersionedDataRelationCustomField(TestNormalVersioning):
 
 class TestVersionedDataRelationUnversionedField(TestNormalVersioning):
     def setUp(self):
-        super(TestVersionedDataRelationUnversionedField, self).setUp()
+        super().setUp()
 
         # enable versioning in the invoice data_relation definition with custom
         # unversioned relation field
@@ -1247,7 +1249,7 @@ class TestVersionedDataRelationUnversionedField(TestNormalVersioning):
 
 class TestPartialVersioning(TestNormalVersioning):
     def setUp(self):
-        super(TestPartialVersioning, self).setUp()
+        super().setUp()
 
         self.enableVersioning(partial=True)
         self.insertTestData()
@@ -1294,7 +1296,7 @@ class TestPartialVersioning(TestNormalVersioning):
 
 class TestLateVersioning(TestVersioningBase):
     def setUp(self):
-        super(TestLateVersioning, self).setUp()
+        super().setUp()
 
         # enable versioning in the invoice data_relation definition
         self.enableDataVersionRelation(embeddable=True)
@@ -1492,7 +1494,7 @@ class TestLateVersioning(TestVersioningBase):
 
 class TestVersioningWithCustomIdField(TestNormalVersioning):
     def setUp(self):
-        super(TestVersioningWithCustomIdField, self).setUp()
+        super().setUp()
         self.domain[self.known_resource]["schema"][self.id_field] = {"type": "string"}
         self.enableVersioning()
         self.insertTestData()

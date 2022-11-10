@@ -32,7 +32,7 @@ class GeoJSON(dict):
 
 class Geometry(GeoJSON):
     def __init__(self, json):
-        super(Geometry, self).__init__(json)
+        super().__init__(json)
         try:
             if (
                 not isinstance(self["coordinates"], list)
@@ -45,7 +45,7 @@ class Geometry(GeoJSON):
 
 class GeometryCollection(GeoJSON):
     def __init__(self, json):
-        super(GeometryCollection, self).__init__(json)
+        super().__init__(json)
         try:
             if not isinstance(self["geometries"], list):
                 raise TypeError
@@ -58,14 +58,14 @@ class GeometryCollection(GeoJSON):
 
 class Point(Geometry):
     def __init__(self, json):
-        super(Point, self).__init__(json)
+        super().__init__(json)
         if not self._correct_position(self["coordinates"]):
             raise TypeError
 
 
 class MultiPoint(GeoJSON):
     def __init__(self, json):
-        super(MultiPoint, self).__init__(json)
+        super().__init__(json)
         for position in self["coordinates"]:
             if not self._correct_position(position):
                 raise TypeError
@@ -73,7 +73,7 @@ class MultiPoint(GeoJSON):
 
 class LineString(GeoJSON):
     def __init__(self, json):
-        super(LineString, self).__init__(json)
+        super().__init__(json)
         for position in self["coordinates"]:
             if not self._correct_position(position):
                 raise TypeError
@@ -81,7 +81,7 @@ class LineString(GeoJSON):
 
 class MultiLineString(GeoJSON):
     def __init__(self, json):
-        super(MultiLineString, self).__init__(json)
+        super().__init__(json)
         for linestring in self["coordinates"]:
             for position in linestring:
                 if not self._correct_position(position):
@@ -90,7 +90,7 @@ class MultiLineString(GeoJSON):
 
 class Polygon(GeoJSON):
     def __init__(self, json):
-        super(Polygon, self).__init__(json)
+        super().__init__(json)
         for linestring in self["coordinates"]:
             for position in linestring:
                 if not self._correct_position(position):
@@ -99,7 +99,7 @@ class Polygon(GeoJSON):
 
 class MultiPolygon(GeoJSON):
     def __init__(self, json):
-        super(MultiPolygon, self).__init__(json)
+        super().__init__(json)
         for polygon in self["coordinates"]:
             for linestring in polygon:
                 for position in linestring:
@@ -109,7 +109,7 @@ class MultiPolygon(GeoJSON):
 
 class Feature(GeoJSON):
     def __init__(self, json):
-        super(Feature, self).__init__(json)
+        super().__init__(json)
         try:
             geometry = self["geometry"]
             factory = factories[geometry["type"]]
@@ -121,7 +121,7 @@ class Feature(GeoJSON):
 
 class FeatureCollection(GeoJSON):
     def __init__(self, json):
-        super(FeatureCollection, self).__init__(json)
+        super().__init__(json)
         try:
             if not isinstance(self["features"], list):
                 raise TypeError

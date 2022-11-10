@@ -12,31 +12,23 @@
 """
 from __future__ import division
 
+import copy
 import math
 
-import copy
 import simplejson as json
-from flask import current_app as app, abort, request
+from flask import abort
+from flask import current_app as app
+from flask import request
 from werkzeug.datastructures import MultiDict
 
-from .common import (
-    ratelimit,
-    epoch,
-    pre_event,
-    resolve_embedded_fields,
-    build_response_document,
-    resource_link,
-    document_link,
-    last_updated,
-)
 from eve.auth import requires_auth
-from eve.utils import parse_request, home_link, querydef, config
-from eve.versioning import (
-    synthesize_versioned_document,
-    versioned_id_field,
-    get_old_document,
-    diff_document,
-)
+from eve.utils import config, home_link, parse_request, querydef
+from eve.versioning import (diff_document, get_old_document,
+                            synthesize_versioned_document, versioned_id_field)
+
+from .common import (build_response_document, document_link, epoch,
+                     last_updated, pre_event, ratelimit,
+                     resolve_embedded_fields, resource_link)
 
 
 @ratelimit()
@@ -123,8 +115,7 @@ def get_internal(resource, **lookup):
         return _perform_aggregation(
             resource, aggregation["pipeline"], aggregation["options"]
         )
-    else:
-        return _perform_find(resource, lookup)
+    return _perform_find(resource, lookup)
 
 
 def _perform_aggregation(resource, pipeline, options):

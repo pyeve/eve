@@ -21,9 +21,10 @@
 """
 
 import bcrypt
+from settings_security import SETTINGS
+
 from eve import Eve
 from eve.auth import BasicAuth
-from settings_security import SETTINGS
 
 
 class BCryptAuth(BasicAuth):

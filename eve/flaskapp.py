@@ -9,12 +9,12 @@
     :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
+import copy
 import fnmatch
 import os
 import sys
 import warnings
 
-import copy
 from events import Events
 from flask import Flask
 from werkzeug.routing import BaseConverter
@@ -22,17 +22,12 @@ from werkzeug.serving import WSGIRequestHandler
 
 import eve
 from eve import default_settings
-from eve.endpoints import (
-    collections_endpoint,
-    item_endpoint,
-    home_endpoint,
-    error_endpoint,
-    media_endpoint,
-    schema_collection_endpoint,
-    schema_item_endpoint,
-)
+from eve.endpoints import (collections_endpoint, error_endpoint, home_endpoint,
+                           item_endpoint, media_endpoint,
+                           schema_collection_endpoint, schema_item_endpoint)
 from eve.exceptions import ConfigException, SchemaException
-from eve.io.mongo import Mongo, Validator, GridFSMediaStorage, ensure_mongo_indexes
+from eve.io.mongo import (GridFSMediaStorage, Mongo, Validator,
+                          ensure_mongo_indexes)
 from eve.logging import RequestFilter
 from eve.utils import api_prefix, extract_key_values
 
@@ -46,7 +41,7 @@ class EveWSGIRequestHandler(WSGIRequestHandler):
     def server_version(self):
         return (
             "Eve/%s " % eve.__version__
-            + super(EveWSGIRequestHandler, self).server_version
+            + super().server_version
         )
 
 
@@ -54,7 +49,7 @@ class RegexConverter(BaseConverter):
     """Extend werkzeug routing by supporting regex for urls/API endpoints"""
 
     def __init__(self, url_map, *items):
-        super(RegexConverter, self).__init__(url_map)
+        super().__init__(url_map)
         self.regex = items[0]
 
 
@@ -149,7 +144,7 @@ class Eve(Flask, Events):
         we need to enhance our super-class a little bit.
         """
 
-        super(Eve, self).__init__(import_name, **kwargs)
+        super().__init__(import_name, **kwargs)
 
         # add support for request metadata to the log record
         self.logger.addFilter(RequestFilter())
@@ -222,7 +217,7 @@ class Eve(Flask, Events):
                         information."""
 
         options.setdefault("request_handler", EveWSGIRequestHandler)
-        super(Eve, self).run(host, port, debug, **options)
+        super().run(host, port, debug, **options)
 
     def load_config(self):
         """API settings are loaded from standard python modules. First from
@@ -259,14 +254,13 @@ class Eve(Flask, Events):
                     settings_file = os.path.join(abspath, file_name)
                     if os.path.isfile(settings_file):
                         return settings_file
-                    else:
-                        # try to find settings.py in one of the
-                        # paths in sys.path
-                        for p in sys.path:
-                            for root, dirs, files in os.walk(p):
-                                for f in fnmatch.filter(files, file_name):
-                                    if os.path.isfile(os.path.join(root, f)):
-                                        return os.path.join(root, file_name)
+                    # try to find settings.py in one of the
+                    # paths in sys.path
+                    for p in sys.path:
+                        for root, dirs, files in os.walk(p):
+                            for f in fnmatch.filter(files, file_name):
+                                if os.path.isfile(os.path.join(root, f)):
+                                    return os.path.join(root, file_name)
 
                 # try to load file from environment variable or settings.py
                 pyfile = find_settings_file(
@@ -278,7 +272,7 @@ class Eve(Flask, Events):
 
             try:
                 self.config.from_pyfile(pyfile)
-            except:
+            except Exception:
                 raise
 
         # flask-pymongo compatibility
@@ -319,7 +313,7 @@ class Eve(Flask, Events):
         """
         try:
             domain = self.config["DOMAIN"]
-        except:
+        except Exception:
             raise ConfigException("DOMAIN dictionary missing or wrong.")
         if not isinstance(domain, dict):
             raise ConfigException("DOMAIN must be a dict.")
@@ -1107,4 +1101,4 @@ class Eve(Flask, Events):
             environ["REQUEST_METHOD"] = environ.get(
                 "HTTP_X_HTTP_METHOD_OVERRIDE", environ["REQUEST_METHOD"]
             ).upper()
-        return super(Eve, self).__call__(environ, start_response)
+        return super().__call__(environ, start_response)

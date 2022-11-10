@@ -11,7 +11,7 @@
 """
 
 
-class MediaStorage(object):
+class MediaStorage():
     """The MediaStorage class provides a standardized API for storing files,
     along with a set of default behaviors that all other storage systems can
     inherit or override as necessary.

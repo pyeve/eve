@@ -11,30 +11,22 @@
 """
 
 from copy import deepcopy
-from flask import current_app as app, abort
-from werkzeug import exceptions
-from eve.utils import config, debug_error_message, parse_request
-from eve.auth import requires_auth
+
 from cerberus.validator import DocumentError
-from eve.methods.common import (
-    get_document,
-    parse,
-    payload as payload_,
-    ratelimit,
-    pre_event,
-    store_media_files,
-    resolve_embedded_fields,
-    build_response_document,
-    marshal_write_response,
-    resolve_document_etag,
-    oplog_push,
-    utcnow,
-)
-from eve.versioning import (
-    resolve_document_version,
-    insert_versioning_documents,
-    late_versioning_catch,
-)
+from flask import abort
+from flask import current_app as app
+from werkzeug import exceptions
+
+from eve.auth import requires_auth
+from eve.methods.common import (build_response_document, get_document,
+                                marshal_write_response, oplog_push, parse)
+from eve.methods.common import payload as payload_
+from eve.methods.common import (pre_event, ratelimit, resolve_document_etag,
+                                resolve_embedded_fields, store_media_files,
+                                utcnow)
+from eve.utils import config, debug_error_message, parse_request
+from eve.versioning import (insert_versioning_documents, late_versioning_catch,
+                            resolve_document_version)
 
 
 @ratelimit()

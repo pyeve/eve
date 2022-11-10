@@ -9,34 +9,29 @@
     :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
+import ast
+import decimal
 import itertools
+from collections import OrderedDict
+from copy import copy
 from datetime import datetime
 
-import ast
 import pymongo
 import simplejson as json
-from bson import ObjectId
+from bson import ObjectId, decimal128
 from bson.dbref import DBRef
-from copy import copy
-from flask import abort, request, g
-from .flask_pymongo import PyMongo
+from flask import abort, g, request
 from pymongo import WriteConcern
 from werkzeug.exceptions import HTTPException
-import decimal
-from bson import decimal128
-from collections import OrderedDict
 
 from eve.auth import resource_auth
-from eve.io.base import DataLayer, ConnectionException, BaseJSONEncoder
-from eve.io.mongo.parser import parse, ParseError
-from eve.utils import (
-    config,
-    debug_error_message,
-    validate_filters,
-    str_to_date,
-    str_type,
-)
+from eve.io.base import BaseJSONEncoder, ConnectionException, DataLayer
+from eve.io.mongo.parser import ParseError, parse
+from eve.utils import (config, debug_error_message, str_to_date, str_type,
+                       validate_filters)
+
 from ...versioning import versioned_id_field
+from .flask_pymongo import PyMongo
 
 
 class MongoJSONEncoder(BaseJSONEncoder):
@@ -71,7 +66,7 @@ class MongoJSONEncoder(BaseJSONEncoder):
         if isinstance(obj, decimal128.Decimal128):
             return str(obj)
         # delegate rendering to base class method
-        return super(MongoJSONEncoder, self).default(obj)
+        return super().default(obj)
 
 
 class Mongo(DataLayer):
@@ -204,7 +199,7 @@ class Mongo(DataLayer):
         .. versionchanged:: 0.0.4
            retrieves the target collection via the new config.SOURCES helper.
         """
-        args = dict()
+        args = {}
 
         if req and req.max_results:
             args["limit"] = req.max_results
@@ -272,7 +267,7 @@ class Mongo(DataLayer):
         if perform_count:
             try:
                 count = target.count_documents(spec)
-            except:
+            except Exception:
                 # fallback to deprecated method. this might happen when the query
                 # includes operators not supported by count_documents(). one
                 # documented use-case is when we're running on mongo 3.4 and below,
@@ -352,8 +347,7 @@ class Mongo(DataLayer):
             return target.with_options(**mongo_options).find_one(
                 filter_, projection or None
             )
-        else:
-            return target.find_one(filter_, projection or None)
+        return target.find_one(filter_, projection or None)
 
     def find_one_raw(self, resource, **lookup):
         """Retrieves a single raw document.
@@ -733,7 +727,7 @@ class Mongo(DataLayer):
         """
         if field_name in query:
             return query[field_name]
-        elif "$and" in query:
+        if "$and" in query:
             for condition in query["$and"]:
                 if field_name in condition:
                     return condition[field_name]
@@ -771,15 +765,14 @@ class Mongo(DataLayer):
                 # faster, but we can only afford it if there's now predefined
                 # filter on the datasource.
                 return coll.count_documents({}) == 0
-            else:
-                # fallback on find() since we have a filter to apply.
-                try:
-                    # need to check if the whole resultset is missing, no
-                    # matter the IMS header.
-                    del filter_[config.LAST_UPDATED]
-                except:
-                    pass
-                return coll.count_documents(filter_) == 0
+            # fallback on find() since we have a filter to apply.
+            try:
+                # need to check if the whole resultset is missing, no
+                # matter the IMS header.
+                del filter_[config.LAST_UPDATED]
+            except Exception:
+                pass
+            return coll.count_documents(filter_) == 0
         except pymongo.errors.OperationFailure as e:
             # see comment in :func:`insert()`.
             self.app.logger.exception(e)
@@ -820,7 +813,7 @@ class Mongo(DataLayer):
         def try_cast(k, v, should_parse_objectid):
             try:
                 return datetime.strptime(v, config.DATE_FORMAT)
-            except:
+            except Exception:
                 if k in (id_field, id_field_versioned) or should_parse_objectid:
                     try:
                         # Convert to unicode because ObjectId() interprets
@@ -833,7 +826,7 @@ class Mongo(DataLayer):
                             # We're on Python 3 so it's all unicode already.
                             r = ObjectId(v)
                         return r
-                    except:
+                    except Exception:
                         return v
                 else:
                     return v
@@ -858,9 +851,8 @@ class Mongo(DataLayer):
                     possible_types = [get_schema_type(keys, item) for item in items]
                     if "objectid" in possible_types:
                         return "objectid"
-                    else:
-                        return next((t for t in possible_types if t), None)
-                elif "schema" in schema[k]:
+                    return next((t for t in possible_types if t), None)
+                if "schema" in schema[k]:
                     # recursively check the schema
                     return get_schema_type(keys, dict_sub_schema(schema[k]["schema"]))
             elif schema_type == "dict":
@@ -975,7 +967,7 @@ class Mongo(DataLayer):
             except HTTPException:
                 # _sanitize() is raising an HTTP exception; let it fire.
                 raise
-            except:
+            except Exception:
                 # couldn't parse as mongo query; give the python parser a shot.
                 try:
                     query = parse(req.where)
@@ -1160,7 +1152,7 @@ def _create_index(app, resource, name, list_of_keys, index_options):
     try:
         # mongo_prefix might have been set by Auth class instance
         px = g.get("mongo_prefix")
-    except:
+    except Exception:
         px = app.config["DOMAIN"][resource].get("mongo_prefix", "MONGO")
 
     with app.app_context():

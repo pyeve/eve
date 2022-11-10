@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
-import simplejson as json
+from io import BytesIO
 
+import simplejson as json
 from bson import ObjectId
 
 import eve
 from eve import Eve
-from eve.auth import BasicAuth, TokenAuth, HMACAuth
+from eve.auth import BasicAuth, HMACAuth, TokenAuth
 from eve.tests import TestBase
 from eve.tests.test_settings import MONGO_DBNAME
-from io import BytesIO
 
 
 class ValidBasicAuth(BasicAuth):
     def __init__(self):
         self.request_auth_value = "admin"
-        super(ValidBasicAuth, self).__init__()
+        super().__init__()
 
     def check_auth(self, username, password, allowed_roles, resource, method):
         self.set_request_auth_value(self.request_auth_value)
@@ -58,7 +58,7 @@ class BadHMACAuth(HMACAuth):
 
 class TestBasicAuth(TestBase):
     def setUp(self):
-        super(TestBasicAuth, self).setUp()
+        super().setUp()
         self.app = Eve(settings=self.settings_file, auth=ValidBasicAuth)
         self.test_client = self.app.test_client()
         self.content_type = ("Content-Type", "application/json")
@@ -305,7 +305,7 @@ class TestBasicAuth(TestBase):
 
 class TestTokenAuth(TestBasicAuth):
     def setUp(self):
-        super(TestTokenAuth, self).setUp()
+        super().setUp()
         self.app = Eve(settings=self.settings_file, auth=ValidTokenAuth)
         self.test_client = self.app.test_client()
         self.valid_auth = [
@@ -324,7 +324,7 @@ class TestTokenAuth(TestBasicAuth):
 
 class TestBearerTokenAuth(TestTokenAuth):
     def setUp(self):
-        super(TestBearerTokenAuth, self).setUp()
+        super().setUp()
         self.valid_auth = [("Authorization", "Token test_token"), self.content_type]
         self.valid_media_auth = [
             ("Authorization", "Token test_token"),
@@ -341,7 +341,7 @@ class TestBearerTokenAuth(TestTokenAuth):
 
 class TestCustomTokenAuth(TestTokenAuth):
     def setUp(self):
-        super(TestCustomTokenAuth, self).setUp()
+        super().setUp()
         self.valid_auth = [("Authorization", "Token test_token"), self.content_type]
         self.valid_media_auth = [
             ("Authorization", "Token test_token"),
@@ -358,7 +358,7 @@ class TestCustomTokenAuth(TestTokenAuth):
 
 class TestHMACAuth(TestBasicAuth):
     def setUp(self):
-        super(TestHMACAuth, self).setUp()
+        super().setUp()
         self.app = Eve(settings=self.settings_file, auth=ValidHMACAuth)
         self.test_client = self.app.test_client()
         self.valid_auth = [("Authorization", "admin:secret"), self.content_type]
@@ -446,7 +446,7 @@ class TestResourceAuth(TestBase):
 
 class TestUserRestrictedAccess(TestBase):
     def setUp(self):
-        super(TestUserRestrictedAccess, self).setUp()
+        super().setUp()
 
         self.app = Eve(settings=self.settings_file, auth=ValidBasicAuth)
 
