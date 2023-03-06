@@ -61,6 +61,15 @@ def close_pymongo_connection(app):
     del app.media
 
 
+def setup_add_url_rule(app, original_add_url_rule):
+    def wrapped_add_url_rule(*args, **kwargs):
+        original_got_first_request = app._got_first_request
+        app._got_first_request = False
+        original_add_url_rule(*args, **kwargs)
+        app._got_first_request = original_got_first_request
+    return wrapped_add_url_rule
+
+
 class TestMinimal(unittest.TestCase):
     """Start the building of the tests for an application
     based on Eve by subclassing this class and provide proper settings
@@ -481,6 +490,8 @@ class TestBase(TestMinimal):
 
         self.test_patch = "test_patch"
         self.test_patch_url = "/%s" % self.domain[self.test_patch]["url"]
+
+        self.app.add_url_rule = setup_add_url_rule(self.app, self.app.add_url_rule)
 
     def response_item(self, response, i=0):
         if self.app.config["HATEOAS"]:

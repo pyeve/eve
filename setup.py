@@ -15,7 +15,7 @@ with io.open("eve/__init__.py", "rt", encoding="utf8") as f:
 INSTALL_REQUIRES = [
     "cerberus>=1.1,<2.0",
     "events>=0.3,<0.4",
-    "flask<2.2",
+    "flask",
     "pymongo",
     "simplejson>=3.3.0,<4.0",
 ]
