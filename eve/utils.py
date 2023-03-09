@@ -160,8 +160,10 @@ def parse_request(resource):
 
         # TODO should probably return a 400 if 'max_results' < 1 or
         # non-numeric
-        if r.max_results > config.PAGINATION_LIMIT:
-            r.max_results = config.PAGINATION_LIMIT
+        # Fetch the custom pagination limit from the schema, default to the global one.
+        pagination_limit = settings.get("pagination_limit") or config.PAGINATION_LIMIT
+        if r.max_results > pagination_limit:
+            r.max_results = pagination_limit
 
     def etag_parse(challenge):
         if challenge in headers:
