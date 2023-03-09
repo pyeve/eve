@@ -45,6 +45,21 @@ class TestGet(TestBase):
         resource = response["_items"]
         self.assertEqual(len(resource), self.app.config["PAGINATION_LIMIT"])
 
+    def test_get_max_results_overridden(self):
+        # Generate 50 contacts.
+        self.random_contacts(num=50)
+        
+        # Set the max pagination limit to 7.
+        self.app.config["DOMAIN"][self.known_resource]["pagination_limit"] = 7
+        
+        # Attempt to get all 50 contacts in one request.
+        response, status = self.get(self.known_resource, "?max_results=50")
+        self.assert200(status)
+        
+        # Validate that the response only contains 10 contacts.
+        resource = response["_items"]
+        self.assertEqual(len(resource), 7)
+
     def test_get_custom_max_results(self):
         self.app.config["QUERY_MAX_RESULTS"] = "size"
         maxr = 10
