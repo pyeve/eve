@@ -36,6 +36,6 @@ jobs:
           python -m pip install --upgrade virtualenv tox tox-gh-actions
       - name: Start mongo ${{ matrix.mongodb-version }}
         run: |
-          mongo eve_test --eval 'db.createUser({user:"test_user", pwd:"test_pw", roles:["readWrite"]});'
+          mongosh eve_test --eval 'db.createUser({user:"test_user", pwd:"test_pw", roles:["readWrite"]});'
       - name: Run tox targets for ${{ matrix.python }}
         run: tox -e ${{ matrix.tox }}
