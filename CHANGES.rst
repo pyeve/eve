@@ -6,9 +6,11 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
+- new: Ability to customize the pagination limit on a per-resource basis (`#1498`_)
 - fix: CI test runs fail with ``mongo: command not found`` on Ubuntu 22.04 (`#1499`_)
 
 .. _`#1499`: https://github.com/pyeve/eve/issues/1499
+.. _`#1498`: https://github.com/pyeve/eve/issues/1498
 
 Version v2.0.4
 --------------
