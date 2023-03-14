@@ -158,14 +158,14 @@ uppercase.
                                     overridden by resource settings. Defaults
                                     to ``True``.
 
-``PAGINATION_LIMIT``                Maximum value allowed for QUERY_MAX_RESULTS
+``PAGINATION_LIMIT``                Maximum value allowed for ``QUERY_MAX_RESULTS``
                                     query parameter. Values exceeding the
                                     limit will be silently replaced with this
                                     value. You want to aim for a reasonable
                                     compromise between performance and transfer
                                     size. Defaults to 50.
 
-``PAGINATION_DEFAULT``              Default value for QUERY_MAX_RESULTS.
+``PAGINATION_DEFAULT``              Default value for ``QUERY_MAX_RESULTS``.
                                     Defaults to 25.
 
 ``OPTIMIZE_PAGINATION_FOR_SPEED``   Set this to ``True`` to improve pagination
@@ -867,6 +867,13 @@ always lowercase.
 
 ``pagination``                  ``True`` if pagination is enabled, ``False``
                                 otherwise. Locally overrides ``PAGINATION``.
+
+``pagination_limit``            Maximum value allowed for ``QUERY_MAX_RESULTS``
+                                query parameter. Values exceeding the
+                                limit will be silently replaced with this
+                                value. You want to aim for a reasonable
+                                compromise between performance and transfer
+                                size. Defaults to 50.
 
 ``resource_methods``            A list of HTTP methods supported at resource
                                 endpoint. Allowed values: ``GET``, ``POST``,
