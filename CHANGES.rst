@@ -6,8 +6,22 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
-- new: Ability to customize the pagination limit on a per-resource basis (`#1498`_)
-- fix: Tets fail with Flask 2.2 (`#1497`_)
+- *hic sunt leones*
+
+Version v2.1.0
+--------------
+
+Released on Mar 14, 2023.
+
+New
+~~~
+
+- Ability to customize the pagination limit on a per-resource basis (`#1498`_)
+
+Fixed
+~~~~~
+
+- fix: Flask 2.2+ support (`#1497`_)
 - fix: CI test runs fail with ``mongo: command not found`` on Ubuntu 22.04 (`#1499`_)
 
 .. _`#1499`: https://github.com/pyeve/eve/issues/1499
