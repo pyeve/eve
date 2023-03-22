@@ -69,3 +69,4 @@ _build
 .pytest_cache
 pip-wheel-metadata/
 !/.eggs/
+.venv/
