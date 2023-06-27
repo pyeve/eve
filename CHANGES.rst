@@ -22,8 +22,8 @@ New
 Fixed
 ~~~~~
 
-- fix: Flask 2.2+ support (`#1497`_)
-- fix: CI test runs fail with ``mongo: command not found`` on Ubuntu 22.04 (`#1499`_)
+- Flask 2.2+ support (`#1497`_)
+- CI test runs fail with ``mongo: command not found`` on Ubuntu 22.04 (`#1499`_)
 
 .. _`#1499`: https://github.com/pyeve/eve/issues/1499
 .. _`#1498`: https://github.com/pyeve/eve/issues/1498
