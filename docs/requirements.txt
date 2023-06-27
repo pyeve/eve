@@ -1,0 +1,3 @@
+# requirements to build documentation
+Sphinx<2.0
+sphinxcontrib-issuetracker
