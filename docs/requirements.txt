@@ -1,4 +1,4 @@
 # requirements to build documentation
 Sphinx<2.0
 alabaster
-doc8
+doc8==1.1.1
