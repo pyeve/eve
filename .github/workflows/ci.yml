@@ -10,6 +10,7 @@ jobs:
     strategy:
       matrix:
         include:
+          - { name: '3.11', python: '3.11', os: ubuntu-20.04, tox: py311, mongodb: '4.4', redis: '6' }
           - { name: '3.10', python: '3.10', os: ubuntu-20.04, tox: py310, mongodb: '4.4', redis: '6' }
           - { name: '3.9', python: '3.9', os: ubuntu-20.04, tox: py39, mongodb: '4.4', redis: '6' }
           - { name: '3.8', python: '3.8', os: ubuntu-20.04, tox: py38, mongodb: '4.4', redis: '6' }

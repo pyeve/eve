@@ -6,7 +6,8 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
-- *hic sunt leones*
+- Python 3.11 added to the CI matrix.
+- .readthedocs.yml upgraded to V2.
 
 Version v2.1.0
 --------------
