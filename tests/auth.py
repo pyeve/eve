@@ -7,8 +7,9 @@ from bson import ObjectId
 import eve
 from eve import Eve
 from eve.auth import BasicAuth, HMACAuth, TokenAuth
-from eve.tests import TestBase
-from eve.tests.test_settings import MONGO_DBNAME
+
+from . import TestBase
+from .test_settings import MONGO_DBNAME
 
 
 class ValidBasicAuth(BasicAuth):

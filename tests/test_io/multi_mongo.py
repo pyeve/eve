@@ -9,10 +9,15 @@ from pymongo.errors import OperationFailure
 
 import eve
 from eve.auth import BasicAuth
-from eve.tests import TestBase
-from eve.tests.test_settings import (MONGO1_DBNAME, MONGO1_PASSWORD,
-                                     MONGO1_USERNAME, MONGO_DBNAME, MONGO_HOST,
-                                     MONGO_PORT)
+from tests import TestBase
+from tests.test_settings import (
+    MONGO1_DBNAME,
+    MONGO1_PASSWORD,
+    MONGO1_USERNAME,
+    MONGO_DBNAME,
+    MONGO_HOST,
+    MONGO_PORT,
+)
 
 
 class TestMultiMongo(TestBase):

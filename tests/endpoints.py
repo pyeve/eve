@@ -10,10 +10,10 @@ from werkzeug.routing import BaseConverter
 from eve import Eve
 from eve.io.base import BaseJSONEncoder
 from eve.io.mongo import Validator
-from eve.tests import TestBase, TestMinimal
-from eve.tests.test_settings import (MONGO_DBNAME, MONGO_PASSWORD,
-                                     MONGO_USERNAME)
 from eve.utils import config
+
+from . import TestBase, TestMinimal
+from .test_settings import MONGO_DBNAME, MONGO_PASSWORD, MONGO_USERNAME
 
 
 class UUIDEncoder(BaseJSONEncoder):
@@ -80,9 +80,7 @@ class TestCustomConverters(TestMinimal):
         self.url = "/uuids/%s" % self.uuid_valid
         self.headers = [("Content-Type", "application/json")]
 
-        super().setUp(
-            settings_file=settings, url_converters=url_converters
-        )
+        super().setUp(settings_file=settings, url_converters=url_converters)
 
         self.app.validator = UUIDValidator
         self.app.data.json_encoder_class = UUIDEncoder
@@ -355,7 +353,9 @@ class TestEndPoints(TestBase):
     def test_schema_endpoint_does_not_attempt_callable_serialization(self):
         self.domain[self.known_resource]["schema"]["lambda"] = {
             "type": "boolean",
-            "coerce": lambda v: v if isinstance(v, bool) else v.lower() in ["true", "1"],
+            "coerce": lambda v: v
+            if isinstance(v, bool)
+            else v.lower() in ["true", "1"],
         }
         known_schema_path = "/schema/%s" % self.known_resource
         self.app.config["SCHEMA_ENDPOINT"] = "schema"

@@ -4,9 +4,9 @@ from bson.dbref import DBRef
 
 from eve import ETAG, ISSUES, LAST_UPDATED, STATUS, STATUS_OK
 from eve.methods.put import put_internal
-from eve.tests import TestBase
-from eve.tests.test_settings import MONGO_DBNAME
-from eve.tests.utils import DummyEvent
+from tests import TestBase
+from tests.test_settings import MONGO_DBNAME
+from tests.utils import DummyEvent
 
 
 class TestPut(TestBase):

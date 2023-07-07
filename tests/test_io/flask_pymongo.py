@@ -3,9 +3,14 @@ from pymongo import MongoClient
 from pymongo.errors import OperationFailure
 
 from eve.io.mongo.flask_pymongo import PyMongo
-from eve.tests import TestBase
-from eve.tests.test_settings import (MONGO1_DBNAME, MONGO1_PASSWORD,
-                                     MONGO1_USERNAME, MONGO_HOST, MONGO_PORT)
+from tests import TestBase
+from tests.test_settings import (
+    MONGO1_DBNAME,
+    MONGO1_PASSWORD,
+    MONGO1_USERNAME,
+    MONGO_HOST,
+    MONGO_PORT,
+)
 
 
 class TestPyMongo(TestBase):

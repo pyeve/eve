@@ -10,10 +10,10 @@ from bson.son import SON
 from werkzeug.datastructures import ImmutableMultiDict, MultiDict
 
 from eve.methods.get import get_internal, getitem_internal
-from eve.tests import TestBase
-from eve.tests.test_settings import MONGO_DBNAME
-from eve.tests.utils import DummyEvent
 from eve.utils import date_to_rfc1123, str_to_date
+from tests import TestBase
+from tests.test_settings import MONGO_DBNAME
+from tests.utils import DummyEvent
 
 
 class TestGet(TestBase):
@@ -48,14 +48,14 @@ class TestGet(TestBase):
     def test_get_max_results_overridden(self):
         # Generate 50 contacts.
         self.random_contacts(num=50)
-        
+
         # Set the max pagination limit to 7.
         self.app.config["DOMAIN"][self.known_resource]["pagination_limit"] = 7
-        
+
         # Attempt to get all 50 contacts in one request.
         response, status = self.get(self.known_resource, "?max_results=50")
         self.assert200(status)
-        
+
         # Validate that the response only contains 10 contacts.
         resource = response["_items"]
         self.assertEqual(len(resource), 7)
@@ -1463,7 +1463,6 @@ class TestGet(TestBase):
         self.assertEqual(response["_items"][0]["parent_product"], parent_product_sku)
 
     def test_get_aggregation_endpoint(self):
-
         _db = self.connection[MONGO_DBNAME]
         _db.aggregate_test.insert_many(
             [
@@ -1547,7 +1546,6 @@ class TestGet(TestBase):
         self.assertEqual(len(docs), 1)
 
     def test_get_aggregation_parsing(self):
-
         date = datetime.utcnow()
 
         _db = self.connection[MONGO_DBNAME]
@@ -1633,7 +1631,6 @@ class TestGet(TestBase):
         self.assertEqual(len(docs), 1)
 
     def test_get_aggregation_pruning(self):
-
         date = datetime.utcnow()
 
         _db = self.connection[MONGO_DBNAME]

@@ -3,8 +3,9 @@ import sys
 import simplejson as json
 
 import eve.methods.common
-from eve.tests import TestBase
 from eve.utils import config
+
+from tests import TestBase
 
 """
 Atomic Concurrency Checks

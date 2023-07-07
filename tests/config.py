@@ -7,8 +7,9 @@ from eve.exceptions import ConfigException, SchemaException
 from eve.flaskapp import Eve, RegexConverter
 from eve.io.base import DataLayer
 from eve.io.mongo import Mongo, Validator
-from eve.tests import TestBase
-from eve.tests.test_settings import MONGO_HOST, MONGO_PORT
+
+from . import TestBase
+from .test_settings import MONGO_HOST, MONGO_PORT
 
 
 class TestConfig(TestBase):
@@ -423,7 +424,6 @@ class TestConfig(TestBase):
         )
 
     def test_oplog_config(self):
-
         # if OPLOG_ENDPOINT is enabled the endoint is included with the domain
         self.app.config["OPLOG_ENDPOINT"] = "oplog"
         self.app._init_oplog()

@@ -9,8 +9,8 @@ from cerberus import SchemaError
 
 from eve.io.mongo import Mongo, MongoJSONEncoder, Validator
 from eve.io.mongo.parser import ParseError, parse
-from eve.tests import TestBase
-from eve.tests.test_settings import MONGO_DBNAME
+from tests import TestBase
+from tests.test_settings import MONGO_DBNAME
 
 
 class TestPythonParser(TestCase):

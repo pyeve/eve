@@ -1,6 +1,6 @@
 import time
 
-from eve.tests import TestBase
+from tests import TestBase
 
 
 class TestRateLimit(TestBase):

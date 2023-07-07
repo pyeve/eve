@@ -12,9 +12,14 @@ from pymongo import MongoClient
 
 import eve
 from eve import ETAG, ISSUES
-from eve.tests.test_settings import (DOMAIN, MONGO_DBNAME, MONGO_HOST,
-                                     MONGO_PASSWORD, MONGO_PORT,
-                                     MONGO_USERNAME)
+from .test_settings import (
+    DOMAIN,
+    MONGO_DBNAME,
+    MONGO_HOST,
+    MONGO_PASSWORD,
+    MONGO_PORT,
+    MONGO_USERNAME,
+)
 from eve.utils import date_to_str
 
 try:
@@ -23,7 +28,7 @@ except ImportError:
     from urllib.parse import parse_qs, urlparse
 
 
-class ValueStack():
+class ValueStack:
     """
     Descriptor to store multiple assignments in an attribute.
 
@@ -67,6 +72,7 @@ def setup_add_url_rule(app, original_add_url_rule):
         app._got_first_request = False
         original_add_url_rule(*args, **kwargs)
         app._got_first_request = original_got_first_request
+
     return wrapped_add_url_rule
 
 

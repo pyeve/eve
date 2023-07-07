@@ -6,7 +6,8 @@ from ast import literal_eval
 import simplejson as json
 
 import eve
-from eve.tests import TestBase
+
+from . import TestBase
 
 
 class TestResponse(TestBase):

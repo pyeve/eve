@@ -6,9 +6,10 @@ import time
 from bson import ObjectId
 
 from eve import ETAG, STATUS, STATUS_OK
-from eve.tests import TestBase
-from eve.tests.test_settings import MONGO_DBNAME
-from eve.tests.utils import DummyEvent
+
+from . import TestBase
+from .test_settings import MONGO_DBNAME
+from .utils import DummyEvent
 
 
 class TestVersioningBase(TestBase):

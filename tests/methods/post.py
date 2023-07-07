@@ -7,10 +7,10 @@ from werkzeug.datastructures import MultiDict
 
 from eve import DATE_CREATED, ETAG, ISSUES, LAST_UPDATED, STATUS, STATUS_OK
 from eve.methods.post import post, post_internal
-from eve.tests import TestBase
-from eve.tests.test_settings import MONGO_DBNAME
-from eve.tests.utils import DummyEvent
 from eve.utils import str_type
+from tests import TestBase
+from tests.test_settings import MONGO_DBNAME
+from tests.utils import DummyEvent
 
 
 class TestPost(TestBase):

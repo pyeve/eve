@@ -6,10 +6,21 @@ from datetime import datetime, timedelta
 
 from bson.json_util import dumps
 
-from eve.tests import TestBase
-from eve.utils import (config, date_to_str, debug_error_message, document_etag,
-                       extract_key_values, import_from_string, parse_request,
-                       querydef, str_to_date, validate_filters, weak_date)
+from eve.utils import (
+    config,
+    date_to_str,
+    debug_error_message,
+    document_etag,
+    extract_key_values,
+    import_from_string,
+    parse_request,
+    querydef,
+    str_to_date,
+    validate_filters,
+    weak_date,
+)
+
+from . import TestBase
 
 
 class TestUtils(TestBase):
@@ -292,7 +303,7 @@ class TestUtils(TestBase):
         self.assertEqual(dt, datetime)
 
 
-class DummyEvent():
+class DummyEvent:
     """
     Even handler that records the call parameters and asserts a check
 

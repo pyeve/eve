@@ -3,9 +3,10 @@
 import simplejson as json
 from bson import ObjectId
 
-from eve.tests import TestBase
-from eve.tests.test_settings import MONGO_DBNAME
 from eve.utils import api_prefix
+
+from . import TestBase
+from .test_settings import MONGO_DBNAME
 
 
 class TestRenders(TestBase):

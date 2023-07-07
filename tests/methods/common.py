@@ -7,13 +7,12 @@ import simplejson as json
 from bson import ObjectId, decimal128
 from bson.dbref import DBRef
 
-from eve.methods.common import (normalize_dotted_fields, serialize,
-                                sort_per_resource)
-from eve.tests import TestBase
-from eve.tests.auth import ValidBasicAuth, ValidHMACAuth, ValidTokenAuth
-from eve.tests.suite_generator import EmbeddedDoc
-from eve.tests.test_settings import MONGO_DBNAME
+from eve.methods.common import normalize_dotted_fields, serialize, sort_per_resource
 from eve.utils import config
+from tests import TestBase
+from tests.auth import ValidBasicAuth, ValidHMACAuth, ValidTokenAuth
+from tests.suite_generator import EmbeddedDoc
+from tests.test_settings import MONGO_DBNAME
 
 
 class TestSerializer(TestBase):

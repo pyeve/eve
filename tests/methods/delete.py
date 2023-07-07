@@ -5,10 +5,10 @@ from bson import ObjectId
 
 from eve import ETAG
 from eve.methods.delete import deleteitem_internal
-from eve.tests import TestBase
-from eve.tests.test_settings import MONGO_DBNAME
-from eve.tests.utils import DummyEvent
 from eve.utils import ParsedRequest
+from tests import TestBase
+from tests.test_settings import MONGO_DBNAME
+from tests.utils import DummyEvent
 
 
 class TestDelete(TestBase):
