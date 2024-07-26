@@ -14,7 +14,7 @@ import re
 import time
 from collections import Counter
 from copy import copy
-from datetime import datetime, UTC
+from datetime import datetime, timezone
 from functools import wraps
 
 import simplejson as json
@@ -1531,4 +1531,4 @@ def oplog_push(resource, document, op, id=None):
 
 
 def utcnow():
-    return datetime.now(UTC).replace(microsecond=0)
+    return datetime.now(timezone.utc).replace(microsecond=0)
