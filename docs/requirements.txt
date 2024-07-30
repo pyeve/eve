@@ -1,5 +1,5 @@
 # requirements to build documentation
-Sphinx<2.0
+Sphinx==8.0.2
 sphinxcontrib-issuetracker
 alabaster
 doc8
