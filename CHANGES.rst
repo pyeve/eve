@@ -6,10 +6,15 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
+- Fix: deprecation warnings in Python 3.12 (`#1526`_)
 - Fix: the distribution package should not include the test suite (`#1506`_)
+- Python 3.12 added to the CI matrix.
 - Python 3.11 added to the CI matrix.
+- Python 3.9 support dropped.
+- Python 3.8 support dropped.
 - .readthedocs.yml upgraded to V2.
 
+.. _`#1526`: https://github.com/pyeve/eve/issues/1526
 .. _`#1506`: https://github.com/pyeve/eve/issues/1506
 
 
