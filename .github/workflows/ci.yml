@@ -17,8 +17,8 @@ jobs:
           - { name: 'PyPy', python: 'pypy-3.10', os: ubuntu-20.04, tox: pypy310, mongodb: '4.4', redis: '6' }
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
       - uses: supercharge/mongodb-github-action@1.3.0
