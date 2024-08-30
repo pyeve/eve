@@ -1531,4 +1531,4 @@ def oplog_push(resource, document, op, id=None):
 
 
 def utcnow():
-    return datetime.utcnow().replace(microsecond=0, tzinfo=timezone.utc)
+    return datetime.now(timezone.utc).replace(microsecond=0)

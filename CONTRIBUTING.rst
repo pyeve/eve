@@ -111,12 +111,12 @@ Start coding
 Running the tests
 ~~~~~~~~~~~~~~~~~
 
-You should have Python 3.7+  available in your system. Now
+You should have Python 3.9+  available in your system. Now
 running tests is as simple as issuing this command::
 
-    $ tox -e linting,py37,py38
+    $ tox -e linting,py310,py39
 
-This command will run tests via the "tox" tool against Python 3.7 and 3.8 and
+This command will run tests via the "tox" tool against Python 3.10 and 3.9 and
 also perform "lint" coding-style checks.
 
 You can pass different options to ``tox``. For example, to run tests on Python
@@ -131,7 +131,7 @@ Or to only run tests in a particular test module on Python 3.6::
 
 CI will run the full suite when you submit your pull request. The full
 test suite takes a long time to run because it tests multiple combinations of
-Python and dependencies. You need to have Python 3.7, 3.8, 3.9, 3.10 and PyPy
+Python and dependencies. You need to have Python 3.9, 3.10, 3.11, 3.12 and PyPy
 installed to run all of the environments. Then run::
 
     tox
