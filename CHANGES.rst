@@ -6,6 +6,12 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
+- *hic sunt leones*
+
+Version v2.2
+------------
+
+Released on Mar 14, 2023.
 - Fix: deprecation warnings in Python 3.12 (`#1526`_)
 - Fix: the distribution package should not include the test suite (`#1506`_)
 - Python 3.12 support.
