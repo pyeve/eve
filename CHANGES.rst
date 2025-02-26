@@ -6,7 +6,10 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
+- fix: allow for type-checking of Eve's dynamic attrs (`#1541`_)
 - CI: run tests on ubuntu-latest, as ubuntu-20.04 is being decommissioned by GitHub Actions.
+
+.. _`#1541`: https://github.com/pyeve/eve/pull/1541
 
 Version v2.2
 ------------
