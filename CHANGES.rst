@@ -6,9 +6,11 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
+- fix: correct `on_deleted_resource` call signature (docs) (`#1547`_)
 - fix: allow for type-checking of Eve's dynamic attrs (`#1541`_)
 - CI: run tests on ubuntu-latest, as ubuntu-20.04 is being decommissioned by GitHub Actions.
 
+.. _`#1547`: https://github.com/pyeve/eve/pull/1547
 .. _`#1541`: https://github.com/pyeve/eve/pull/1541
 
 Version v2.2
