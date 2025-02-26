@@ -14,6 +14,7 @@ import fnmatch
 import os
 import sys
 import warnings
+from typing import TYPE_CHECKING
 
 from events import Events
 from flask import Flask
@@ -1102,3 +1103,6 @@ class Eve(Flask, Events):
                 "HTTP_X_HTTP_METHOD_OVERRIDE", environ["REQUEST_METHOD"]
             ).upper()
         return super().__call__(environ, start_response)
+
+    if TYPE_CHECKING:
+        def __setattr__(self, name, value): ...
