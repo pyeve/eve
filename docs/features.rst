@@ -1419,10 +1419,10 @@ Let's see an overview of what events are available:
 |       |        |      || ``def event(originals, lookup)``                |
 |       |        +------+--------------------------------------------------+
 |       |        |After || ``on_deleted_resource``                         |
-|       |        |      || ``def event(resource_name, item)``              |
+|       |        |      || ``def event(resource_name)``                    |
 |       |        |      +--------------------------------------------------+
 |       |        |      || ``on_deleted_resource_<resource_name>``         |
-|       |        |      || ``def event(item)``                             |
+|       |        |      || ``def event()``                                 |
 +-------+--------+------+--------------------------------------------------+
 
 
