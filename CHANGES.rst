@@ -6,7 +6,7 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
-- *hic sunt leones*
+- CI: run tests on ubuntu-latest, as ubuntu-20.04 is being decommissioned by GitHub Actions.
 
 Version v2.2
 ------------
