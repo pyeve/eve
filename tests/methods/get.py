@@ -927,6 +927,7 @@ class TestGet(TestBase):
 
         # Test that global setting applies even if field is set to embedded
         invoices["embedding"] = False
+        self.clearSchemaCache()
         r = self.test_client.get("%s/%s" % (invoices["url"], "?embedded=%s" % embedded))
         self.assert200(r.status_code)
         content = json.loads(r.get_data())
@@ -934,6 +935,7 @@ class TestGet(TestBase):
 
         # Test that it works
         invoices["embedding"] = True
+        self.clearSchemaCache()
         r = self.test_client.get("%s/%s" % (invoices["url"], "?embedded=%s" % embedded))
         self.assert200(r.status_code)
         content = json.loads(r.get_data())
@@ -966,6 +968,7 @@ class TestGet(TestBase):
             "type": "objectid",
             "data_relation": {"resource": "contacts", "embeddable": True},
         }
+        self.clearSchemaCache()
 
         # Test that it ignores embeddable field that is missing from document
         embedded = '{"missing-field": 1}'
@@ -976,6 +979,7 @@ class TestGet(TestBase):
 
         # Test default fields to be embedded
         invoices["embedded_fields"] = ["person"]
+        self.clearSchemaCache()
         r = self.test_client.get("%s/" % invoices["url"])
         self.assert200(r.status_code)
         content = json.loads(r.get_data())

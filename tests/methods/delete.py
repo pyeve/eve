@@ -439,8 +439,9 @@ class TestSoftDelete(TestDelete):
         invoices = self.domain["invoices"]
         invoices["embedding"] = True
         invoices["schema"]["person"]["data_relation"]["embeddable"] = True
-        embedded = '{"person": 1}'
+        self.clearSchemaCache()
 
+        embedded = '{"person": 1}'
         r = self.test_client.get(self.invoice_id_url + "?embedded=%s" % embedded)
         data, status = self.parse_response(r)
         self.assert200(status)

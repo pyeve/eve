@@ -15,7 +15,7 @@ import time
 from collections import Counter
 from copy import copy
 from datetime import datetime, timezone
-from functools import wraps
+from functools import cache, wraps
 
 import simplejson as json
 from bson.dbref import DBRef
@@ -699,6 +699,7 @@ def resolve_resource_projection(document, resource):
         del document[field]
 
 
+@cache
 def field_definition(resource, chained_fields):
     """Resolves query string to resource with dot notation like
     'people.address.city' and returns corresponding field definition
@@ -747,7 +748,6 @@ def resolve_data_relation_links(document, resource):
     related_dict = {}
 
     for field in resource_def.get("schema", {}):
-
         field_def = field_definition(resource, field)
         if "data_relation" not in field_def:
             continue

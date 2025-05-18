@@ -12,6 +12,7 @@ from pymongo import MongoClient
 
 import eve
 from eve import ETAG, ISSUES
+from eve.methods.common import field_definition
 from .test_settings import (
     DOMAIN,
     MONGO_DBNAME,
@@ -105,6 +106,8 @@ class TestMinimal(unittest.TestCase):
         self.test_client = self.app.test_client()
 
         self.domain = self.app.config["DOMAIN"]
+
+        self.clearSchemaCache()
 
     def tearDown(self):
         del self.app
@@ -393,6 +396,9 @@ class TestMinimal(unittest.TestCase):
         self.connection = MongoClient(MONGO_HOST, MONGO_PORT)
         self.connection.drop_database(MONGO_DBNAME)
         self.connection.close()
+
+    def clearSchemaCache(self):
+        field_definition.cache_clear()
 
 
 class TestBase(TestMinimal):

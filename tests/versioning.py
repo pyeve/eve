@@ -33,6 +33,7 @@ class TestVersioningBase(TestBase):
         self.connection.close()
 
     def enableVersioning(self, partial=False):
+        self.clearSchemaCache()
         del self.domain["contacts"]["schema"]["title"]["default"]
         del self.domain["contacts"]["schema"]["dependency_field1"]["default"]
         del self.domain["contacts"]["schema"]["unsetted_default_value_field"]["default"]
@@ -52,6 +53,7 @@ class TestVersioningBase(TestBase):
     def enableDataVersionRelation(
         self, embeddable=True, custom_field=None, custom_field_type="string"
     ):
+        self.clearSchemaCache()
         field = {
             "type": "dict",
             "schema": {self.app.config["VERSION"]: {"type": "integer"}},
@@ -69,6 +71,7 @@ class TestVersioningBase(TestBase):
         self.domain["invoices"]["schema"]["person"] = field
 
     def enableSoftDelete(self):
+        self.clearSchemaCache()
         self.app.config["SOFT_DELETE"] = True
         domain = copy.copy(self.domain)
         for resource, settings in domain.items():
