@@ -6,6 +6,13 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
+- *hic sunt leones*
+
+Version v2.2.1
+--------------
+
+Released on June 3, 2025.
+
 - fix: ``field_definition`` impacts negatively the performance of ``build_response_document`` (`#1552`_)
 - fix: correct ``on_deleted_resource`` call signature (docs) (`#1547`_)
 - fix: allow for type-checking of Eve's dynamic attrs (`#1541`_)
