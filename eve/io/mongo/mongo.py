@@ -27,8 +27,13 @@ from werkzeug.exceptions import HTTPException
 from eve.auth import resource_auth
 from eve.io.base import BaseJSONEncoder, ConnectionException, DataLayer
 from eve.io.mongo.parser import ParseError, parse
-from eve.utils import (config, debug_error_message, str_to_date, str_type,
-                       validate_filters)
+from eve.utils import (
+    config,
+    debug_error_message,
+    str_to_date,
+    str_type,
+    validate_filters,
+)
 
 from ...versioning import versioned_id_field
 from .flask_pymongo import PyMongo
@@ -293,7 +298,7 @@ class Mongo(DataLayer):
         check_auth_value=True,
         force_auth_field_projection=False,
         mongo_options=None,
-        **lookup
+        **lookup,
     ):
         """Retrieves a single document.
 
@@ -1137,6 +1142,10 @@ def _create_index(app, resource, name, list_of_keys, index_options):
     For example:
         {"sparse": True}
 
+    .. versionchanged:: 0.8.2
+       Add intelligent handling for hidden indexes and improved error handling
+       for index conflicts. Check existing index properties before drop/recreate.
+
     .. versionchanged:: 0.8.1
        Add support for IndexKeySpecsConflict error. See #1180.
 
@@ -1169,13 +1178,44 @@ def _create_index(app, resource, name, list_of_keys, index_options):
         try:
             coll.create_index(list_of_keys, **kw)
         except pymongo.errors.OperationFailure as e:
-            if e.code in (85, 86):
-                # raised when the definition of the index has been changed.
-                # (https://github.com/mongodb/mongo/blob/master/src/mongo/base/error_codes.err#L87)
+            # Only handle IndexKeySpecsConflict (85) and IndexOptionsConflict (86) errors
+            if e.code not in (85, 86):
+                raise
 
-                # by default, drop the old index with old configuration and
-                # create the index again with the new configuration.
+            try:
+                # Get existing index information
+                existing_index = coll.index_information().get(name)
+                if not existing_index:
+                    # Index doesn't exist but creation failed, fallback to drop/recreate
+                    coll.drop_index(name)
+                    coll.create_index(list_of_keys, **kw)
+                    continue
+
+                # Check if key definition matches exactly
+                if existing_index.get("key") == list_of_keys:
+                    # Same key definition, check if index is just hidden
+                    is_hidden = existing_index.get("hidden", False)
+                    if is_hidden:
+                        # Unhide the existing index instead of recreating
+                        print(
+                            f"INFO: Index '{name}' exists but is hidden. Un-hiding it now."
+                        )
+                        db.command(
+                            "collMod", coll.name, index={"name": name, "hidden": False}
+                        )
+                        continue
+                    else:
+                        # Index exists with same keys but different options, recreate for safety
+                        pass
+
+                # Key definition differs or other options conflict, drop and recreate
                 coll.drop_index(name)
                 coll.create_index(list_of_keys, **kw)
-            else:
-                raise
+
+            except Exception as check_exc:
+                # Fallback to conservative approach if index check fails
+                print(
+                    f"WARNING: Could not reliably check index status due to: {check_exc}. Falling back to drop/recreate."
+                )
+                coll.drop_index(name)
+                coll.create_index(list_of_keys, **kw)
