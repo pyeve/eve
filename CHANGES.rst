@@ -8,8 +8,8 @@ In Development
 
 - *hic sunt leones*
 
-Version v2.2.2
---------------
+Version v2.2.2 and v2.2.3
+-------------------------
 
 Released on August 26, 2025. *Just website updates, no code changes.*
 
