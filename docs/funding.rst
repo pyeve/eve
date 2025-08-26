@@ -40,26 +40,20 @@ course will directly support the project.
 
 - `Take the Eve Course at TalkPython Training <https://training.talkpython.fm/courses/explore_eve/eve-building-restful-mongodb-backed-apis-course>`_
 
-Custom Sponsorship and Consulting
----------------------------------
-If you are a business that is building core products using Eve, I am also
-open to conversations regarding custom sponsorship / consulting arrangements.
-Just `get in touch`_ with me.
+Sponsored by
+~~~~~~~~~~~~
 
-.. _`get in touch`: mailto:nicola@nicolaiarocci.com
-.. _`Eve course`: https://training.talkpython.fm/courses/explore_eve/eve-building-restful-mongodb-backed-apis-course
+.. image:: _static/invoicetronic.svg
+    :target: https://invoicetronic.com/en/
+    :scale: 25%
+    :alt: Invoicetronic API for electronic invoicing in Italy
 
 Backers
 ~~~~~~~
 Backers who actively support Eve and Cerberus development:
 
 - Gabriel Wainer
-- Jon Kelled
 
-Generous Backers
-~~~~~~~~~~~~~~~~
-Generous backers who actively support Eve and Cerberus development:
+.. _`get in touch`: mailto:nicola@nicolaiarocci.com
+.. _`Eve course`: https://training.talkpython.fm/courses/explore_eve/eve-building-restful-mongodb-backed-apis-course
 
-.. image:: _static/backers/blokt.png
-    :target: http://blokt.com/guides/best-vpn
-    :alt: Blokt Crypto & Privacy

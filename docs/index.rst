@@ -73,6 +73,14 @@ You can support Eve development by pledging on GitHub, Patreon, or PayPal.
 - `Become a Backer on Patreon <https://www.patreon.com/nicolaiarocci>`_
 - `Donate via PayPal <https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7U7G7EWU7EPNW>`_ (one time)
 
+Sponsored by
+~~~~~~~~~~~~
+
+.. image:: _static/invoicetronic.svg
+    :target: https://invoicetronic.com/en/
+    :scale: 25%
+    :alt: Invoicetronic API for electronic invoicing in Italy
+
 .. toctree::
     :hidden:
 
