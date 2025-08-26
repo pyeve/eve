@@ -101,7 +101,7 @@ learn more, check out our `funding page`_.
 Sponsored by
 ------------
 
-.. image:: docs/_static/invoicetronic.svg
+.. image:: https://raw.githubusercontent.com/pyeve/eve/refs/heads/master/docs/_static/invoicetronic.svg
     :target: https://invoicetronic.com/en/
     :width: 50 %
     :alt: Invoicetronic is the leading API for electronic invoicing in Italy
