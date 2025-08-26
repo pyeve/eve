@@ -6,6 +6,7 @@ Here you can see the full list of changes between each Eve release.
 In Development
 ---------------
 
+- Drop obsolete reference links from the docs.
 - Drop the twitter reference from the docs, as the author left that platform.
 - `Invoicetronic`_ is now the main sponsor for this project.
 
