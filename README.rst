@@ -80,6 +80,12 @@ Features
 * MongoDB and SQL Support
 * Powered by Flask
 
+License
+-------
+Eve is a `Nicola Iarocci`_ open source project,
+distributed under the `BSD license
+<https://github.com/pyeve/eve/blob/master/LICENSE>`_.
+
 Funding
 -------
 Eve REST framework is a open source, collaboratively funded project. If you run
@@ -92,11 +98,13 @@ helped you in your work or personal projects.
 Every single sign-up makes a significant impact towards making Eve possible. To
 learn more, check out our `funding page`_.
 
-License
--------
-Eve is a `Nicola Iarocci`_ open source project,
-distributed under the `BSD license
-<https://github.com/pyeve/eve/blob/master/LICENSE>`_.
+Sponsored by
+------------
+
+.. image:: docs/_static/invoicetronic.svg
+    :target: https://invoicetronic.com/en/
+    :width: 50 %
+    :alt: Invoicetronic is the leading API for electronic invoicing in Italy
 
 .. _`Nicola Iarocci`: http://nicolaiarocci.com
 .. _`funding page`: http://python-eve.org/funding.html

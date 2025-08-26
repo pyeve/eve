@@ -32,6 +32,12 @@ You can support Eve development by pledging on GitHub, Patreon, or PayPal.
 - `Become a Backer on Patreon <https://www.patreon.com/nicolaiarocci>`_
 - `Donate via PayPal <https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7U7G7EWU7EPNW>`_ (one time)
 
+Backers
+~~~~~~~
+Backers who actively support Eve and Cerberus development:
+
+- Gabriel Wainer
+
 Eve Course at TalkPython Training
 ---------------------------------
 There is a 5 hours-long Eve course available for you at the fine TalkPython
@@ -40,26 +46,13 @@ course will directly support the project.
 
 - `Take the Eve Course at TalkPython Training <https://training.talkpython.fm/courses/explore_eve/eve-building-restful-mongodb-backed-apis-course>`_
 
-Custom Sponsorship and Consulting
----------------------------------
-If you are a business that is building core products using Eve, I am also
-open to conversations regarding custom sponsorship / consulting arrangements.
-Just `get in touch`_ with me.
+Sponsored by
+------------
+.. image:: _static/invoicetronic.svg
+    :target: https://invoicetronic.com/en/
+    :width: 50 %
+    :alt: Invoicetronic is the leading API for electronic invoicing in Italy
 
 .. _`get in touch`: mailto:nicola@nicolaiarocci.com
 .. _`Eve course`: https://training.talkpython.fm/courses/explore_eve/eve-building-restful-mongodb-backed-apis-course
 
-Backers
-~~~~~~~
-Backers who actively support Eve and Cerberus development:
-
-- Gabriel Wainer
-- Jon Kelled
-
-Generous Backers
-~~~~~~~~~~~~~~~~
-Generous backers who actively support Eve and Cerberus development:
-
-.. image:: _static/backers/blokt.png
-    :target: http://blokt.com/guides/best-vpn
-    :alt: Blokt Crypto & Privacy
