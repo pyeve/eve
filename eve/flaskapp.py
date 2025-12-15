@@ -811,6 +811,9 @@ class Eve(Flask, Events):
         # end up with an extra db loopback on every insert).
         if isinstance(schema, dict):
             schema.setdefault(id_field, {"type": "objectid"})
+            
+        if self.config["IF_MATCH"]:
+            schema.setdefault(self.config["ETAG"], {"type": "string"})
 
         # set default 'field' value for all 'data_relation' rulesets, however
         # nested

@@ -207,6 +207,9 @@ class TestConfig(TestBase):
         id_field = self.domain["invoices"]["id_field"]
         self.assertTrue(id_field in schema)
         self.assertEqual(schema[id_field], {"type": "objectid"})
+        etag_field = self.domain["invoices"]["_etag"]
+        self.assertTrue(etag_field in schema)
+        self.assertEqual(schema[etag_field], {"type": "string"})
 
     def test_set_defaults(self):
         self.domain.clear()
