@@ -2197,6 +2197,30 @@ class TestGetItem(TestBase):
         response, status = self.get("products", item=sku)
         self.assertItemResponse(response, status, "products")
 
+    def test_getitem_optimize_pagination_next_link(self):
+        """When OPTIMIZE_PAGINATION_FOR_SPEED is enabled, the ``next`` link on
+        an item endpoint should use the collection URL, not the document URL.
+        Regression test for a bug where the next href incorrectly included the
+        document ID (e.g. ``resource/<id>?page=2`` instead of
+        ``resource?page=2``).
+        """
+        self.app.config["OPTIMIZE_PAGINATION_FOR_SPEED"] = True
+
+        response, status = self.get(self.known_resource, item=self.item_id)
+        self.assert200(status)
+
+        links = response["_links"]
+        self.assertIn("next", links)
+
+        next_href = links["next"]["href"]
+        resource_url = self.domain[self.known_resource]["url"]
+        self.assertTrue(
+            next_href.startswith("%s?" % resource_url),
+            "Expected next href to start with '%s?' but got '%s'"
+            % (resource_url, next_href),
+        )
+        self.assertNotIn(str(self.item_id), next_href)
+
 
 class TestHead(TestBase):
     def test_head_home(self):

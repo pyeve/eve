@@ -610,8 +610,13 @@ def _pagination_links(resource, req, document_count, document_id=None):
 
     # create pagination links
     if config.DOMAIN[resource]["pagination"]:
-        # strip any queries from the self link if present
-        _pagination_link = _links["self"]["href"].split("?")[0]
+        # For version pagination (all/diffs), use the document self link.
+        # Otherwise, use the resource (collection) link so that item
+        # endpoints don't include a document ID in the next/prev/last hrefs.
+        if document_id and version not in ("all", "diffs"):
+            _pagination_link = resource_link()
+        else:
+            _pagination_link = _links["self"]["href"].split("?")[0]
 
         if (
             req.page * req.max_results < (document_count or 0)
