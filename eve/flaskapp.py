@@ -682,6 +682,7 @@ class Eve(Flask, Events):
             "normalize_dotted_fields", self.config["NORMALIZE_DOTTED_FIELDS"]
         )
         settings.setdefault("normalize_on_patch", self.config["NORMALIZE_ON_PATCH"])
+        settings.setdefault("optimize_pagination_for_speed", self.config["OPTIMIZE_PAGINATION_FOR_SPEED"])
         # empty schemas are allowed for read-only access to resources
         schema = settings.setdefault("schema", {})
         self.set_schema_defaults(schema, settings["id_field"])

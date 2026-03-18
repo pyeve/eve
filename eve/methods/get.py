@@ -230,7 +230,7 @@ def _perform_aggregation(resource, pipeline, options):
 
     # add pagination info
     if config.DOMAIN[resource]["pagination"]:
-        response[config.META] = _meta_links(req, count)
+        response[config.META] = _meta_links(resource, req, count)
 
     if config.DOMAIN[resource]["hateoas"]:
         response[config.LINKS] = _pagination_links(resource, req, count)
@@ -255,7 +255,7 @@ def _perform_find(resource, lookup):
     req.if_modified_since = None
 
     cursor, count = app.data.find(
-        resource, req, lookup, perform_count=not config.OPTIMIZE_PAGINATION_FOR_SPEED
+        resource, req, lookup, perform_count=not config.DOMAIN[resource]["optimize_pagination_for_speed"]
     )
     # If soft delete is enabled, data.find will not include items marked
     # deleted unless req.show_deleted is True
@@ -281,7 +281,7 @@ def _perform_find(resource, lookup):
 
     # add pagination info
     if config.DOMAIN[resource]["pagination"]:
-        response[config.META] = _meta_links(req, count)
+        response[config.META] = _meta_links(resource, req, count)
 
     # notify registered callback functions. Please note that, should the
     # functions modify the documents, the last_modified and etag won't be
@@ -505,7 +505,7 @@ def getitem_internal(resource, **lookup):
                 resource, req, count, latest_doc[resource_def["id_field"]]
             )
             if config.DOMAIN[resource]["pagination"]:
-                response[config.META] = _meta_links(req, count)
+                response[config.META] = _meta_links(resource, req, count)
         else:
             response[config.LINKS].update(
                 _pagination_links(
@@ -620,7 +620,7 @@ def _pagination_links(resource, req, document_count, document_id=None):
 
         if (
             req.page * req.max_results < (document_count or 0)
-            or config.OPTIMIZE_PAGINATION_FOR_SPEED
+            or config.DOMAIN[resource]["optimize_pagination_for_speed"]
         ):
             q = querydef(
                 req.max_results,
@@ -689,7 +689,7 @@ def _other_params(args):
     )
 
 
-def _meta_links(req, count):
+def _meta_links(resource, req, count):
     """Reterns the meta links for a paginated query.
 
     :param req: parsed request object.
@@ -698,6 +698,6 @@ def _meta_links(req, count):
     .. versionadded:: 0.5
     """
     meta = {config.QUERY_PAGE: req.page, config.QUERY_MAX_RESULTS: req.max_results}
-    if config.OPTIMIZE_PAGINATION_FOR_SPEED is False:
+    if config.DOMAIN[resource]["optimize_pagination_for_speed"] is False:
         meta["total"] = count
     return meta
