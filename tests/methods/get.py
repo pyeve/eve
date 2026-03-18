@@ -93,20 +93,6 @@ class TestGet(TestBase):
         self.assertPage(response, status)
 
     def test_get_perform_count_on_pagination_disabled(self):
-        self.app.config["OPTIMIZE_PAGINATION_FOR_SPEED"] = True
-
-        r = self.test_client.get("%s?page=2" % self.known_resource_url)
-        self.assert200(r.status_code)
-
-        body = json.loads(r.get_data())
-        links = body["_links"]
-        self.assertFalse("last" in links)
-        self.assertFalse("total" in body["_meta"])
-        self.assertNextLink(links, 3)
-        self.assertPrevLink(links, 1)
-        self.assertFalse(self.app.config["HEADER_TOTAL_COUNT"] in r.headers)
-
-    def test_get_perform_count_on_pagination_disabled_on_resource(self):
         self.app.config["DOMAIN"][self.known_resource]["optimize_pagination_for_speed"] = True
 
         r = self.test_client.get("%s?page=2" % self.known_resource_url)
@@ -2212,30 +2198,6 @@ class TestGetItem(TestBase):
         self.assertItemResponse(response, status, "products")
 
     def test_getitem_optimize_pagination_next_link(self):
-        """When OPTIMIZE_PAGINATION_FOR_SPEED is enabled, the ``next`` link on
-        an item endpoint should use the collection URL, not the document URL.
-        Regression test for a bug where the next href incorrectly included the
-        document ID (e.g. ``resource/<id>?page=2`` instead of
-        ``resource?page=2``).
-        """
-        self.app.config["OPTIMIZE_PAGINATION_FOR_SPEED"] = True
-
-        response, status = self.get(self.known_resource, item=self.item_id)
-        self.assert200(status)
-
-        links = response["_links"]
-        self.assertIn("next", links)
-
-        next_href = links["next"]["href"]
-        resource_url = self.domain[self.known_resource]["url"]
-        self.assertTrue(
-            next_href.startswith("%s?" % resource_url),
-            "Expected next href to start with '%s?' but got '%s'"
-            % (resource_url, next_href),
-        )
-        self.assertNotIn(str(self.item_id), next_href)
-
-    def test_getitem_optimize_pagination_next_link_on_resource(self):
         """When optimize_pagination_for_speed is enabled, the ``next`` link on
         an item endpoint should use the collection URL, not the document URL.
         Regression test for a bug where the next href incorrectly included the
