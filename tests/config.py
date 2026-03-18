@@ -94,6 +94,7 @@ class TestConfig(TestBase):
             self.app.config["JSON_REQUEST_CONTENT_TYPES"], ["application/json"]
         )
         self.assertEqual(self.app.config["NORMALIZE_DOTTED_FIELDS"], True)
+        self.assertEqual(self.app.config["OPTIMIZE_PAGINATION_FOR_SPEED", False)
 
     def test_settings_as_dict(self):
         my_settings = {"API_VERSION": "override!", "DOMAIN": {"contacts": {}}}
@@ -282,6 +283,10 @@ class TestConfig(TestBase):
         self.assertNotEqual(settings["schema"], None)
         self.assertEqual(type(settings["schema"]), dict)
         self.assertEqual(settings["etag_ignore_fields"], None)
+        self.assertEqual(
+            settings["optimize_pagination_for_speed"],
+            self.app.config["OPTIMIZE_PAGINATION_FOR_SPEED"])
+        )
 
     def test_datasource(self):
         self._test_datasource_for_resource("invoices")
