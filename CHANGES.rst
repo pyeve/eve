@@ -6,6 +6,13 @@ Here you can see the full list of changes between each Eve release.
 In Development
 --------------
 
+- *hic sunt leones*
+
+Version v2.3.0
+--------------
+
+Released on March 19, 2026.
+
 - new: ``optimize_pagination_for_speed``, a resource-level setting that allows granular control overriding the global configuration (`#1569`_)
 
 .. _`#1569`: https://github.com/pyeve/eve/pull/1567
