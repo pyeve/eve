@@ -1150,6 +1150,21 @@ always lowercase.
                                 schema. If ``False``, the field which is not
                                 included in the patch body will be kept
                                 untouched. Defaults to ``True``.
+``optimize_pagination_for_speed``   Set this to ``True`` to improve pagination
+                                    performance. When optimization is active no
+                                    count operation, which can be slow on large
+                                    collections, is performed on the database.
+                                    This does have a few consequences.
+                                    Firstly, no document count is returned.
+                                    Secondly, ``HATEOAS`` is less accurate: no
+                                    last page link is available, and next page
+                                    link is always included, even on last page.
+                                    On big collections, switching this feature
+                                    on can greatly improve performance.
+                                    Defaults to ``False`` (slower performance;
+                                    document count included; accurate
+                                    ``HATEOAS``).
+
 
 =============================== ===============================================
 
