@@ -285,7 +285,7 @@ class TestConfig(TestBase):
         self.assertEqual(settings["etag_ignore_fields"], None)
         self.assertEqual(
             settings["optimize_pagination_for_speed"],
-            self.app.config["OPTIMIZE_PAGINATION_FOR_SPEED"])
+            self.app.config["OPTIMIZE_PAGINATION_FOR_SPEED"]
         )
 
     def test_datasource(self):
