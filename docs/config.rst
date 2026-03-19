@@ -826,330 +826,330 @@ always lowercase.
 
 .. tabularcolumns:: |p{6.5cm}|p{8.5cm}|
 
-=============================== ===============================================
-``url``                         The endpoint URL. If omitted the resource key
-                                of the ``DOMAIN`` dict will be used to build
-                                the URL. As an example, ``contacts`` would make
-                                the `people` resource available at
-                                ``/contacts`` (instead of ``/people``). URL can
-                                be as complex as needed and can be nested
-                                relative to another API endpoint (you can have
-                                a ``/contacts`` endpoint and then
-                                a ``/contacts/overseas`` endpoint. Both are
-                                independent of each other and freely
-                                configurable).
+=================================== ===============================================
+``url``                             The endpoint URL. If omitted the resource key
+                                    of the ``DOMAIN`` dict will be used to build
+                                    the URL. As an example, ``contacts`` would make
+                                    the `people` resource available at
+                                    ``/contacts`` (instead of ``/people``). URL can
+                                    be as complex as needed and can be nested
+                                    relative to another API endpoint (you can have
+                                    a ``/contacts`` endpoint and then
+                                    a ``/contacts/overseas`` endpoint. Both are
+                                    independent of each other and freely
+                                    configurable).
 
-                                You can also use regexes to setup
-                                subresource-like endpoints. See
-                                :ref:`subresources`.
+                                    You can also use regexes to setup
+                                    subresource-like endpoints. See
+                                    :ref:`subresources`.
 
-``allowed_filters``             List of fields on which filtering is allowed.
-                                Entries in this list work in a hierarchical
-                                way. This means that, for instance, filtering
-                                on ``'dict.sub_dict.foo'`` is allowed if
-                                ``allowed_filters`` contains any of
-                                ``'dict.sub_dict.foo``, ``'dict.sub_dict'``
-                                or ``'dict'``. Instead filtering on
-                                ``'dict'`` is allowed if ``allowed_filters``
-                                contains ``'dict'``.
-                                Can be set to ``[]`` (no filters allowed), or
-                                ``['*']`` (fields allowed on every field).
-                                Defaults to ``['*']``.
+``allowed_filters``                 List of fields on which filtering is allowed.
+                                    Entries in this list work in a hierarchical
+                                    way. This means that, for instance, filtering
+                                    on ``'dict.sub_dict.foo'`` is allowed if
+                                    ``allowed_filters`` contains any of
+                                    ``'dict.sub_dict.foo``, ``'dict.sub_dict'``
+                                    or ``'dict'``. Instead filtering on
+                                    ``'dict'`` is allowed if ``allowed_filters``
+                                    contains ``'dict'``.
+                                    Can be set to ``[]`` (no filters allowed), or
+                                    ``['*']`` (fields allowed on every field).
+                                    Defaults to ``['*']``.
 
-                                *Please note:* If API scraping or DB DoS
-                                attacks are a concern, then globally disabling
-                                filters (see ``ALLOWED_FILTERS`` above) and
-                                then whitelisting valid ones at the local level
-                                is the way to go.
+                                    *Please note:* If API scraping or DB DoS
+                                    attacks are a concern, then globally disabling
+                                    filters (see ``ALLOWED_FILTERS`` above) and
+                                    then whitelisting valid ones at the local level
+                                    is the way to go.
 
-``sorting``                     ``True`` if sorting is enabled, ``False``
-                                otherwise. Locally overrides ``SORTING``.
+``sorting``                         ``True`` if sorting is enabled, ``False``
+                                    otherwise. Locally overrides ``SORTING``.
 
-``pagination``                  ``True`` if pagination is enabled, ``False``
-                                otherwise. Locally overrides ``PAGINATION``.
+``pagination``                      ``True`` if pagination is enabled, ``False``
+                                    otherwise. Locally overrides ``PAGINATION``.
 
-``pagination_limit``            Maximum value allowed for ``QUERY_MAX_RESULTS``
-                                query parameter. Values exceeding the
-                                limit will be silently replaced with this
-                                value. You want to aim for a reasonable
-                                compromise between performance and transfer
-                                size. Defaults to 50.
+``pagination_limit``                Maximum value allowed for ``QUERY_MAX_RESULTS``
+                                    query parameter. Values exceeding the
+                                    limit will be silently replaced with this
+                                    value. You want to aim for a reasonable
+                                    compromise between performance and transfer
+                                    size. Defaults to 50.
 
-``resource_methods``            A list of HTTP methods supported at resource
-                                endpoint. Allowed values: ``GET``, ``POST``,
-                                ``DELETE``. Locally overrides
-                                ``RESOURCE_METHODS``.
+``resource_methods``                A list of HTTP methods supported at resource
+                                    endpoint. Allowed values: ``GET``, ``POST``,
+                                    ``DELETE``. Locally overrides
+                                    ``RESOURCE_METHODS``.
 
-                                *Please note:* if you're running version 0.0.5
-                                or earlier use the now unsupported ``methods``
-                                keyword instead.
+                                    *Please note:* if you're running version 0.0.5
+                                    or earlier use the now unsupported ``methods``
+                                    keyword instead.
 
-``public_methods``              A list of HTTP methods supported at resource
-                                endpoint, open to public access even when
-                                :ref:`auth` is enabled. Locally overrides
-                                ``PUBLIC_METHODS``.
+``public_methods``                  A list of HTTP methods supported at resource
+                                    endpoint, open to public access even when
+                                    :ref:`auth` is enabled. Locally overrides
+                                    ``PUBLIC_METHODS``.
 
-``item_methods``                A list of HTTP methods supported at item
-                                endpoint. Allowed values: ``GET``, ``PATCH``,
-                                ``PUT`` and ``DELETE``. ``PATCH`` or, for
-                                clients not supporting PATCH, ``POST`` with
-                                the ``X-HTTP-Method-Override`` header tag.
-                                Locally overrides ``ITEM_METHODS``.
+``item_methods``                    A list of HTTP methods supported at item
+                                    endpoint. Allowed values: ``GET``, ``PATCH``,
+                                    ``PUT`` and ``DELETE``. ``PATCH`` or, for
+                                    clients not supporting PATCH, ``POST`` with
+                                    the ``X-HTTP-Method-Override`` header tag.
+                                    Locally overrides ``ITEM_METHODS``.
 
-``public_item_methods``         A list of HTTP methods supported at item
-                                endpoint, left open to public access when
-                                :ref:`auth` is enabled. Locally overrides
-                                ``PUBLIC_ITEM_METHODS``.
+``public_item_methods``             A list of HTTP methods supported at item
+                                    endpoint, left open to public access when
+                                    :ref:`auth` is enabled. Locally overrides
+                                    ``PUBLIC_ITEM_METHODS``.
 
-``allowed_roles``               A list of allowed `roles` for resource
-                                endpoint. See :ref:`auth` for more
-                                information. Locally overrides
-                                ``ALLOWED_ROLES``.
+``allowed_roles``                   A list of allowed `roles` for resource
+                                    endpoint. See :ref:`auth` for more
+                                    information. Locally overrides
+                                    ``ALLOWED_ROLES``.
 
-``allowed_read_roles``          A list of allowed `roles` for resource
-                                endpoint with GET and OPTIONS methods.
-                                See :ref:`auth` for more
-                                information. Locally overrides
-                                ``ALLOWED_READ_ROLES``.
+``allowed_read_roles``              A list of allowed `roles` for resource
+                                    endpoint with GET and OPTIONS methods.
+                                    See :ref:`auth` for more
+                                    information. Locally overrides
+                                    ``ALLOWED_READ_ROLES``.
 
-``allowed_write_roles``         A list of allowed `roles` for resource
-                                endpoint with POST, PUT and DELETE.
-                                See :ref:`auth` for more
-                                information. Locally overrides
-                                ``ALLOWED_WRITE_ROLES``.
+``allowed_write_roles``             A list of allowed `roles` for resource
+                                    endpoint with POST, PUT and DELETE.
+                                    See :ref:`auth` for more
+                                    information. Locally overrides
+                                    ``ALLOWED_WRITE_ROLES``.
 
-``allowed_item_read_roles``     A list of allowed `roles` for item endpoint
-                                with GET and OPTIONS methods.
-                                See :ref:`auth` for more information.
-                                Locally overrides ``ALLOWED_ITEM_READ_ROLES``.
+``allowed_item_read_roles``         A list of allowed `roles` for item endpoint
+                                    with GET and OPTIONS methods.
+                                    See :ref:`auth` for more information.
+                                    Locally overrides ``ALLOWED_ITEM_READ_ROLES``.
 
 
-``allowed_item_write_roles``    A list of allowed `roles` for item endpoint
-                                with PUT, PATH and DELETE methods.
-                                See :ref:`auth` for more information.
-                                Locally overrides ``ALLOWED_ITEM_WRITE_ROLES``.
+``allowed_item_write_roles``        A list of allowed `roles` for item endpoint
+                                    with PUT, PATH and DELETE methods.
+                                    See :ref:`auth` for more information.
+                                    Locally overrides ``ALLOWED_ITEM_WRITE_ROLES``.
 
-``allowed_item_roles``          A list of allowed `roles` for item endpoint.
-                                See :ref:`auth` for more information.
-                                Locally overrides ``ALLOWED_ITEM_ROLES``.
+``allowed_item_roles``              A list of allowed `roles` for item endpoint.
+                                    See :ref:`auth` for more information.
+                                    Locally overrides ``ALLOWED_ITEM_ROLES``.
 
-``cache_control``               Value of the ``Cache-Control`` header field
-                                used when serving ``GET`` requests. Leave empty
-                                if you don't want to include cache directives
-                                with API responses. Locally overrides
-                                ``CACHE_CONTROL``.
+``cache_control``                   Value of the ``Cache-Control`` header field
+                                    used when serving ``GET`` requests. Leave empty
+                                    if you don't want to include cache directives
+                                    with API responses. Locally overrides
+                                    ``CACHE_CONTROL``.
 
-``cache_expires``               Value (in seconds) of the ``Expires`` header
-                                field used when serving ``GET`` requests. If
-                                set to a non-zero value, the header will
-                                always be included, regardless of the setting
-                                of ``CACHE_CONTROL``. Locally overrides
-                                ``CACHE_EXPIRES``.
+``cache_expires``                   Value (in seconds) of the ``Expires`` header
+                                    field used when serving ``GET`` requests. If
+                                    set to a non-zero value, the header will
+                                    always be included, regardless of the setting
+                                    of ``CACHE_CONTROL``. Locally overrides
+                                    ``CACHE_EXPIRES``.
 
-``id_field``                    Field used to uniquely identify resource items
-                                within the database. Locally overrides
-                                ``ID_FIELD``.
+``id_field``                        Field used to uniquely identify resource items
+                                    within the database. Locally overrides
+                                    ``ID_FIELD``.
 
-``item_lookup``                 ``True`` if item endpoint should be available,
-                                ``False`` otherwise. Locally overrides
-                                ``ITEM_LOOKUP``.
+``item_lookup``                     ``True`` if item endpoint should be available,
+                                    ``False`` otherwise. Locally overrides
+                                    ``ITEM_LOOKUP``.
 
-``item_lookup_field``           Field used when looking up a resource
-                                item. Locally overrides ``ITEM_LOOKUP_FIELD``.
+``item_lookup_field``               Field used when looking up a resource
+                                    item. Locally overrides ``ITEM_LOOKUP_FIELD``.
 
-``item_url``                    Rule used to construct item endpoint URL.
-                                Locally overrides ``ITEM_URL``.
+``item_url``                        Rule used to construct item endpoint URL.
+                                    Locally overrides ``ITEM_URL``.
 
-``resource_title``              Title used when building resource links
-                                (HATEOAS). Defaults to resource's ``url``.
+``resource_title``                  Title used when building resource links
+                                    (HATEOAS). Defaults to resource's ``url``.
 
-``item_title``                  Title to be used when building item references,
-                                both in XML and JSON responses. Overrides
-                                ``ITEM_TITLE``.
+``item_title``                      Title to be used when building item references,
+                                    both in XML and JSON responses. Overrides
+                                    ``ITEM_TITLE``.
 
-``additional_lookup``           Besides the standard item endpoint which
-                                defaults to ``/<resource>/<ID_FIELD_value>``,
-                                you can optionally define a secondary,
-                                read-only, endpoint like
-                                ``/<resource>/<person_name>``. You do so by
-                                defining a dictionary comprised of two items
-                                `field` and `url`. The former is the name of
-                                the field used for the lookup. If the field
-                                type (as defined in the resource schema_) is
-                                a string, then you put a URL rule in `url`.  If
-                                it is an integer, then you just omit `url`, as
-                                it is automatically handled.  See the code
-                                snippet below for an usage example of this
-                                feature.
+``additional_lookup``               Besides the standard item endpoint which
+                                    defaults to ``/<resource>/<ID_FIELD_value>``,
+                                    you can optionally define a secondary,
+                                    read-only, endpoint like
+                                    ``/<resource>/<person_name>``. You do so by
+                                    defining a dictionary comprised of two items
+                                    `field` and `url`. The former is the name of
+                                    the field used for the lookup. If the field
+                                    type (as defined in the resource schema_) is
+                                    a string, then you put a URL rule in `url`.  If
+                                    it is an integer, then you just omit `url`, as
+                                    it is automatically handled.  See the code
+                                    snippet below for an usage example of this
+                                    feature.
 
-``datasource``                  Explicitly links API resources to database
-                                collections. See `Advanced Datasource
-                                Patterns`_.
+``datasource``                      Explicitly links API resources to database
+                                    collections. See `Advanced Datasource
+                                    Patterns`_.
 
-``auth_field``                  Enables :ref:`user-restricted`. When the
-                                feature is enabled, users can only
-                                read/update/delete resource items created by
-                                themselves. The keyword contains the actual
-                                name of the field used to store the id of
-                                the user who created the resource item. Locally
-                                overrides ``AUTH_FIELD``.
+``auth_field``                      Enables :ref:`user-restricted`. When the
+                                    feature is enabled, users can only
+                                    read/update/delete resource items created by
+                                    themselves. The keyword contains the actual
+                                    name of the field used to store the id of
+                                    the user who created the resource item. Locally
+                                    overrides ``AUTH_FIELD``.
 
-``allow_unknown``               When ``True``, this option will allow insertion
-                                of arbitrary, unknown fields to the endpoint.
-                                Use with caution. Locally overrides
-                                ``ALLOW_UNKNOWN``. See :ref:`unknown` for more
-                                information. Defaults to ``False``.
+``allow_unknown``                   When ``True``, this option will allow insertion
+                                    of arbitrary, unknown fields to the endpoint.
+                                    Use with caution. Locally overrides
+                                    ``ALLOW_UNKNOWN``. See :ref:`unknown` for more
+                                    information. Defaults to ``False``.
 
-``projection``                  When ``True``, this option enables the
-                                :ref:`projections` feature. Locally overrides
-                                ``PROJECTION``. Defaults to ``True``.
+``projection``                      When ``True``, this option enables the
+                                    :ref:`projections` feature. Locally overrides
+                                    ``PROJECTION``. Defaults to ``True``.
 
-``embedding``                   When ``True`` this option enables the
-                                :ref:`embedded_docs` feature. Defaults to
-                                ``True``.
+``embedding``                       When ``True`` this option enables the
+                                    :ref:`embedded_docs` feature. Defaults to
+                                    ``True``.
 
-``extra_response_fields``       Allows to configure a list of additional
-                                document fields that should be provided with
-                                every POST response. Normally only
-                                automatically handled fields (``ID_FIELD``,
-                                ``LAST_UPDATED``, ``DATE_CREATED``, ``ETAG``)
-                                are included in response payloads. Overrides
-                                ``EXTRA_RESPONSE_FIELDS``.
+``extra_response_fields``           Allows to configure a list of additional
+                                    document fields that should be provided with
+                                    every POST response. Normally only
+                                    automatically handled fields (``ID_FIELD``,
+                                    ``LAST_UPDATED``, ``DATE_CREATED``, ``ETAG``)
+                                    are included in response payloads. Overrides
+                                    ``EXTRA_RESPONSE_FIELDS``.
 
-``hateoas``                     When ``False``, this option disables
-                                :ref:`hateoas_feature` for the resource.
-                                Defaults to ``True``.
+``hateoas``                         When ``False``, this option disables
+                                    :ref:`hateoas_feature` for the resource.
+                                    Defaults to ``True``.
 
-``mongo_query_whitelist``       A list of extra Mongo query operators to allow
-                                for this endpoint besides the official list of
-                                allowed operators. Defaults to ``[]``.
+``mongo_query_whitelist``           A list of extra Mongo query operators to allow
+                                    for this endpoint besides the official list of
+                                    allowed operators. Defaults to ``[]``.
 
-``mongo_write_concern``         A dictionary defining MongoDB write concern
-                                settings for the endpoint datasource. All
-                                standard write concern settings (w, wtimeout, j,
-                                fsync) are supported. Defaults to ``{'w': 1}``
-                                which means 'do regular acknowledged writes'
-                                (this is also the Mongo default.)
+``mongo_write_concern``             A dictionary defining MongoDB write concern
+                                    settings for the endpoint datasource. All
+                                    standard write concern settings (w, wtimeout, j,
+                                    fsync) are supported. Defaults to ``{'w': 1}``
+                                    which means 'do regular acknowledged writes'
+                                    (this is also the Mongo default.)
 
-                                Please be aware that setting 'w' to a value of
-                                2 or greater requires replication to be active
-                                or you will be getting 500 errors (the write
-                                will still happen; Mongo will just be unable
-                                to check that it's being written to multiple
-                                servers.)
+                                    Please be aware that setting 'w' to a value of
+                                    2 or greater requires replication to be active
+                                    or you will be getting 500 errors (the write
+                                    will still happen; Mongo will just be unable
+                                    to check that it's being written to multiple
+                                    servers.)
 
-``mongo_prefix``                Allows overriding of the default ``MONGO``
-                                prefix, which is used when retrieving MongoDB
-                                settings from configuration.
+``mongo_prefix``                    Allows overriding of the default ``MONGO``
+                                    prefix, which is used when retrieving MongoDB
+                                    settings from configuration.
 
-                                For example if ``mongo_prefix`` is set to
-                                ``MONGO2`` then, when serving requests for the
-                                endpoint, ``MONGO2`` prefixed settings will
-                                be used to access the database.
+                                    For example if ``mongo_prefix`` is set to
+                                    ``MONGO2`` then, when serving requests for the
+                                    endpoint, ``MONGO2`` prefixed settings will
+                                    be used to access the database.
 
-                                This allows for eventually serving data from
-                                a different database/server at every endpoint.
+                                    This allows for eventually serving data from
+                                    a different database/server at every endpoint.
 
-                                See also: :ref:`authdrivendb`.
+                                    See also: :ref:`authdrivendb`.
 
-``mongo_indexes``               Allows to specify a set of indexes to be
-                                created for this resource before the app is
-                                launched.
+``mongo_indexes``                   Allows to specify a set of indexes to be
+                                    created for this resource before the app is
+                                    launched.
 
-                                Indexes are expressed as a dict where keys are
-                                index names and values are either a list of
-                                tuples of (field, direction) pairs, or
-                                a tuple with a list of field/direction pairs
-                                *and* index options expressed as a dict, such
-                                as ``{'index name': [('field', 1)], 'index with
-                                args': ([('field', 1)], {"sparse": True})}``.
+                                    Indexes are expressed as a dict where keys are
+                                    index names and values are either a list of
+                                    tuples of (field, direction) pairs, or
+                                    a tuple with a list of field/direction pairs
+                                    *and* index options expressed as a dict, such
+                                    as ``{'index name': [('field', 1)], 'index with
+                                    args': ([('field', 1)], {"sparse": True})}``.
 
-                                Multiple pairs are used to create compound
-                                indexes. Direction takes all kind of values
-                                supported by PyMongo, such as ``ASCENDING``
-                                = 1 and ``DESCENDING`` = -1. All index options
-                                such as ``sparse``, ``min``, ``max``,
-                                etc. are supported (see PyMongo_ documentation.)
+                                    Multiple pairs are used to create compound
+                                    indexes. Direction takes all kind of values
+                                    supported by PyMongo, such as ``ASCENDING``
+                                    = 1 and ``DESCENDING`` = -1. All index options
+                                    such as ``sparse``, ``min``, ``max``,
+                                    etc. are supported (see PyMongo_ documentation.)
 
-                                *Please note:* keep in mind that index design,
-                                creation and maintenance is a very important
-                                task and should be planned and executed with
-                                great care. Usually it is also a very resource
-                                intensive operation. You might therefore want
-                                to handle this task manually, out of the
-                                context of API instantiation. Also remember
-                                that, by default, any already existent index
-                                for which the definition has been changed, will
-                                be dropped and re-created.
+                                    *Please note:* keep in mind that index design,
+                                    creation and maintenance is a very important
+                                    task and should be planned and executed with
+                                    great care. Usually it is also a very resource
+                                    intensive operation. You might therefore want
+                                    to handle this task manually, out of the
+                                    context of API instantiation. Also remember
+                                    that, by default, any already existent index
+                                    for which the definition has been changed, will
+                                    be dropped and re-created.
 
-``authentication``              A class with the authorization logic for the
-                                endpoint. If not provided the eventual
-                                general purpose auth class (passed as
-                                application constructor argument) will be used.
-                                For details on authentication and authorization
-                                see :ref:`auth`.  Defaults to ``None``,
+``authentication``                  A class with the authorization logic for the
+                                    endpoint. If not provided the eventual
+                                    general purpose auth class (passed as
+                                    application constructor argument) will be used.
+                                    For details on authentication and authorization
+                                    see :ref:`auth`.  Defaults to ``None``,
 
-``embedded_fields``             A list of fields for which :ref:`embedded_docs`
-                                is enabled by default. For this feature to work
-                                properly fields in the list must be
-                                ``embeddable``, and ``embedding`` must be
-                                active for the resource.
+``embedded_fields``                 A list of fields for which :ref:`embedded_docs`
+                                    is enabled by default. For this feature to work
+                                    properly fields in the list must be
+                                    ``embeddable``, and ``embedding`` must be
+                                    active for the resource.
 
-``query_objectid_as_string``    When enabled the Mongo parser will avoid
-                                automatically casting electable strings to
-                                ObjectIds. This can be useful in those rare
-                                occurrences where you have string fields in the
-                                database whose values can actually be casted to
-                                ObjectId values, but shouldn't. It effects
-                                queries (``?where=``) and parsing of payloads.
-                                Defaults to ``False``.
+``query_objectid_as_string``        When enabled the Mongo parser will avoid
+                                    automatically casting electable strings to
+                                    ObjectIds. This can be useful in those rare
+                                    occurrences where you have string fields in the
+                                    database whose values can actually be casted to
+                                    ObjectId values, but shouldn't. It effects
+                                    queries (``?where=``) and parsing of payloads.
+                                    Defaults to ``False``.
 
-``internal_resource``           When ``True``, this option makes the resource
-                                internal. No HTTP action can be performed on
-                                the endpoint, which is still accessible from
-                                the Eve data layer. See
-                                :ref:`internal_resources` for more
-                                information. Defaults to ``False``.
+``internal_resource``               When ``True``, this option makes the resource
+                                    internal. No HTTP action can be performed on
+                                    the endpoint, which is still accessible from
+                                    the Eve data layer. See
+                                    :ref:`internal_resources` for more
+                                    information. Defaults to ``False``.
 
-``etag_ignore_fields``          List of fields that
-                                should not be used to compute the ETag value.
-                                Defaults to ``None`` which means that by
-                                default all fields are included in the computation.
-                                It looks like ``['field1', 'field2',
-                                'field3.nested_field', ...]``.
+``etag_ignore_fields``              List of fields that
+                                    should not be used to compute the ETag value.
+                                    Defaults to ``None`` which means that by
+                                    default all fields are included in the computation.
+                                    It looks like ``['field1', 'field2',
+                                    'field3.nested_field', ...]``.
 
-``schema``                      A dict defining the actual data structure being
-                                handled by the resource. Enables data
-                                validation. See `Schema Definition`_.
+``schema``                          A dict defining the actual data structure being
+                                    handled by the resource. Enables data
+                                    validation. See `Schema Definition`_.
 
-``bulk_enabled``                When ``True`` this option enables the
-                                :ref:`bulk_insert` feature for this resource.
-                                Locally overrides ``BULK_ENABLED``.
+``bulk_enabled``                    When ``True`` this option enables the
+                                    :ref:`bulk_insert` feature for this resource.
+                                    Locally overrides ``BULK_ENABLED``.
 
-``soft_delete``                 When ``True`` this option enables the
-                                :ref:`soft_delete` feature for this resource.
-                                Locally overrides ``SOFT_DELETE``.
+``soft_delete``                     When ``True`` this option enables the
+                                    :ref:`soft_delete` feature for this resource.
+                                    Locally overrides ``SOFT_DELETE``.
 
-``merge_nested_documents``      If ``True``, updates to nested fields are
-                                merged with the current data on ``PATCH``.
-                                If ``False``, the updates overwrite the
-                                current data. Locally overrides
-                                ``MERGE_NESTED_DOCUMENTS``.
-``normalize_dotted_fields``     If ``True``, dotted fields are parsed and
-                                processed as subdocument fields. If ``False``,
-                                dotted fields are left unparsed and
-                                unprocessed, and the payload is passed to the
-                                underlying data-layer as-is. Please note that
-                                with the default Mongo layer, setting this to
-                                ``False`` will result in an error. Defaults to
-                                ``True``.
-``normalize_on_patch``          If ``True``, the patch document will be
-                                normalized according to schema. This means if
-                                a field is not included in the patch body, it
-                                will be reset to the default value in its
-                                schema. If ``False``, the field which is not
-                                included in the patch body will be kept
-                                untouched. Defaults to ``True``.
+``merge_nested_documents``          If ``True``, updates to nested fields are
+                                    merged with the current data on ``PATCH``.
+                                    If ``False``, the updates overwrite the
+                                    current data. Locally overrides
+                                    ``MERGE_NESTED_DOCUMENTS``.
+``normalize_dotted_fields``         If ``True``, dotted fields are parsed and
+                                    processed as subdocument fields. If ``False``,
+                                    dotted fields are left unparsed and
+                                    unprocessed, and the payload is passed to the
+                                    underlying data-layer as-is. Please note that
+                                    with the default Mongo layer, setting this to
+                                    ``False`` will result in an error. Defaults to
+                                    ``True``.
+``normalize_on_patch``              If ``True``, the patch document will be
+                                    normalized according to schema. This means if
+                                    a field is not included in the patch body, it
+                                    will be reset to the default value in its
+                                    schema. If ``False``, the field which is not
+                                    included in the patch body will be kept
+                                    untouched. Defaults to ``True``.
 ``optimize_pagination_for_speed``   Set this to ``True`` to improve pagination
                                     performance. When optimization is active no
                                     count operation, which can be slow on large
