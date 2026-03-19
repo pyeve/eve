@@ -94,7 +94,7 @@ class TestConfig(TestBase):
             self.app.config["JSON_REQUEST_CONTENT_TYPES"], ["application/json"]
         )
         self.assertEqual(self.app.config["NORMALIZE_DOTTED_FIELDS"], True)
-        self.assertEqual(self.app.config["OPTIMIZE_PAGINATION_FOR_SPEED", False)
+        self.assertEqual(self.app.config["OPTIMIZE_PAGINATION_FOR_SPEED"], False)
 
     def test_settings_as_dict(self):
         my_settings = {"API_VERSION": "override!", "DOMAIN": {"contacts": {}}}
