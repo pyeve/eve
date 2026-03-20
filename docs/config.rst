@@ -130,10 +130,23 @@ uppercase.
                                     local level (see ``allowed_filters``
                                     below). Defaults to ``['*']``.
 
-                                    *Please note:* If API scraping or DB DoS
-                                    attacks are a concern, then globally
-                                    disabling filters and whitelisting valid
-                                    ones at the local level is the way to go.
+                                    .. warning::
+
+                                       **Security:** With the default setting
+                                       (``['*']``), clients can filter on
+                                       *any* field, including sensitive ones
+                                       such as password hashes or tokens.
+                                       MongoDB query operators like ``$gt``,
+                                       ``$lt``, and ``$ne`` can be used by
+                                       attackers to perform blind enumeration
+                                       of field values. For production
+                                       deployments, globally disable filters
+                                       (set to ``[]``) and explicitly
+                                       whitelist only the fields you intend
+                                       to be queryable at the resource level
+                                       via ``allowed_filters``. Never allow
+                                       filtering on fields that store secrets
+                                       or credentials.
 
 ``VALIDATE_FILTERS``                Whether to validate the filters against the
                                     resource schema. Invalid filters will throw
@@ -578,6 +591,14 @@ uppercase.
                                     also tend to be slow and generally can be
                                     easily replaced with the (very rich) Mongo
                                     query dialect.
+
+                                    .. warning::
+
+                                       Removing ``$where`` or ``$regex`` from
+                                       this list exposes your application to
+                                       server-side JavaScript injection and
+                                       ReDoS attacks. Only do so if you fully
+                                       understand the implications.
 
 ``MONGO_QUERY_WHITELIST``           A list of extra Mongo query operators to allow
                                     besides the official list of allowed operators.

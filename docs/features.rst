@@ -330,7 +330,19 @@ filters is the way to go.
 
 You also have the option to validate the incoming filters against the resource's
 schema and refuse to apply the filtering if any filters are invalid, by using the
-``VALIDATE_FILTERING`` system setting (see :ref:`global`)
+``VALIDATE_FILTERING`` system setting (see :ref:`global`).
+
+.. warning::
+
+   **Security:** Since Eve exposes MongoDB's query operators to API consumers,
+   care must be taken when deciding which fields are filterable. With the default
+   configuration (``ALLOWED_FILTERS = ['*']``), comparison operators such as
+   ``$gt``, ``$lt``, and ``$ne`` can be used to blindly enumerate values of any
+   field, including sensitive ones like password hashes or tokens. For production
+   APIs, you should restrict ``ALLOWED_FILTERS`` to only the fields that are
+   intended to be queryable, and never allow filtering on fields that contain
+   secrets or credentials. Eve also blacklists dangerous operators like ``$where``
+   and ``$regex`` by default via ``MONGO_QUERY_BLACKLIST`` (see :ref:`global`).
 
 Pretty Printing
 ---------------

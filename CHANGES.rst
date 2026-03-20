@@ -6,7 +6,9 @@ Here you can see the full list of changes between each Eve release.
 In Development
 --------------
 
-- *hic sunt leones*
+- Docs: added security warnings about blind field enumeration via query
+  operators to ``ALLOWED_FILTERS``, ``MONGO_QUERY_BLACKLIST``, and the
+  Filtering section.
 
 Version v2.3.0
 --------------
