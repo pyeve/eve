@@ -9,6 +9,8 @@ In Development
 - Docs: added security warnings about blind field enumeration via query
   operators to ``ALLOWED_FILTERS``, ``MONGO_QUERY_BLACKLIST``, and the
   Filtering section.
+- Fix: validate JSONP callback parameter to prevent XSS injection.
+- Deprecation: ``JSONP_ARGUMENT`` is deprecated. Use CORS instead.
 
 Version v2.3.0
 --------------

@@ -932,6 +932,11 @@ anchor and escape the regexes properly, for example
 
 JSONP Support
 -------------
+.. deprecated::
+   JSONP support is deprecated and will be removed in a future release.
+   Use CORS (Cross-Origin Resource Sharing) instead, which is supported by
+   all modern browsers and does not carry the security risks inherent to JSONP.
+
 In general you don't really want to add JSONP when you can enable CORS instead:
 
     There have been some criticisms raised about JSONP. Cross-origin resource

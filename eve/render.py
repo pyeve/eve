@@ -147,11 +147,13 @@ def _prepare_response(
         # invoke the render function and obtain the corresponding rendered item
         rendered = renderer_cls().render(dct)
 
-        # JSONP
+        # JSONP (deprecated)
         if config.JSONP_ARGUMENT:
             jsonp_arg = config.JSONP_ARGUMENT
             if jsonp_arg in request.args and "json" in mime:
                 callback = request.args.get(jsonp_arg)
+                if not re.match(r"^[a-zA-Z_$][\w$.]*$", callback):
+                    abort(400, description="Invalid JSONP callback name")
                 rendered = "%s(%s)" % (callback, rendered)
 
         # build the main wsgi response object

@@ -736,13 +736,19 @@ uppercase.
                                     loading posts themselves. Defaults to
                                     ``X-Total-Count``.
 
-``JSONP_ARGUMENT``                  This option will cause the response to be
+``JSONP_ARGUMENT``                  .. deprecated::
+                                       JSONP is deprecated and will be removed
+                                       in a future release. Use CORS instead.
+
+                                    This option will cause the response to be
                                     wrapped in a JavaScript function call if
                                     the argument is set in the request. For
                                     example if you set ``JSON_ARGUMENT
                                     = 'callback'``, then all responses to
                                     ``?callback=funcname`` requests will be
-                                    wrapped in a ``funcname`` call. Defaults to
+                                    wrapped in a ``funcname`` call. The
+                                    callback name is validated to be a safe
+                                    JavaScript identifier. Defaults to
                                     ``None``.
 
 ``BULK_ENABLED``                    Enables bulk insert when set to ``True``.

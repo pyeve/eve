@@ -308,6 +308,14 @@ class Eve(Flask, Events):
 
         deprecated_renderers_settings()
 
+        if self.config.get("JSONP_ARGUMENT"):
+            warnings.warn(
+                "JSONP_ARGUMENT is deprecated and will be removed in a future "
+                "release. Use CORS (Cross-Origin Resource Sharing) instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
     def validate_domain_struct(self):
         """Validates that Eve configuration settings conform to the
         requirements.
