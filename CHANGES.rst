@@ -6,9 +6,15 @@ Here you can see the full list of changes between each Eve release.
 In Development
 --------------
 
+- *hic sunt leones*
+
+Version v2.3.1
+--------------
+
+Released on March 24, 2026.
+
 - Docs: added security warnings about blind field enumeration via query
-  operators to ``ALLOWED_FILTERS``, ``MONGO_QUERY_BLACKLIST``, and the
-  Filtering section.
+  operators to ``ALLOWED_FILTERS``, ``MONGO_QUERY_BLACKLIST``, and the Filtering section.
 - Fix: validate JSONP callback parameter to prevent XSS injection.
 - Deprecation: ``JSONP_ARGUMENT`` is deprecated. Use CORS instead.
 
