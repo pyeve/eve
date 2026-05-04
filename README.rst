@@ -80,31 +80,23 @@ Features
 * MongoDB and SQL Support
 * Powered by Flask
 
-License
--------
-Eve is a `Nicola Iarocci`_ open source project,
-distributed under the `BSD license
-<https://github.com/pyeve/eve/blob/master/LICENSE>`_.
+Error Handling
+--------------
+Good error messages are a feature. Eve comes with sensible defaults, but you can
+customize error responses to fit your specific needs. Since Eve is powered by
+Flask, you can use Flask's standard error handling mechanisms.
 
-Funding
--------
-Eve REST framework is a open source, collaboratively funded project. If you run
-a business and are using Eve in a revenue-generating product, it would make
-business sense to sponsor Eve development: it ensures the project that your
-product relies on stays healthy and actively maintained. Individual users are
-also welcome to make a recurring pledge or a one time donation if Eve has
-helped you in your work or personal projects.
+For example, here's how you can customize the response for a ``404 Not Found``
+error:
 
-Every single sign-up makes a significant impact towards making Eve possible. To
-learn more, check out our `funding page`_.
+.. code-block:: python
 
-Sponsored by
-------------
+    from eve import Eve
+    from eve.render import send_error
 
-.. image:: https://raw.githubusercontent.com/pyeve/eve/refs/heads/master/docs/_static/invoicetronic.svg
-    :target: https://invoicetronic.com/en/
-    :width: 50 %
-    :alt: Invoicetronic is the leading API for electronic invoicing in Italy
+    app = Eve()
 
-.. _`Nicola Iarocci`: http://nicolaiarocci.com
-.. _`funding page`: http://python-eve.org/funding.html
+    @app.errorhandler(404)
+    def not_found(e):
+        # You can customize the message and code.
+        # send_error will render a response in the right
