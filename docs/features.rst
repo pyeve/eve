@@ -2238,7 +2238,7 @@ endpoint they could just access the oplog to learn all that's happened
 since their last access. That’s a single request versus several. This is not
 always the best approach a client could take. Sometimes it is probably better
 to only query for changes on a certain endpoint. That's also possible, just
-query the oplog for changes occured on that endpoint.
+query the oplog for changes occurred on that endpoint.
 
 Extending Oplog entries
 ~~~~~~~~~~~~~~~~~~~~~~~
