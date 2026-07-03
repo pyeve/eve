@@ -10,7 +10,6 @@
     :copyright: (c) 2017 by Nicola Iarocci.
     :license: BSD, see LICENSE for more details.
 """
-from bson import UuidRepresentation
 from flask import current_app
 from pymongo import MongoClient, uri_parser
 
