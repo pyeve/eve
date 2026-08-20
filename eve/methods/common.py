@@ -520,21 +520,19 @@ def serialize(document, resource=None, schema=None, fields=None):
                                 document[field][i] = serialize_value(
                                     field_type, document[field][i]
                                 )
-                    elif "valueschema" in field_schema:
-                        # a valueschema
-                        field_type = field_schema["valueschema"]["type"]
-                        if field_type == "objectid":
-                            target = document[field]
-                            for field in target:
-                                target[field] = serialize_value(
-                                    field_type, target[field]
-                                )
-                        elif field_type == "dict":
+                    elif "valueschema" in field_schema or "valuesrules" in field_schema:
+                        # valueschema (deprecated) / valuesrules (Cerberus 1.3)
+                        value_schema = field_schema.get(
+                            "valueschema", field_schema.get("valuesrules")
+                        )
+                        field_type = value_schema["type"]
+                        if field_type == "dict":
                             for subdocument in document[field].values():
-                                serialize(
-                                    subdocument,
-                                    schema=field_schema["valueschema"]["schema"],
-                                )
+                                serialize(subdocument, schema=value_schema["schema"])
+                        elif field_type in app.data.serializers:
+                            target = document[field]
+                            for key in target:
+                                target[key] = serialize_value(field_type, target[key])
 
                     elif field_type in app.data.serializers:
                         # a simple field

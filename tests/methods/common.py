@@ -108,6 +108,29 @@ class TestSerializer(TestBase):
             self.assertTrue(isinstance(res["decobjstring"], decimal128.Decimal128))
             self.assertTrue(isinstance(res["decobjnumber"], decimal128.Decimal128))
 
+    def test_serialize_valueschema_and_valuesrules_datetime(self):
+        # GH-1511: valueschema/valuesrules datetime dict values must be
+        # converted, not left as RFC-1123 strings.
+        rfc1123 = "Fri, 04 Aug 2023 12:26:15 GMT"
+        schema = {
+            "field1": {
+                "type": "dict",
+                "valueschema": {"type": "datetime"},
+            },
+            "field2": {
+                "type": "dict",
+                "valuesrules": {"type": "datetime"},
+            },
+        }
+        doc = {
+            "field1": {"a": rfc1123},
+            "field2": {"a": rfc1123},
+        }
+        with self.app.app_context():
+            serialized = serialize(doc, schema=schema)
+        self.assertTrue(isinstance(serialized["field1"]["a"], datetime))
+        self.assertTrue(isinstance(serialized["field2"]["a"], datetime))
+
     def test_non_blocking_on_simple_field_serialization_exception(self):
         schema = {
             "extract_time": {"type": "datetime"},
