@@ -14,6 +14,9 @@ In Development
 - CI: run on Ubuntu 26.04 (``ubuntu-latest``), test against PyPy 3.11, and
   create the test user with the shell bundled in the MongoDB container instead
   of installing ``mongosh`` from MongoDB's apt repository.
+- Docs: fix typo in the oplog documentation (`#1578`_).
+
+.. _`#1578`: https://github.com/pyeve/eve/pull/1578
 
 Version v2.3.1
 --------------
