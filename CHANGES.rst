@@ -6,7 +6,13 @@ Here you can see the full list of changes between each Eve release.
 In Development
 --------------
 
-- *hic sunt leones*
+- Breaking: dropped support for Python 3.9, which reached end of life.
+  Eve now requires Python 3.10 or later.
+- New: officially support Python 3.13 and 3.14.
+- Fix: Python-syntax ``where`` queries returned no results on Python 3.14,
+  where ``ast.Num``/``ast.Str`` have been removed.
+- CI: run on Ubuntu 26.04 (``ubuntu-latest``), test against PyPy 3.11, and
+  install ``mongosh`` from npm instead of MongoDB's apt repository.
 
 Version v2.3.1
 --------------

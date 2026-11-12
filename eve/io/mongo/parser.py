@@ -125,13 +125,13 @@ class MongoVisitor(ast.NodeVisitor):
         if isinstance(node.func, ast.Name):
             if node.func.id == "ObjectId":
                 try:
-                    self.current_value = ObjectId(node.args[0].s)
+                    self.current_value = ObjectId(node.args[0].value)
                 except Exception:
                     pass
             elif node.func.id == "datetime":
                 values = []
                 for arg in node.args:
-                    values.append(arg.n)
+                    values.append(arg.value)
                 try:
                     self.current_value = datetime(*values)
                 except Exception:
@@ -146,10 +146,6 @@ class MongoVisitor(ast.NodeVisitor):
         """Names handler."""
         self.current_value = node.id
 
-    def visit_Num(self, node):
-        """Numbers handler."""
-        self.current_value = node.n
-
-    def visit_Str(self, node):
-        """Strings handler."""
-        self.current_value = node.s
+    def visit_Constant(self, node):
+        """Constants handler (numbers, strings, booleans, None)."""
+        self.current_value = node.value

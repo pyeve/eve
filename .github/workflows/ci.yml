@@ -10,15 +10,16 @@ jobs:
     strategy:
       matrix:
         include:
+          - { name: '3.14', python: '3.14', os: ubuntu-latest, tox: py314, mongodb: '5.0', redis: '6' }
+          - { name: '3.13', python: '3.13', os: ubuntu-latest, tox: py313, mongodb: '5.0', redis: '6' }
           - { name: '3.12', python: '3.12', os: ubuntu-latest, tox: py312, mongodb: '5.0', redis: '6' }
           - { name: '3.11', python: '3.11', os: ubuntu-latest, tox: py311, mongodb: '5.0', redis: '6' }
           - { name: '3.10', python: '3.10', os: ubuntu-latest, tox: py310, mongodb: '5.0', redis: '6' }
-          - { name: '3.9', python: '3.9', os: ubuntu-latest, tox: py39, mongodb: '5.0', redis: '6' }
-          - { name: 'PyPy', python: 'pypy-3.10', os: ubuntu-latest, tox: pypy310, mongodb: '4.4', redis: '6' }
+          - { name: 'PyPy', python: 'pypy-3.11', os: ubuntu-latest, tox: pypy311, mongodb: '4.4', redis: '6' }
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python }}
       - uses: supercharge/mongodb-github-action@1.12.0
@@ -35,13 +36,9 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           python -m pip install --upgrade virtualenv tox tox-gh-actions
       - name: 🍃 Install mongosh
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget gnupg
-          wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
-          echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
-          sudo apt-get update
-          sudo apt-get install -y mongodb-mongosh
+        # mongosh is a Node.js app: installing it from npm keeps us independent
+        # from the runner's Ubuntu release and MongoDB's apt repositories.
+        run: npm install -g mongosh
       - name: Start mongo ${{ matrix.mongodb }}
         run: |
           mongosh eve_test --eval 'db.createUser({user:"test_user", pwd:"test_pw", roles:["readWrite"]});'
