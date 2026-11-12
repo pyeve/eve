@@ -12,7 +12,8 @@ In Development
 - Fix: Python-syntax ``where`` queries returned no results on Python 3.14,
   where ``ast.Num``/``ast.Str`` have been removed.
 - CI: run on Ubuntu 26.04 (``ubuntu-latest``), test against PyPy 3.11, and
-  install ``mongosh`` from npm instead of MongoDB's apt repository.
+  create the test user with the shell bundled in the MongoDB container instead
+  of installing ``mongosh`` from MongoDB's apt repository.
 
 Version v2.3.1
 --------------

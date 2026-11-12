@@ -35,12 +35,12 @@ jobs:
           python -m site
           python -m pip install --upgrade pip setuptools wheel
           python -m pip install --upgrade virtualenv tox tox-gh-actions
-      - name: 🍃 Install mongosh
-        # mongosh is a Node.js app: installing it from npm keeps us independent
-        # from the runner's Ubuntu release and MongoDB's apt repositories.
-        run: npm install -g mongosh
       - name: Start mongo ${{ matrix.mongodb }}
+        # Use the shell bundled in the MongoDB container started above (legacy
+        # `mongo` up to 5.0, `mongosh` afterwards), so nothing has to be
+        # installed on the runner and we don't depend on its Ubuntu release.
         run: |
-          mongosh eve_test --eval 'db.createUser({user:"test_user", pwd:"test_pw", roles:["readWrite"]});'
+          SHELL_BIN=$(docker exec mongodb sh -c 'command -v mongosh || command -v mongo')
+          docker exec mongodb "$SHELL_BIN" eve_test --quiet --eval 'db.createUser({user:"test_user", pwd:"test_pw", roles:["readWrite"]});'
       - name: Run tox targets for ${{ matrix.python }}
         run: tox -e ${{ matrix.tox }}
