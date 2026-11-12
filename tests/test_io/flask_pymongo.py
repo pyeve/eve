@@ -1,4 +1,3 @@
-import pytest
 from pymongo import MongoClient
 from pymongo.errors import OperationFailure
 

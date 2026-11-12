@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 
-import pytest
 import simplejson as json
 from bson import ObjectId
 from pymongo import MongoClient

@@ -3,7 +3,6 @@ import os
 from datetime import datetime
 from uuid import UUID
 
-import pytest
 import simplejson as json
 from werkzeug.routing import BaseConverter
 

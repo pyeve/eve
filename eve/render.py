@@ -21,7 +21,6 @@ from flask import Response, abort
 from flask import current_app as app
 from flask import make_response, request
 from markupsafe import escape
-from werkzeug import utils
 
 from eve.methods.common import get_rate_limit
 from eve.utils import (config, date_to_rfc1123, date_to_str,
